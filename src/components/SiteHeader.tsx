@@ -1,6 +1,12 @@
+import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
 
-export function SiteHeader() {
+export async function SiteHeader() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
   return (
     <header className="sticky top-0 z-20 border-b border-[var(--linea)] bg-[rgba(253,247,248,.94)] backdrop-blur-sm">
       <div className="mx-auto flex w-[min(1160px,90vw)] items-center justify-between gap-6 py-4">
@@ -24,6 +30,20 @@ export function SiteHeader() {
           >
             Volver al sitio principal
           </a>
+          {user ? (
+            <>
+              <Link href="/cuenta/mis-cursos" className="text-[var(--tinta)] hover:text-[var(--vino)]">
+                Mis cursos
+              </Link>
+              <Link href="/cuenta/logout" className="text-[var(--tinta-suave)] hover:text-[var(--vino)]">
+                Cerrar sesión
+              </Link>
+            </>
+          ) : (
+            <Link href="/cuenta/login" className="text-[var(--tinta)] hover:text-[var(--vino)]">
+              Iniciar sesión
+            </Link>
+          )}
         </nav>
       </div>
     </header>
