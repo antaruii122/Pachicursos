@@ -25,9 +25,25 @@ const poppins = Poppins({
   weight: ["400", "500", "600"],
 });
 
+// NOTA: hardcodeado a la URL real que funciona hoy (`https://pachicursos.vercel.app`),
+// no a `NEXT_PUBLIC_SITE_URL` (que ya apunta al subdominio real `cursos.alimentatufertilidad.com`
+// para las urls de Flow.cl, aunque el DNS todavía no esté apuntado — ver Parte A en
+// EJECUCION.md). Si se usara esa variable acá, las imágenes de Open Graph armarían URLs
+// absolutas contra un dominio que todavía no resuelve. Actualizar cuando el DNS esté listo.
+const SITE_URL = "https://pachicursos.vercel.app";
+
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: "Alimenta Tu Fertilidad — Cursos",
   description: "Cursos en línea de nutrición y fertilidad femenina con Marcela Calderón.",
+  openGraph: {
+    siteName: "Alimenta Tu Fertilidad — Cursos",
+    type: "website",
+    locale: "es_CL",
+  },
+  twitter: {
+    card: "summary",
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

@@ -35,9 +35,15 @@ export async function generateMetadata({
   const data = await getCourseData(slug);
   if (!data) return {};
 
+  const title = `${data.course.titulo} — Alimenta Tu Fertilidad`;
+  const description = data.course.descripcion ?? data.course.subtitulo_corto ?? undefined;
+  const images = data.course.cover_image_url ? [{ url: data.course.cover_image_url }] : undefined;
+
   return {
-    title: `${data.course.titulo} — Alimenta Tu Fertilidad`,
-    description: data.course.descripcion ?? data.course.subtitulo_corto ?? undefined,
+    title,
+    description,
+    openGraph: { title, description, images, type: "website", locale: "es_CL" },
+    twitter: { card: images ? "summary_large_image" : "summary", title, description, images },
   };
 }
 
