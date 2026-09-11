@@ -54,3 +54,42 @@ export function toBullets(texto: string | null): string[] {
     .map((l) => l.trim())
     .filter(Boolean);
 }
+
+export function slugify(texto: string): string {
+  return texto
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "") // saca tildes/diacríticos
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+// Indicador de completitud del panel admin (ver docs/cursos.md, Parte E):
+// bloquea publicar solo por lo estrictamente necesario; el resto son
+// advertencias que no bloquean.
+export interface CompletitudResultado {
+  bloqueantes: string[];
+  advertencias: string[];
+}
+
+export function calcularCompletitud(
+  course: Pick<Course, "titulo" | "precio" | "faq" | "testimonios" | "que_vas_a_aprender">,
+  clases: { estado_procesamiento: string }[],
+): CompletitudResultado {
+  const bloqueantes: string[] = [];
+  const advertencias: string[] = [];
+
+  if (!course.titulo?.trim()) bloqueantes.push("Falta el título");
+  if (!course.precio || course.precio <= 0) bloqueantes.push("Falta el precio");
+  if (clases.length === 0) bloqueantes.push("Necesita al menos 1 clase");
+  const noListas = clases.filter((c) => c.estado_procesamiento !== "listo");
+  if (clases.length > 0 && noListas.length > 0) {
+    bloqueantes.push(`${noListas.length} clase(s) sin terminar de procesar`);
+  }
+
+  if (course.que_vas_a_aprender.length === 0) advertencias.push("Sin lista de \"qué vas a aprender\"");
+  if (course.faq.length === 0) advertencias.push("Sin preguntas frecuentes (FAQ)");
+  if (!course.testimonios || course.testimonios.length === 0) advertencias.push("Sin testimonios");
+
+  return { bloqueantes, advertencias };
+}

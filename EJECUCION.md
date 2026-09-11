@@ -65,7 +65,19 @@ Si el subagente revisor (`curso-platform-reviewer`) rechaza el cierre de una Par
 - [ ] **Sigue sin probarse una reproducción real de punta a punta** — necesita un video real subido y procesado, que depende de que Ricardo tenga la cuenta admin (mismo bloqueo que el resto).
 - No se ha invocado el subagente revisor — no se cierra la Parte.
 
-**Para retomar rápido**: ver este bloque antes que nada. Los checkboxes sin marcar son exactamente lo que falta. Todo el trabajo de código de la Parte C está construido; lo que falta ahora depende de Ricardo: registrar una cuenta + `npm run set-admin` + probar una subida real, correr el test de RLS cuando quiera, o resolver los pendientes manuales de Parte A (Vercel/Resend/Flow.cl). En paralelo, lo próximo con sentido en código: terminar el endpoint de reproducción validado de la Parte D.
+**Parte E — Panel de administración completo** (en curso, primera mitad lista):
+- [x] `src/app/admin/layout.tsx` — gate único de sesión+admin para todo `/admin/**` (antes cada página lo hacía por separado). **Verificado en vivo**: `/admin/cursos` y `/admin/cursos/nuevo` redirigen a login sin sesión.
+- [x] `src/app/admin/cursos/actions.ts` — server actions `saveCourse`/`setCourseEstado`/`deleteCourse`, todas re-validan `role=admin` server-side además de RLS (mismo criterio que los endpoints de Vimeo). `deleteCourse` bloquea el borrado si el curso ya tiene compras (reales o manuales) — decisión propia, no estaba explícita en el plan, para no perder el registro de ventas/accesos; sugiere "Archivar" en su lugar.
+- [x] `src/app/admin/cursos/page.tsx` — lista de cursos con estado y precio.
+- [x] `src/components/admin/CourseForm.tsx` — formulario único para crear/editar (todos los campos de contenido de venta: promesa, para quién es/no es, qué vas a aprender, FAQ, testimonios, SEO, imágenes por URL). Listas dinámicas (agregar/quitar) para qué-vas-a-aprender/FAQ/testimonios. Slug autogenerado del título hasta que el admin lo edita a mano.
+- [x] Indicador de completitud (`calcularCompletitud` en `lib/types.ts`) — bloqueantes (título, precio, ≥1 clase, todas las clases en "listo") vs. advertencias (FAQ/testimonios/qué-vas-a-aprender vacíos). El botón "Publicar" queda deshabilitado mientras haya bloqueantes.
+- [x] Publicar/despublicar/archivar/borrar, con confirmación en borrar.
+- [x] `src/app/admin/cursos/[id]/preview/page.tsx` — vista previa reutilizando `CourseLanding` (la misma plantilla, nunca ad-hoc), funciona sin importar el estado del curso.
+- [ ] **Falta**: gestor de clases (`/admin/cursos/[id]/clases` — agregar clase, marcar gratis, reordenar, integrar el widget de subida ya construido en C/D), otorgar/revocar acceso manual, páginas legales (Términos/Privacidad/Cookies), página de Ventas/alumnos.
+- No probado en vivo con sesión real todavía (mismo bloqueo de siempre: falta que Ricardo tenga cuenta admin) — sí verificado que build/lint pasan y que el gate de acceso funciona sin sesión.
+- No se ha invocado el subagente revisor — no se cierra la Parte (que de todas formas todavía tiene partes sin construir).
+
+**Para retomar rápido**: ver este bloque antes que nada. Los checkboxes sin marcar son exactamente lo que falta. Todo el trabajo de código de las Partes C y D está construido; Parte E lleva la mitad (CRUD de cursos, falta clases/accesos/legal/ventas). Lo que sigue bloqueado en Ricardo: registrar una cuenta + `npm run set-admin` + probar todo el flujo real, correr el test de RLS cuando quiera, o resolver los pendientes manuales de Parte A (Vercel/Resend/Flow.cl).
 
 ---
 
