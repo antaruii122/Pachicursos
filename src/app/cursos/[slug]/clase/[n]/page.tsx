@@ -63,14 +63,24 @@ export default async function ClasePage({
   }
 
   let notaExistente = "";
+  let progresoExistente = 0;
   if (tieneAcceso && user) {
-    const { data: nota } = await supabase
-      .from("video_notes")
-      .select("contenido")
-      .eq("user_id", user.id)
-      .eq("video_id", clase.id)
-      .maybeSingle();
+    const [{ data: nota }, { data: progreso }] = await Promise.all([
+      supabase
+        .from("video_notes")
+        .select("contenido")
+        .eq("user_id", user.id)
+        .eq("video_id", clase.id)
+        .maybeSingle(),
+      supabase
+        .from("lesson_progress")
+        .select("progress_seconds")
+        .eq("user_id", user.id)
+        .eq("video_id", clase.id)
+        .maybeSingle(),
+    ]);
     notaExistente = nota?.contenido ?? "";
+    progresoExistente = progreso?.progress_seconds ?? 0;
   }
 
   return (
@@ -93,6 +103,7 @@ export default async function ClasePage({
               courseSlug={slug}
               videoId={clase.id}
               estadoProcesamiento={clase.estado_procesamiento}
+              initialProgressSeconds={progresoExistente}
             />
           </div>
         ) : (
