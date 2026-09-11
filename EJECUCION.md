@@ -65,7 +65,7 @@ Si el subagente revisor (`curso-platform-reviewer`) rechaza el cierre de una Par
 - [ ] **Sigue sin probarse una reproducción real de punta a punta** — necesita un video real subido y procesado, que depende de que Ricardo tenga la cuenta admin (mismo bloqueo que el resto).
 - No se ha invocado el subagente revisor — no se cierra la Parte.
 
-**Parte E — Panel de administración completo** (en curso, primera mitad lista):
+**Parte E — Panel de administración completo** (código completo, falta probar en vivo):
 - [x] `src/app/admin/layout.tsx` — gate único de sesión+admin para todo `/admin/**` (antes cada página lo hacía por separado). **Verificado en vivo**: `/admin/cursos` y `/admin/cursos/nuevo` redirigen a login sin sesión.
 - [x] `src/app/admin/cursos/actions.ts` — server actions `saveCourse`/`setCourseEstado`/`deleteCourse`, todas re-validan `role=admin` server-side además de RLS (mismo criterio que los endpoints de Vimeo). `deleteCourse` bloquea el borrado si el curso ya tiene compras (reales o manuales) — decisión propia, no estaba explícita en el plan, para no perder el registro de ventas/accesos; sugiere "Archivar" en su lugar.
 - [x] `src/app/admin/cursos/page.tsx` — lista de cursos con estado y precio.
@@ -73,11 +73,17 @@ Si el subagente revisor (`curso-platform-reviewer`) rechaza el cierre de una Par
 - [x] Indicador de completitud (`calcularCompletitud` en `lib/types.ts`) — bloqueantes (título, precio, ≥1 clase, todas las clases en "listo") vs. advertencias (FAQ/testimonios/qué-vas-a-aprender vacíos). El botón "Publicar" queda deshabilitado mientras haya bloqueantes.
 - [x] Publicar/despublicar/archivar/borrar, con confirmación en borrar.
 - [x] `src/app/admin/cursos/[id]/preview/page.tsx` — vista previa reutilizando `CourseLanding` (la misma plantilla, nunca ad-hoc), funciona sin importar el estado del curso.
-- [ ] **Falta**: gestor de clases (`/admin/cursos/[id]/clases` — agregar clase, marcar gratis, reordenar, integrar el widget de subida ya construido en C/D), otorgar/revocar acceso manual, páginas legales (Términos/Privacidad/Cookies), página de Ventas/alumnos.
-- No probado en vivo con sesión real todavía (mismo bloqueo de siempre: falta que Ricardo tenga cuenta admin) — sí verificado que build/lint pasan y que el gate de acceso funciona sin sesión.
-- No se ha invocado el subagente revisor — no se cierra la Parte (que de todas formas todavía tiene partes sin construir).
+- [x] **Gap encontrado**: otorgar acceso manual necesita buscar un alumno por email, pero `profiles` nunca guardaba el email (vive en `auth.users`, que el cliente no puede leer). `supabase/migrations/0003_profiles_add_email.sql` agrega la columna, hace backfill, y actualiza el trigger de registro para poblarla siempre. **Todavía no corrida en el proyecto real** — hace falta antes de que "Otorgar acceso" funcione.
+- [x] `src/app/admin/cursos/[id]/clases/` — gestor de clases: agregar (con orden automático), marcar como gratis (desmarca la anterior sola, respeta la constraint de "máximo 1 gratis"), reordenar con botones ▲▼ (swap con valor temporal para no chocar contra `UNIQUE(course_id, orden)` a mitad de camino — **decisión propia**: se usaron botones en vez de arrastrar-y-soltar con mouse para no sumar una librería de drag-and-drop nueva; el resultado funcional es el mismo, reordenar sin tocar la base de datos a mano), borrar (con aviso explícito de que se pierden las notas de los alumnos, como pide el plan). Reutiliza el `VideoUploadWidget` ya construido en C/D tal cual — subir a una clase existente YA ES "reemplazar el video sin borrar la clase", no hizo falta lógica nueva.
+- [x] `src/app/admin/cursos/[id]/accesos/` — otorgar acceso manual (busca por email, crea `purchases` con `proveedor_pago=manual`, `monto=0`), botones separados "Revocar" (sin devolución) vs "Marcar reembolsado" (con aviso de que la devolución real se hace aparte en Flow.cl/Stripe, tal cual pide el plan).
+- [ ] **Gap conocido, no bloqueante**: el plan pide avisarle por email al alumno cuando se le otorga acceso manual — no implementado todavía porque depende de la cuenta de Resend (Parte A, no creada). Queda con un TODO explícito en el código (`accesos/actions.ts`). El acceso se otorga igual, solo falta el email de aviso.
+- [x] `src/app/admin/ventas/page.tsx` — historial de ventas/accesos de todos los cursos (alumna, curso, monto, vía, estado, fecha).
+- [x] `src/app/legal/{terminos,privacidad,cookies}/page.tsx` — estructura publicada y enlazada desde el footer (ya no dan 404). Contenido explícitamente marcado `[PLACEHOLDER]` — el texto real lo escribe Marcela/asesor legal, no es trabajo de desarrollo (tal cual dice el plan).
+- **Verificado en vivo**: `/admin/ventas` redirige a login sin sesión; las 3 páginas legales cargan público sin login (200).
+- No probado en vivo con sesión de admin real todavía (mismo bloqueo de siempre) — el flujo completo (crear curso → agregar clases → subir video → publicar → otorgar acceso) sigue sin probarse de punta a punta.
+- No se ha invocado el subagente revisor — no se cierra la Parte.
 
-**Para retomar rápido**: ver este bloque antes que nada. Los checkboxes sin marcar son exactamente lo que falta. Todo el trabajo de código de las Partes C y D está construido; Parte E lleva la mitad (CRUD de cursos, falta clases/accesos/legal/ventas). Lo que sigue bloqueado en Ricardo: registrar una cuenta + `npm run set-admin` + probar todo el flujo real, correr el test de RLS cuando quiera, o resolver los pendientes manuales de Parte A (Vercel/Resend/Flow.cl).
+**Para retomar rápido**: ver este bloque antes que nada. Los checkboxes sin marcar son exactamente lo que falta. Código de Partes C, D y E completo. Antes de usar "Otorgar acceso" hace falta correr `0003_profiles_add_email.sql` (además de la `0002` pendiente). Lo que sigue bloqueado en Ricardo: registrar una cuenta + `npm run set-admin` + probar todo el flujo real de punta a punta, correr el test de RLS cuando quiera, o resolver los pendientes manuales de Parte A (Vercel/Resend/Flow.cl — Resend en particular ahora también desbloquea el email de aviso de acceso manual).
 
 ---
 

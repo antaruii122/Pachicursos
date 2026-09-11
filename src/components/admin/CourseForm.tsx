@@ -361,6 +361,12 @@ export function CourseForm({
               >
                 Gestionar clases
               </a>
+              <a
+                href={`/admin/cursos/${initialCourse.id}/accesos`}
+                className="rounded-full border border-[var(--linea)] px-4 py-2 text-center text-sm text-[var(--tinta)] hover:border-[var(--carmin)]"
+              >
+                Accesos y ventas
+              </a>
               {initialCourse.estado !== "publicado" ? (
                 <button
                   type="button"
