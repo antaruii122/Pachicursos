@@ -21,14 +21,20 @@ Si el subagente revisor (`curso-platform-reviewer`) rechaza el cierre de una Par
 - [ ] Parte G — Consistencia de marca + QA + lanzamiento
 - [ ] Parte H — Automatizaciones en n8n (boleta electrónica + emails)
 
-## Estado actual: Parte A en curso, Partes B y C adelantadas parcialmente
+## Estado actual: Parte A casi cerrada, sitio real desplegado y funcionando en producción
 
-**Parte A — Setup de cuentas/infra** (no cerrada):
-- [x] Cuenta Supabase creada, proyecto activo, credenciales en `.env.local`.
-- [x] Cuenta Vimeo con credenciales de API en `.env.local` — **falta confirmar que el plan contratado es Standard o superior** (requisito para restricción de dominio, bloquea Parte D si no).
-- [ ] Proyecto Vercel + DNS del subdominio — no iniciado. Esto es lo que técnicamente bloquea cerrar Parte A (su criterio pide credenciales en variables de entorno de **Vercel**, no solo locales).
+**Parte A — Setup de cuentas/infra** (falta solo DNS/Resend/Flow.cl):
+- [x] Cuenta Supabase creada, proyecto activo, credenciales en Vercel.
+- [x] Cuenta Vimeo con credenciales de API en Vercel — **falta confirmar que el plan contratado es Standard o superior** (requisito para restricción de dominio, bloquea Parte D si no).
+- [x] **Proyecto Vercel creado por Ricardo, conectado al repo de GitHub (`antaruii122/Pachicursos`), deployado y funcionando en `https://pachicursos.vercel.app`.** El deploy inicial daba 500 en todo el sitio — diagnosticado y arreglado en esta sesión (ver "Incidente" más abajo). Las 7 variables de entorno reales están cargadas en Vercel (Production + Preview). Falta solo apuntar el DNS del subdominio real `cursos.alimentatufertilidad.com` — el criterio técnico de "credenciales en Vercel" ya está cumplido.
 - [ ] Cuenta Resend — no iniciada.
 - [ ] Trámite de cuenta de comercio Flow.cl — no iniciado.
+
+**Incidente resuelto (2026-09-11): sitio en producción caído.**
+Ricardo creó el proyecto Vercel y conectó el repo — el deploy compiló bien pero el sitio entero daba "Internal Server Error" (el `proxy.ts`/middleware corre en cada request y crashea si `NEXT_PUBLIC_SUPABASE_URL`/`ANON_KEY` faltan). Diagnóstico hecho con `vercel logs --json` (CLI de Vercel, ya autenticado localmente como Ricardo — se linkeó el proyecto con `vercel link`): **las 19 variables de entorno existían en Vercel pero todas tenían valor `""` vacío** — se habían creado los nombres sin pegar los valores. Se corrigió sacando y volviendo a cargar las 7 variables reales (de `.env.local`) vía `vercel env rm`/`vercel env add`, y se redeployó (`vercel --prod`). Verificado en vivo: home y landing del curso responden 200 con contenido real.
+De paso, dos gaps más encontrados y arreglados en el mismo sitio real:
+- `/` todavía era la plantilla default de `create-next-app` ("To get started, edit page.tsx") — nunca se había construido un home real. Se reemplazó por un catálogo de cursos publicados.
+- Las páginas de auth (`/cuenta/login`, `registro`, `olvide-password`, `actualizar-password`) no tenían header ni logo — se construyeron en la Parte B antes de que existiera `SiteHeader`. Se separaron en página servidor (con header/footer) + componente cliente del formulario, y se migraron del hex hardcodeado a los tokens de `globals.css`.
 
 **Parte B — Modelo de datos + Auth** (adelantada a pedido explícito de Ricardo, antes de cerrar Parte A):
 - [x] `supabase/migrations/0001_init.sql` — las 9 tablas del modelo de datos, constraints, índices y RLS. Aplicada en el proyecto Supabase real.
@@ -90,7 +96,7 @@ El flujo de compra descrito en `docs/cursos.md` (paso 7) exige un dashboard "Mis
 - [x] **Bug real encontrado al construir esto, no solo en la pantalla nueva**: las policies de SELECT de `courses` y `course_videos` (0001) solo dejaban ver un curso si estaba `publicado` o quien consulta es admin — un alumno que compró un curso que después se despublica quedaba bloqueado por RLS, tanto en "Mis cursos" como en el reproductor de clase ya existente desde la Parte C/D. Esto contradice directamente el plan ("sigue apareciendo normal... sin candado ni aviso de error"). `supabase/migrations/0004_courses_purchased_visibility.sql` lo corrige agregando "o tiene una compra pagada" a ambas policies. **Todavía no corrida en el proyecto real.**
 - [x] Limpieza: `/admin/subir-video-prueba` tenía su propio chequeo de sesión+admin y su propio `SiteHeader` de cuando se construyó, antes de que existiera `admin/layout.tsx` — quedaba con header duplicado y el chequeo repetido. Sacado, ahora depende solo del layout.
 
-**Para retomar rápido**: ver este bloque antes que nada. Los checkboxes sin marcar son exactamente lo que falta. Código de Partes C, D y E completo, más "Mis cursos" adelantado. **Migraciones pendientes de correr en el proyecto real, en orden: `0002`, `0003`, `0004`** (0002 ya la corrió Ricardo; 0003 y 0004 no). Lo que sigue bloqueado en Ricardo: registrar una cuenta + `npm run set-admin` + probar todo el flujo real de punta a punta, correr el test de RLS cuando quiera, o resolver los pendientes manuales de Parte A (Vercel/Resend/Flow.cl — Resend en particular ahora también desbloquea el email de aviso de acceso manual).
+**Para retomar rápido**: ver este bloque antes que nada. Los checkboxes sin marcar son exactamente lo que falta. Código de Partes C, D y E completo, más "Mis cursos" adelantado. El sitio real ya está en producción en `https://pachicursos.vercel.app` (Vercel conectado al repo, deploy automático en cada push a `master`). **Migraciones pendientes de correr en el proyecto real, en orden: `0002`, `0003`, `0004`** (0002 ya la corrió Ricardo; 0003 y 0004 no). **Pendiente en Supabase**: agregar `https://pachicursos.vercel.app` a Authentication → URL Configuration → Redirect URLs, si no el login/registro/reset de contraseña van a fallar aunque el resto del sitio funcione. Lo que sigue bloqueado en Ricardo: registrar una cuenta + `npm run set-admin` + probar todo el flujo real de punta a punta (ahora se puede hacer directo en `pachicursos.vercel.app`, no hace falta levantar el servidor local), correr el test de RLS cuando quiera, o resolver los pendientes manuales de Parte A (DNS del subdominio real, Resend, Flow.cl — Resend en particular ahora también desbloquea el email de aviso de acceso manual).
 
 ---
 
