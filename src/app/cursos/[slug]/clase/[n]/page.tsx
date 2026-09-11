@@ -1,5 +1,6 @@
 import { ClassNotes } from "@/components/ClassNotes";
 import { ClassPlayer } from "@/components/ClassPlayer";
+import { ClassSidebar } from "@/components/ClassSidebar";
 import { SiteHeader } from "@/components/SiteHeader";
 import { createClient } from "@/lib/supabase/server";
 import { formatDuracion } from "@/lib/types";
@@ -50,8 +51,8 @@ export default async function ClasePage({
     redirect(`/cuenta/login?next=${encodeURIComponent(currentPath)}`);
   }
 
-  let tieneAcceso = clase.is_free_intro;
-  if (!tieneAcceso && user) {
+  let hasPurchase = false;
+  if (user) {
     const { data: purchase } = await supabase
       .from("purchases")
       .select("id")
@@ -59,34 +60,50 @@ export default async function ClasePage({
       .eq("course_id", course.id)
       .eq("estado", "pagado")
       .maybeSingle();
-    tieneAcceso = !!purchase;
+    hasPurchase = !!purchase;
   }
+  const tieneAcceso = clase.is_free_intro || hasPurchase;
 
   let notaExistente = "";
   let progresoExistente = 0;
-  if (tieneAcceso && user) {
-    const [{ data: nota }, { data: progreso }] = await Promise.all([
-      supabase
-        .from("video_notes")
-        .select("contenido")
-        .eq("user_id", user.id)
-        .eq("video_id", clase.id)
-        .maybeSingle(),
+  let completedIds = new Set<string>();
+  if (user) {
+    const [{ data: nota }, { data: progreso }, { data: completados }] = await Promise.all([
+      tieneAcceso
+        ? supabase
+            .from("video_notes")
+            .select("contenido")
+            .eq("user_id", user.id)
+            .eq("video_id", clase.id)
+            .maybeSingle()
+        : Promise.resolve({ data: null }),
+      tieneAcceso
+        ? supabase
+            .from("lesson_progress")
+            .select("progress_seconds")
+            .eq("user_id", user.id)
+            .eq("video_id", clase.id)
+            .maybeSingle()
+        : Promise.resolve({ data: null }),
       supabase
         .from("lesson_progress")
-        .select("progress_seconds")
+        .select("video_id")
         .eq("user_id", user.id)
-        .eq("video_id", clase.id)
-        .maybeSingle(),
+        .eq("completed", true)
+        .in(
+          "video_id",
+          clases.map((c) => c.id),
+        ),
     ]);
     notaExistente = nota?.contenido ?? "";
     progresoExistente = progreso?.progress_seconds ?? 0;
+    completedIds = new Set((completados ?? []).map((p) => p.video_id));
   }
 
   return (
     <div className="min-h-svh bg-[var(--crema-2)]">
       <SiteHeader />
-      <main id="contenido-principal" className="mx-auto max-w-[920px] px-6 py-10">
+      <main id="contenido-principal" className="mx-auto max-w-[1240px] px-6 py-10">
         <Link
           href={`/cursos/${slug}`}
           className="mb-5 flex items-center gap-2 font-[family-name:var(--font-ui)] text-[.85rem] text-[var(--tinta-suave)] hover:text-[var(--vino)]"
@@ -97,6 +114,17 @@ export default async function ClasePage({
           {course.titulo}
         </Link>
 
+        <div className="md:flex md:items-start md:gap-8">
+        <ClassSidebar
+          courseSlug={slug}
+          courseTitulo={course.titulo}
+          clases={clases}
+          currentOrden={orden}
+          hasPurchase={hasPurchase}
+          completedIds={completedIds}
+        />
+
+        <div className="min-w-0 flex-1">
         {tieneAcceso ? (
           <div className="mb-6">
             <ClassPlayer
@@ -149,6 +177,8 @@ export default async function ClasePage({
         </div>
 
         {tieneAcceso && <ClassNotes videoId={clase.id} initialContent={notaExistente} />}
+        </div>
+        </div>
       </main>
     </div>
   );

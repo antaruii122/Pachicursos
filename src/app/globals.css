@@ -9,7 +9,12 @@
   --vino-claro: #7a1533;
   --carmin: #c31c44;
   --dorado: #e8c9a8;
-  --dorado-osc: #ef5950;
+  /* Ajustado 2026-09-12: el valor original (#ef5950) daba 3.38:1 de contraste
+     como texto sobre blanco/crema — insuficiente para WCAG AA (4.5:1). Es el
+     único color de error/warning de toda la app (14 usos, siempre como texto
+     o borde, nunca como fondo), así que se oscureció acá mismo en vez de
+     agregar un token nuevo — ahora da 5.44:1. */
+  --dorado-osc: #bf3a30;
   --crema: #ffffff;
   --crema-2: #fdf7f8;
   --rosa: #fbe7eb;
