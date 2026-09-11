@@ -69,12 +69,12 @@ function uploadViaTus(fileBuffer, uploadLink) {
 }
 
 async function getTranscodeStatus(vimeoId) {
-  const res = await fetch(`${VIMEO_API_BASE}/videos/${vimeoId}?fields=transcode.status`, {
+  const res = await fetch(`${VIMEO_API_BASE}/videos/${vimeoId}?fields=transcode.status,duration`, {
     headers: vimeoHeaders(),
   });
   if (!res.ok) throw new Error(`Vimeo respondió ${res.status}: ${await res.text()}`);
   const data = await res.json();
-  return data.transcode.status;
+  return { status: data.transcode.status, durationSeconds: data.duration ?? null };
 }
 
 async function getEmbedUrl(vimeoId) {
@@ -111,11 +111,12 @@ async function main() {
 
     console.log("3. Polling de transcode.status (mismo mecanismo que VideoUploadWidget)...");
     let status = "in_progress";
+    let durationSeconds = null;
     const start = Date.now();
     const timeoutMs = 5 * 60 * 1000;
     while (status === "in_progress" && Date.now() - start < timeoutMs) {
       await new Promise((r) => setTimeout(r, 5000));
-      status = await getTranscodeStatus(vimeoId);
+      ({ status, durationSeconds } = await getTranscodeStatus(vimeoId));
       console.log(`   estado: ${status}`);
     }
 
@@ -123,11 +124,13 @@ async function main() {
       throw new Error(`El video no terminó de procesar a tiempo (último estado: ${status})`);
     }
 
+    console.log(`   duración real reportada por Vimeo: ${durationSeconds} segundos`);
+
     console.log("4. Pidiendo player_embed_url...");
     const embedUrl = await getEmbedUrl(vimeoId);
     console.log(`   player_embed_url = ${embedUrl}`);
 
-    console.log("\n✅ PASS — pipeline de subida, procesamiento y reproducción funciona de punta a punta contra la cuenta real de Vimeo.");
+    console.log("\n✅ PASS — pipeline de subida, procesamiento, duración real y reproducción funciona de punta a punta contra la cuenta real de Vimeo.");
   } finally {
     console.log(`5. Borrando el video de prueba (${vimeoId})...`);
     await deleteVideo(vimeoId);

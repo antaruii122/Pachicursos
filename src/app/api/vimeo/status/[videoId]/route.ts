@@ -45,12 +45,12 @@ export async function GET(
   }
 
   try {
-    const transcodeStatus = await getVimeoTranscodeStatus(clase.vimeo_id);
+    const { status: transcodeStatus, durationSeconds } = await getVimeoTranscodeStatus(clase.vimeo_id);
 
     if (transcodeStatus === "complete") {
       await supabase
         .from("course_videos")
-        .update({ estado_procesamiento: "listo" })
+        .update({ estado_procesamiento: "listo", duracion: durationSeconds })
         .eq("id", videoId);
       return NextResponse.json({ estado_procesamiento: "listo" });
     }

@@ -56,6 +56,10 @@ const CURSO_PLACEHOLDER = {
   testimonios: [],
 };
 
+// `duracion` acá es de mentira (nunca hubo un video real subido a estas
+// clases) — en cursos reales la escribe automáticamente el polling de
+// /api/vimeo/status/[videoId] leyendo la duración real del video de Vimeo
+// una vez que termina de procesar (ver src/lib/vimeo.ts).
 const CLASES_PLACEHOLDER = [
   { orden: 1, titulo: "Introducción: tu ciclo, tu mapa", duracion: 720, is_free_intro: true },
   { orden: 2, titulo: "Hormonas y ciclo: lo que nadie te explicó", duracion: 1080 },

@@ -48,11 +48,20 @@ export async function createVimeoTusUpload(filename: string, filesizeBytes: numb
 
 export type VimeoTranscodeStatus = "in_progress" | "complete" | "error";
 
-export async function getVimeoTranscodeStatus(vimeoId: string): Promise<VimeoTranscodeStatus> {
+// `duration` es un campo estándar de la API de Vimeo (segundos, entero) —
+// se pide junto con transcode.status en la misma llamada para poder escribir
+// la duración real la primera vez que el polling detecta "complete" (ver
+// /api/vimeo/status/[videoId]/route.ts). Antes de esto, `course_videos.duracion`
+// nunca se llenaba desde ningún lado del código real (solo el script de seed
+// lo hardcodeaba a mano) — hallazgo de Ricardo viendo "12 min" en el curso
+// placeholder y preguntando si eso salía del video real.
+export async function getVimeoTranscodeStatus(
+  vimeoId: string,
+): Promise<{ status: VimeoTranscodeStatus; durationSeconds: number | null }> {
   const token = process.env.VIMEO_ACCESS_TOKEN;
   if (!token) throw new Error("Falta VIMEO_ACCESS_TOKEN en las variables de entorno");
 
-  const res = await fetch(`${VIMEO_API_BASE}/videos/${vimeoId}?fields=transcode.status`, {
+  const res = await fetch(`${VIMEO_API_BASE}/videos/${vimeoId}?fields=transcode.status,duration`, {
     headers: vimeoHeaders(token),
   });
 
@@ -61,8 +70,8 @@ export async function getVimeoTranscodeStatus(vimeoId: string): Promise<VimeoTra
     throw new Error(`Vimeo respondió ${res.status}: ${detail}`);
   }
 
-  const data = (await res.json()) as { transcode: { status: VimeoTranscodeStatus } };
-  return data.transcode.status;
+  const data = (await res.json()) as { transcode: { status: VimeoTranscodeStatus }; duration?: number };
+  return { status: data.transcode.status, durationSeconds: data.duration ?? null };
 }
 
 // player_embed_url ya incluye el hash de privacidad cuando hace falta (video
