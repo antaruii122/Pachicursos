@@ -1,69 +1,71 @@
-import Image from "next/image";
+import { SiteFooter } from "@/components/SiteFooter";
+import { SiteHeader } from "@/components/SiteHeader";
+import { createClient } from "@/lib/supabase/server";
+import { formatCLP } from "@/lib/types";
+import Link from "next/link";
 
-export default function Home() {
+const card = "rounded-[18px] bg-white shadow-[0_12px_30px_rgba(78,15,38,.1)]";
+
+// Home del subdominio de cursos: catálogo de cursos publicados. No es la
+// landing de marca del sitio principal (eso queda en alimentatufertilidad.com,
+// fuera de este subdominio, tal cual el plan) — solo lista lo que hay para
+// comprar acá.
+export default async function Home() {
+  const supabase = await createClient();
+  const { data: cursos } = await supabase
+    .from("courses")
+    .select("slug, titulo, subtitulo_corto, precio, cover_image_url")
+    .eq("estado", "publicado")
+    .order("created_at", { ascending: false });
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+    <div className="flex min-h-svh flex-col bg-[var(--crema)]">
+      <SiteHeader />
+      <div className="mx-auto w-[min(1160px,90vw)] flex-1 py-14">
+        <h1 className="mb-2 text-[clamp(1.9rem,4vw,2.6rem)]">Cursos disponibles</h1>
+        <p className="mb-10 max-w-[60ch] text-[1.05rem] text-[var(--tinta-suave)]">
+          Nutrición y fertilidad femenina, con Marcela Calderón.
+        </p>
+
+        {!cursos || cursos.length === 0 ? (
+          <p className="text-sm text-[var(--tinta-suave)]">
+            Todavía no hay cursos publicados. Volvé pronto.
           </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+        ) : (
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {cursos.map((c) => (
+              <Link
+                key={c.slug}
+                href={`/cursos/${c.slug}`}
+                className={`${card} overflow-hidden transition hover:shadow-[0_16px_36px_rgba(78,15,38,.16)]`}
+              >
+                <div className="flex aspect-video items-center justify-center bg-[linear-gradient(160deg,var(--rosa),var(--dorado))]">
+                  {c.cover_image_url ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={c.cover_image_url} alt={c.titulo} className="h-full w-full object-cover" />
+                  ) : (
+                    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--vino)" strokeWidth="1.2">
+                      <circle cx="12" cy="12" r="10" />
+                    </svg>
+                  )}
+                </div>
+                <div className="p-5">
+                  <h2 className="mb-1 font-[family-name:var(--font-heading)] text-[1.1rem] font-semibold text-[var(--vino)]">
+                    {c.titulo}
+                  </h2>
+                  {c.subtitulo_corto && (
+                    <p className="mb-3 text-[.85rem] text-[var(--tinta-suave)]">{c.subtitulo_corto}</p>
+                  )}
+                  <p className="font-[family-name:var(--font-ui)] text-[.95rem] font-medium text-[var(--carmin)]">
+                    {formatCLP(c.precio)}
+                  </p>
+                </div>
+              </Link>
+            ))}
+          </div>
+        )}
+      </div>
+      <SiteFooter />
     </div>
   );
 }
