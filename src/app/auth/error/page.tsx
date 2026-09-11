@@ -1,3 +1,6 @@
+import { SiteFooter } from "@/components/SiteFooter";
+import { SiteHeader } from "@/components/SiteHeader";
+
 export default async function Page({
   searchParams,
 }: {
@@ -6,21 +9,25 @@ export default async function Page({
   const { error } = await searchParams;
 
   return (
-    <div className="flex min-h-svh w-full items-center justify-center p-6">
-      <div className="w-full max-w-sm text-center">
-        <h1 className="text-xl font-semibold text-[#3B1420]">
-          Ocurrió un problema
-        </h1>
-        <p className="mt-2 text-sm text-[#8A5C68]">
-          {error ?? "Ocurrió un error no especificado."}
-        </p>
-        <a
-          href="/cuenta/login"
-          className="mt-6 inline-block rounded-full bg-[#4E0F26] px-6 py-2 text-sm font-medium text-white hover:bg-[#7A1533]"
-        >
-          Volver a iniciar sesión
-        </a>
-      </div>
+    <div className="flex min-h-svh flex-col bg-[var(--crema)]">
+      <SiteHeader />
+      <main id="contenido-principal" className="flex flex-1 items-center justify-center p-6">
+        <div className="w-full max-w-sm text-center">
+          <h1 className="text-xl font-semibold text-[var(--vino)]">
+            Ocurrió un problema
+          </h1>
+          <p className="mt-2 text-sm text-[var(--tinta-suave)]">
+            {error ?? "Ocurrió un error no especificado."}
+          </p>
+          <a
+            href="/cuenta/login"
+            className="mt-6 inline-block rounded-full bg-[var(--vino)] px-6 py-2 text-sm font-medium text-white hover:bg-[var(--vino-claro)]"
+          >
+            Volver a iniciar sesión
+          </a>
+        </div>
+      </main>
+      <SiteFooter />
     </div>
   );
 }
