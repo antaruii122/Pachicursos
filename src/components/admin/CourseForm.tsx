@@ -130,12 +130,13 @@ export function CourseForm({
           </h2>
           <div className="flex flex-col gap-4">
             <div>
-              <label className={label}>Título *</label>
-              <input className={input} value={titulo} onChange={(e) => handleTituloChange(e.target.value)} required />
+              <label htmlFor="f-titulo" className={label}>Título *</label>
+              <input id="f-titulo" className={input} value={titulo} onChange={(e) => handleTituloChange(e.target.value)} required />
             </div>
             <div>
-              <label className={label}>Slug (URL) *</label>
+              <label htmlFor="f-slug" className={label}>Slug (URL) *</label>
               <input
+                id="f-slug"
                 className={input}
                 value={slug}
                 onChange={(e) => {
@@ -147,8 +148,9 @@ export function CourseForm({
               <p className="mt-1 text-xs text-[var(--tinta-suave)]">/cursos/{slug || "..."}</p>
             </div>
             <div>
-              <label className={label}>Promesa principal</label>
+              <label htmlFor="f-promesa" className={label}>Promesa principal</label>
               <input
+                id="f-promesa"
                 className={input}
                 value={promesaPrincipal}
                 onChange={(e) => setPromesaPrincipal(e.target.value)}
@@ -156,12 +158,13 @@ export function CourseForm({
               />
             </div>
             <div>
-              <label className={label}>Subtítulo corto</label>
-              <input className={input} value={subtituloCorto} onChange={(e) => setSubtituloCorto(e.target.value)} />
+              <label htmlFor="f-subtitulo" className={label}>Subtítulo corto</label>
+              <input id="f-subtitulo" className={input} value={subtituloCorto} onChange={(e) => setSubtituloCorto(e.target.value)} />
             </div>
             <div>
-              <label className={label}>Descripción</label>
+              <label htmlFor="f-descripcion" className={label}>Descripción</label>
               <textarea
+                id="f-descripcion"
                 className={`${input} min-h-[100px]`}
                 value={descripcion}
                 onChange={(e) => setDescripcion(e.target.value)}
@@ -169,8 +172,9 @@ export function CourseForm({
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className={label}>Precio (CLP) *</label>
+                <label htmlFor="f-precio" className={label}>Precio (CLP) *</label>
                 <input
+                  id="f-precio"
                   type="number"
                   className={input}
                   value={precio}
@@ -180,8 +184,9 @@ export function CourseForm({
                 />
               </div>
               <div>
-                <label className={label}>Precio original (opcional, tachado)</label>
+                <label htmlFor="f-precio-original" className={label}>Precio original (opcional, tachado)</label>
                 <input
+                  id="f-precio-original"
                   type="number"
                   className={input}
                   value={precioOriginal}
@@ -199,16 +204,18 @@ export function CourseForm({
           </h2>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className={label}>Es para ti si (un punto por línea)</label>
+              <label htmlFor="f-para-quien-es" className={label}>Es para ti si (un punto por línea)</label>
               <textarea
+                id="f-para-quien-es"
                 className={`${input} min-h-[110px]`}
                 value={paraQuienEs}
                 onChange={(e) => setParaQuienEs(e.target.value)}
               />
             </div>
             <div>
-              <label className={label}>No es para ti si (un punto por línea)</label>
+              <label htmlFor="f-para-quien-no-es" className={label}>No es para ti si (un punto por línea)</label>
               <textarea
+                id="f-para-quien-no-es"
                 className={`${input} min-h-[110px]`}
                 value={paraQuienNoEs}
                 onChange={(e) => setParaQuienNoEs(e.target.value)}
@@ -222,14 +229,20 @@ export function CourseForm({
           items={queVasAAprender}
           onChange={setQueVasAAprender}
           renderItem={(item, onChange) => (
-            <input className={input} value={item} onChange={(e) => onChange(e.target.value)} placeholder="Beneficio o resultado" />
+            <input
+              className={input}
+              value={item}
+              onChange={(e) => onChange(e.target.value)}
+              placeholder="Beneficio o resultado"
+              aria-label="Beneficio o resultado"
+            />
           )}
           nuevoItem=""
         />
 
         <div className={card}>
-          <label className={label}>Requisitos</label>
-          <textarea className={`${input} min-h-[80px]`} value={requisitos} onChange={(e) => setRequisitos(e.target.value)} />
+          <label htmlFor="f-requisitos" className={label}>Requisitos</label>
+          <textarea id="f-requisitos" className={`${input} min-h-[80px]`} value={requisitos} onChange={(e) => setRequisitos(e.target.value)} />
         </div>
 
         <ListaEditable
@@ -243,12 +256,14 @@ export function CourseForm({
                 value={item.pregunta}
                 onChange={(e) => onChange({ ...item, pregunta: e.target.value })}
                 placeholder="Pregunta"
+                aria-label="Pregunta"
               />
               <textarea
                 className={`${input} min-h-[60px]`}
                 value={item.respuesta}
                 onChange={(e) => onChange({ ...item, respuesta: e.target.value })}
                 placeholder="Respuesta"
+                aria-label="Respuesta"
               />
             </div>
           )}
@@ -266,12 +281,14 @@ export function CourseForm({
                 value={item.texto}
                 onChange={(e) => onChange({ ...item, texto: e.target.value })}
                 placeholder="Texto del testimonio"
+                aria-label="Texto del testimonio"
               />
               <input
                 className={input}
                 value={item.autor}
                 onChange={(e) => onChange({ ...item, autor: e.target.value })}
                 placeholder="Nombre de la alumna"
+                aria-label="Nombre de la alumna"
               />
             </div>
           )}
@@ -284,24 +301,26 @@ export function CourseForm({
           </h2>
           <div className="flex flex-col gap-4">
             <div>
-              <label className={label}>URL imagen de portada</label>
-              <input className={input} value={coverImageUrl} onChange={(e) => setCoverImageUrl(e.target.value)} />
+              <label htmlFor="f-cover" className={label}>URL imagen de portada</label>
+              <input id="f-cover" className={input} value={coverImageUrl} onChange={(e) => setCoverImageUrl(e.target.value)} />
             </div>
             <div>
-              <label className={label}>URL imagen de fondo</label>
+              <label htmlFor="f-background" className={label}>URL imagen de fondo</label>
               <input
+                id="f-background"
                 className={input}
                 value={backgroundImageUrl}
                 onChange={(e) => setBackgroundImageUrl(e.target.value)}
               />
             </div>
             <div>
-              <label className={label}>Título SEO</label>
-              <input className={input} value={seoTitulo} onChange={(e) => setSeoTitulo(e.target.value)} />
+              <label htmlFor="f-seo-titulo" className={label}>Título SEO</label>
+              <input id="f-seo-titulo" className={input} value={seoTitulo} onChange={(e) => setSeoTitulo(e.target.value)} />
             </div>
             <div>
-              <label className={label}>Descripción SEO</label>
+              <label htmlFor="f-seo-descripcion" className={label}>Descripción SEO</label>
               <textarea
+                id="f-seo-descripcion"
                 className={`${input} min-h-[70px]`}
                 value={seoDescripcion}
                 onChange={(e) => setSeoDescripcion(e.target.value)}
@@ -310,7 +329,7 @@ export function CourseForm({
           </div>
         </div>
 
-        {error && <p className="text-sm text-[var(--dorado-osc)]">{error}</p>}
+        {error && <p role="alert" className="text-sm text-[var(--dorado-osc)]">{error}</p>}
         {mensaje && <p className="text-sm font-medium text-[var(--vino)]">{mensaje}</p>}
 
         <button

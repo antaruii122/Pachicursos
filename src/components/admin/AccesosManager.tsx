@@ -67,7 +67,11 @@ export function AccesosManager({ courseId, purchases }: { courseId: string; purc
         </p>
         <form onSubmit={handleOtorgar} className="flex items-end gap-3">
           <div className="flex-1">
+            <label htmlFor="acceso-email" className="sr-only">
+              Email del alumno
+            </label>
             <input
+              id="acceso-email"
               type="email"
               className="w-full rounded-lg border border-[var(--linea)] px-3 py-2 text-sm outline-none focus:border-[var(--carmin)]"
               value={email}
@@ -83,7 +87,7 @@ export function AccesosManager({ courseId, purchases }: { courseId: string; purc
             Otorgar acceso
           </button>
         </form>
-        {error && <p className="mt-3 text-sm text-[var(--dorado-osc)]">{error}</p>}
+        {error && <p role="alert" className="mt-3 text-sm text-[var(--dorado-osc)]">{error}</p>}
       </div>
 
       <div className={card}>

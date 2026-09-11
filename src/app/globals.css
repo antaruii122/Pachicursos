@@ -37,3 +37,18 @@ h3 {
   color: var(--vino);
   letter-spacing: -0.01em;
 }
+
+/* Accesibilidad (Parte G, no negociable): estados de foco visibles al
+   navegar con teclado, en toda la app, sin tener que acordarse de agregarlo
+   componente por componente. */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+summary:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--carmin);
+  outline-offset: 2px;
+  border-radius: 2px;
+}

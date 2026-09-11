@@ -86,7 +86,7 @@ export function ClaseManager({ courseId, clases }: { courseId: string; clases: C
 
   return (
     <div className="flex flex-col gap-6">
-      {error && <p className="text-sm text-[var(--dorado-osc)]">{error}</p>}
+      {error && <p role="alert" className="text-sm text-[var(--dorado-osc)]">{error}</p>}
 
       <div className={card}>
         <h2 className="mb-4 font-[family-name:var(--font-ui)] text-[.95rem] font-semibold text-[var(--vino)]">
@@ -167,10 +167,11 @@ export function ClaseManager({ courseId, clases }: { courseId: string; clases: C
 
         <form onSubmit={handleAgregar} className="mt-5 flex items-end gap-3 border-t border-[var(--linea)] pt-5">
           <div className="flex-1">
-            <label className="mb-1 block font-[family-name:var(--font-ui)] text-[.8rem] text-[var(--vino)]">
+            <label htmlFor="nueva-clase-titulo" className="mb-1 block font-[family-name:var(--font-ui)] text-[.8rem] text-[var(--vino)]">
               Título de la nueva clase
             </label>
             <input
+              id="nueva-clase-titulo"
               className="w-full rounded-lg border border-[var(--linea)] px-3 py-2 text-sm outline-none focus:border-[var(--carmin)]"
               value={nuevoTitulo}
               onChange={(e) => setNuevoTitulo(e.target.value)}

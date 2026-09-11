@@ -2,6 +2,7 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 import { createClient } from "@/lib/supabase/server";
 import { formatCLP } from "@/lib/types";
+import Image from "next/image";
 import Link from "next/link";
 
 const card = "rounded-[18px] bg-white shadow-[0_12px_30px_rgba(78,15,38,.1)]";
@@ -39,10 +40,15 @@ export default async function Home() {
                 href={`/cursos/${c.slug}`}
                 className={`${card} overflow-hidden transition hover:shadow-[0_16px_36px_rgba(78,15,38,.16)]`}
               >
-                <div className="flex aspect-video items-center justify-center bg-[linear-gradient(160deg,var(--rosa),var(--dorado))]">
+                <div className="relative flex aspect-video items-center justify-center bg-[linear-gradient(160deg,var(--rosa),var(--dorado))]">
                   {c.cover_image_url ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={c.cover_image_url} alt={c.titulo} className="h-full w-full object-cover" />
+                    <Image
+                      src={c.cover_image_url}
+                      alt={c.titulo}
+                      fill
+                      sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+                      className="object-cover"
+                    />
                   ) : (
                     <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--vino)" strokeWidth="1.2">
                       <circle cx="12" cy="12" r="10" />

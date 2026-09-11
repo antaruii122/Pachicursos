@@ -56,7 +56,7 @@ export function ClassNotes({
           Tus notas de esta clase
         </b>
         {saveState !== "idle" && (
-          <span className="text-[.75rem] text-[var(--tinta-suave)]">
+          <span aria-live="polite" className="text-[.75rem] text-[var(--tinta-suave)]">
             {saveState === "guardando" ? "Guardando..." : "Guardado"}
           </span>
         )}
@@ -68,6 +68,7 @@ export function ClassNotes({
         value={contenido}
         onChange={(e) => handleChange(e.target.value)}
         placeholder="Escribe aquí lo que quieras recordar de esta clase…"
+        aria-label="Tus notas de esta clase"
         className="min-h-[110px] w-full rounded-[10px] border-[1.5px] border-[var(--linea)] p-4 text-[.92rem] text-[var(--tinta)] outline-none placeholder:text-[var(--tinta-suave)] focus:border-[var(--carmin)]"
       />
     </div>

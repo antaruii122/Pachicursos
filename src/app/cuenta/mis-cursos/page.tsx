@@ -2,6 +2,7 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 import { createClient } from "@/lib/supabase/server";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
@@ -115,10 +116,15 @@ export default async function MisCursosPage() {
 
               return (
                 <div key={c.courseId} className={`${card} overflow-hidden`}>
-                  <div className="flex aspect-video items-center justify-center bg-[linear-gradient(160deg,var(--rosa),var(--dorado))]">
+                  <div className="relative flex aspect-video items-center justify-center bg-[linear-gradient(160deg,var(--rosa),var(--dorado))]">
                     {c.coverImageUrl ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={c.coverImageUrl} alt={c.titulo} className="h-full w-full object-cover" />
+                      <Image
+                        src={c.coverImageUrl}
+                        alt={c.titulo}
+                        fill
+                        sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+                        className="object-cover"
+                      />
                     ) : (
                       <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--vino)" strokeWidth="1.2">
                         <circle cx="12" cy="12" r="10" />

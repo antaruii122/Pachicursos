@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
@@ -58,14 +59,16 @@ export function CourseLanding({
             </div>
           </div>
           <div
-            className={`${card} flex aspect-[4/5] items-center justify-center overflow-hidden bg-[linear-gradient(160deg,var(--rosa),var(--dorado))]`}
+            className={`${card} relative flex aspect-[4/5] items-center justify-center overflow-hidden bg-[linear-gradient(160deg,var(--rosa),var(--dorado))]`}
           >
             {course.cover_image_url ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
+              <Image
                 src={course.cover_image_url}
                 alt={course.titulo}
-                className="h-full w-full object-cover"
+                fill
+                sizes="(min-width: 768px) 45vw, 90vw"
+                className="object-cover"
+                priority
               />
             ) : (
               <svg width="72" height="72" viewBox="0 0 24 24" fill="none" stroke="var(--vino)" strokeWidth="1.2">

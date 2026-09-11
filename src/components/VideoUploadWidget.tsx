@@ -109,10 +109,11 @@ export function VideoUploadWidget({
 
   return (
     <div className="rounded-[18px] bg-white p-6 shadow-[0_12px_30px_rgba(78,15,38,.1)]">
-      <label className="mb-1 block font-[family-name:var(--font-ui)] text-[.85rem] font-medium text-[var(--vino)]">
+      <label htmlFor="clase-select" className="mb-1 block font-[family-name:var(--font-ui)] text-[.85rem] font-medium text-[var(--vino)]">
         Clase
       </label>
       <select
+        id="clase-select"
         value={videoId}
         onChange={(e) => setVideoId(e.target.value)}
         disabled={ocupado}
@@ -125,7 +126,11 @@ export function VideoUploadWidget({
         ))}
       </select>
 
+      <label htmlFor="video-file" className="sr-only">
+        Archivo de video
+      </label>
       <input
+        id="video-file"
         type="file"
         accept="video/*"
         disabled={ocupado}
@@ -136,12 +141,14 @@ export function VideoUploadWidget({
         className="mb-4 block w-full text-sm"
       />
 
-      {estado === "pidiendo-link" && (
-        <p className="text-sm text-[var(--tinta-suave)]">Preparando la subida…</p>
-      )}
-
       {(estado === "subiendo" || estado === "procesando" || estado === "listo") && (
-        <div className="mb-2 h-2 overflow-hidden rounded-full bg-[var(--rosa)]">
+        <div
+          role="progressbar"
+          aria-valuenow={estado === "subiendo" ? progreso : 100}
+          aria-valuemin={0}
+          aria-valuemax={100}
+          className="mb-2 h-2 overflow-hidden rounded-full bg-[var(--rosa)]"
+        >
           <div
             className="h-full rounded-full bg-[var(--vino)] transition-all"
             style={{ width: `${estado === "subiendo" ? progreso : 100}%` }}
@@ -149,21 +156,31 @@ export function VideoUploadWidget({
         </div>
       )}
 
-      {estado === "subiendo" && (
-        <p className="text-sm text-[var(--tinta-suave)]">Subiendo… {progreso}%</p>
-      )}
+      <div role="status" aria-live="polite">
+        {estado === "pidiendo-link" && (
+          <p className="text-sm text-[var(--tinta-suave)]">Preparando la subida…</p>
+        )}
 
-      {estado === "procesando" && (
-        <p className="text-sm text-[var(--tinta-suave)]">
-          Subida completa. Procesando en Vimeo…
+        {estado === "subiendo" && (
+          <p className="text-sm text-[var(--tinta-suave)]">Subiendo… {progreso}%</p>
+        )}
+
+        {estado === "procesando" && (
+          <p className="text-sm text-[var(--tinta-suave)]">
+            Subida completa. Procesando en Vimeo…
+          </p>
+        )}
+
+        {estado === "listo" && (
+          <p className="text-sm font-medium text-[var(--vino)]">Listo. El video ya se puede reproducir.</p>
+        )}
+      </div>
+
+      {estado === "error" && (
+        <p role="alert" className="text-sm text-[var(--dorado-osc)]">
+          {error}
         </p>
       )}
-
-      {estado === "listo" && (
-        <p className="text-sm font-medium text-[var(--vino)]">Listo. El video ya se puede reproducir.</p>
-      )}
-
-      {estado === "error" && <p className="text-sm text-[var(--dorado-osc)]">{error}</p>}
     </div>
   );
 }

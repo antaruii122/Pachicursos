@@ -63,7 +63,7 @@ export function OlvidePasswordForm() {
           />
         </div>
 
-        {error && <p className="text-sm text-[var(--dorado-osc)]">{error}</p>}
+        {error && <p role="alert" className="text-sm text-[var(--dorado-osc)]">{error}</p>}
 
         <button
           type="submit"
