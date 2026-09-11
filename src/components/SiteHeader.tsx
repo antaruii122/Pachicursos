@@ -7,6 +7,12 @@ export async function SiteHeader() {
     data: { user },
   } = await supabase.auth.getUser();
 
+  let isAdmin = false;
+  if (user) {
+    const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).single();
+    isAdmin = profile?.role === "admin";
+  }
+
   return (
     <header className="sticky top-0 z-20 border-b border-[var(--linea)] bg-[rgba(253,247,248,.94)] backdrop-blur-sm">
       <div className="mx-auto flex w-[min(1160px,90vw)] items-center justify-between gap-6 py-4">
@@ -32,6 +38,11 @@ export async function SiteHeader() {
           </a>
           {user ? (
             <>
+              {isAdmin && (
+                <Link href="/admin/cursos" className="font-medium text-[var(--carmin)] hover:text-[var(--vino)]">
+                  Panel admin
+                </Link>
+              )}
               <Link href="/cuenta/mis-cursos" className="text-[var(--tinta)] hover:text-[var(--vino)]">
                 Mis cursos
               </Link>
