@@ -32,6 +32,7 @@ export function CourseLanding({
     <div className="flex min-h-svh flex-col bg-[var(--crema)]">
       <SiteHeader />
 
+      <main>
       {/* 1. Hero */}
       <section className="pt-14 pb-16 md:pt-20">
         <div className="mx-auto grid w-[min(1160px,90vw)] items-center gap-14 md:grid-cols-[1.05fr_.95fr]">
@@ -151,7 +152,7 @@ export function CourseLanding({
                   <path d="M8 5v14l11-7z" />
                 </svg>
               </div>
-              <span className="absolute bottom-4 left-4 rounded-full bg-black/35 px-3 py-1.5 font-[family-name:var(--font-ui)] text-[.78rem] text-white">
+              <span className="absolute bottom-4 left-4 rounded-full bg-black/65 px-3 py-1.5 font-[family-name:var(--font-ui)] text-[.78rem] text-white">
                 Clase {claseGratis.orden} · {claseGratis.titulo}
                 {claseGratis.duracion ? ` · ${formatDuracion(claseGratis.duracion)}` : ""}
               </span>
@@ -196,8 +197,8 @@ export function CourseLanding({
               {clases.map((c) => (
                 <div
                   key={c.id}
-                  className={`${card} flex items-center gap-4 px-6 py-4.5 ${
-                    c.is_free_intro ? "border-[1.5px] border-[var(--carmin)]" : "opacity-85"
+                  className={`rounded-[18px] shadow-[0_18px_44px_rgba(78,15,38,.13)] flex items-center gap-4 px-6 py-4.5 ${
+                    c.is_free_intro ? "bg-white border-[1.5px] border-[var(--carmin)]" : "bg-[var(--crema-2)]"
                   }`}
                 >
                   <div
@@ -347,6 +348,7 @@ export function CourseLanding({
           )}
         </div>
       </section>
+      </main>
 
       <SiteFooter />
     </div>
