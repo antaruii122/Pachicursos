@@ -300,7 +300,7 @@ export function CourseLanding({
             Pago único · con cuotas sin interés disponibles · acceso sin
             vencimiento
           </p>
-          <a href="/checkout" className="inline-flex items-center gap-2 rounded-full bg-white px-8 py-3.5 font-[family-name:var(--font-ui)] text-[.92rem] font-medium text-[var(--vino)] transition hover:-translate-y-0.5">
+          <a href={`/checkout/${course.slug}`} className="inline-flex items-center gap-2 rounded-full bg-white px-8 py-3.5 font-[family-name:var(--font-ui)] text-[.92rem] font-medium text-[var(--vino)] transition hover:-translate-y-0.5">
             Comprar el curso
           </a>
         </div>
