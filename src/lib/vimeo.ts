@@ -64,3 +64,26 @@ export async function getVimeoTranscodeStatus(vimeoId: string): Promise<VimeoTra
   const data = (await res.json()) as { transcode: { status: VimeoTranscodeStatus } };
   return data.transcode.status;
 }
+
+// player_embed_url ya incluye el hash de privacidad cuando hace falta (video
+// unlisted) — se devuelve tal cual la entrega la API, nunca se arma la URL
+// a mano (eso rompe con privacidad "unlisted"). Campo confirmado real
+// revisando uso en producción en múltiples repos públicos (incluido el
+// extractor de yt-dlp) — la doc oficial de Vimeo es una SPA que bloquea el
+// scraping automático, así que se verificó por esta vía en vez de adivinar.
+export async function getVimeoEmbedUrl(vimeoId: string): Promise<string> {
+  const token = process.env.VIMEO_ACCESS_TOKEN;
+  if (!token) throw new Error("Falta VIMEO_ACCESS_TOKEN en las variables de entorno");
+
+  const res = await fetch(`${VIMEO_API_BASE}/videos/${vimeoId}?fields=player_embed_url`, {
+    headers: vimeoHeaders(token),
+  });
+
+  if (!res.ok) {
+    const detail = await res.text();
+    throw new Error(`Vimeo respondió ${res.status}: ${detail}`);
+  }
+
+  const data = (await res.json()) as { player_embed_url: string };
+  return data.player_embed_url;
+}
