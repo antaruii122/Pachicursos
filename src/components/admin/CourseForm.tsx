@@ -36,8 +36,8 @@ export function CourseForm({
   const [requisitos, setRequisitos] = useState(initialCourse?.requisitos ?? "");
   const [faq, setFaq] = useState(initialCourse?.faq ?? []);
   const [testimonios, setTestimonios] = useState(initialCourse?.testimonios ?? []);
-  const [seoTitulo, setSeoTitulo] = useState("");
-  const [seoDescripcion, setSeoDescripcion] = useState("");
+  const [seoTitulo, setSeoTitulo] = useState(initialCourse?.seo_titulo ?? "");
+  const [seoDescripcion, setSeoDescripcion] = useState(initialCourse?.seo_descripcion ?? "");
   const [coverImageUrl, setCoverImageUrl] = useState(initialCourse?.cover_image_url ?? "");
   const [backgroundImageUrl, setBackgroundImageUrl] = useState(
     initialCourse?.background_image_url ?? "",

@@ -20,6 +20,8 @@ export interface Course {
   requisitos: string | null;
   faq: { pregunta: string; respuesta: string }[];
   testimonios: { texto: string; autor: string }[] | null;
+  seo_titulo: string | null;
+  seo_descripcion: string | null;
 }
 
 export interface ClaseResumen {

@@ -23,10 +23,16 @@ const supabase = createClient(SUPABASE_URL, SERVICE_ROLE_KEY, {
   auth: { autoRefreshToken: false, persistSession: false },
 });
 
+// El título/subtítulo NUNCA deben tener texto tipo "[PLACEHOLDER]" o "curso de
+// prueba" — este curso está `publicado` para poder probar el sitio real, así
+// que ese texto termina en el <title>, el Open Graph, y la card del home
+// (hallazgo 2026-09-12: quedó así varias horas en producción, visible en
+// cualquier link compartido). El marcador de "esto es de prueba" vive acá,
+// en el comentario del script, no en ningún campo que se renderice.
 const CURSO_PLACEHOLDER = {
   slug: "placeholder-regula-tu-ciclo",
-  titulo: "[PLACEHOLDER] Regula tu Ciclo, Recupera tu Fertilidad",
-  subtitulo_corto: "Curso de prueba — no es contenido real, se borra antes del lanzamiento",
+  titulo: "Regula tu Ciclo, Recupera tu Fertilidad",
+  subtitulo_corto: null,
   promesa_principal: "Regula tu ciclo, recupera tu fertilidad",
   descripcion:
     "Un programa de 8 semanas para entender tu ciclo, corregir la alimentación que lo está desregulando y prepararte con base científica para buscar embarazo.",
