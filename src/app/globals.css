@@ -1,0 +1,39 @@
+@import "tailwindcss";
+
+/* Sistema visual de marca — extraído de nutfem2027PRUEBAfondoclaro.html,
+   confirmado para Alimenta Tu Fertilidad (ver docs/cursos.md). Paleta fija:
+   no se agregan colores nuevos fuera de estos 12 tokens. */
+:root {
+  --vino: #4e0f26;
+  --vino-osc: #380a1b;
+  --vino-claro: #7a1533;
+  --carmin: #c31c44;
+  --dorado: #e8c9a8;
+  --dorado-osc: #ef5950;
+  --crema: #ffffff;
+  --crema-2: #fdf7f8;
+  --rosa: #fbe7eb;
+  --tinta: #3b1420;
+  --tinta-suave: #8a5c68;
+  --linea: #efd6dc;
+
+  --font-body: var(--font-lato), system-ui, sans-serif;
+  --font-heading: var(--font-noto-serif), Georgia, serif;
+  --font-ui: var(--font-poppins), sans-serif;
+}
+
+body {
+  background: var(--crema);
+  color: var(--tinta);
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 1.7;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-heading);
+  color: var(--vino);
+  letter-spacing: -0.01em;
+}

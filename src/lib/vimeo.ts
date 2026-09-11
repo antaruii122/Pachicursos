@@ -1,0 +1,66 @@
+// Cliente mínimo de la API de Vimeo, server-only (usa VIMEO_ACCESS_TOKEN,
+// nunca se importa desde un client component). Patrón verificado contra el
+// SDK oficial vimeo/vimeo.py (client.py + upload.py), no adivinado:
+// - Accept: application/vnd.vimeo.*;version=3.4
+// - POST /me/videos con { upload: { approach: 'tus', size }, name } crea el
+//   video y devuelve { uri: "/videos/<id>", upload: { upload_link } }.
+//
+// IMPORTANTE (corrección 2026-09-11, ver docs/cursos.md): Vimeo NO tiene
+// webhook de fin de transcoding (limitación confirmada por Vimeo mismo,
+// nunca resuelta). El único mecanismo real es hacer polling a
+// GET /videos/{id}?fields=transcode.status, que devuelve "in_progress",
+// "complete" o "error" (fuente: Vimeo Help Center, artículo "Get video
+// transcode status from the API").
+
+const VIMEO_API_BASE = "https://api.vimeo.com";
+
+function vimeoHeaders(token: string) {
+  return {
+    Authorization: `Bearer ${token}`,
+    Accept: "application/vnd.vimeo.*;version=3.4",
+  };
+}
+
+export async function createVimeoTusUpload(filename: string, filesizeBytes: number) {
+  const token = process.env.VIMEO_ACCESS_TOKEN;
+  if (!token) throw new Error("Falta VIMEO_ACCESS_TOKEN en las variables de entorno");
+
+  const res = await fetch(`${VIMEO_API_BASE}/me/videos?fields=uri,upload`, {
+    method: "POST",
+    headers: { ...vimeoHeaders(token), "Content-Type": "application/json" },
+    body: JSON.stringify({
+      name: filename,
+      upload: { approach: "tus", size: String(filesizeBytes) },
+    }),
+  });
+
+  if (!res.ok) {
+    const detail = await res.text();
+    throw new Error(`Vimeo respondió ${res.status}: ${detail}`);
+  }
+
+  const data = (await res.json()) as { uri: string; upload: { upload_link: string } };
+  const vimeoId = data.uri.split("/").pop();
+  if (!vimeoId) throw new Error("No se pudo extraer el vimeo_id de la respuesta de Vimeo");
+
+  return { vimeoId, uploadLink: data.upload.upload_link };
+}
+
+export type VimeoTranscodeStatus = "in_progress" | "complete" | "error";
+
+export async function getVimeoTranscodeStatus(vimeoId: string): Promise<VimeoTranscodeStatus> {
+  const token = process.env.VIMEO_ACCESS_TOKEN;
+  if (!token) throw new Error("Falta VIMEO_ACCESS_TOKEN en las variables de entorno");
+
+  const res = await fetch(`${VIMEO_API_BASE}/videos/${vimeoId}?fields=transcode.status`, {
+    headers: vimeoHeaders(token),
+  });
+
+  if (!res.ok) {
+    const detail = await res.text();
+    throw new Error(`Vimeo respondió ${res.status}: ${detail}`);
+  }
+
+  const data = (await res.json()) as { transcode: { status: VimeoTranscodeStatus } };
+  return data.transcode.status;
+}
