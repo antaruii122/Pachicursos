@@ -194,45 +194,57 @@ export function CourseLanding({
               {clases.length} clases, a tu ritmo
             </h2>
             <div className="mt-8 flex max-w-[700px] flex-col gap-3.5">
-              {clases.map((c) => (
-                <div
-                  key={c.id}
-                  className={`rounded-[18px] shadow-[0_18px_44px_rgba(78,15,38,.13)] flex items-center gap-4 px-6 py-4.5 ${
-                    c.is_free_intro ? "bg-white border-[1.5px] border-[var(--carmin)]" : "bg-[var(--crema-2)]"
-                  }`}
-                >
-                  <div
-                    className={`flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-full ${
-                      c.is_free_intro ? "bg-[var(--rosa)]" : "bg-[var(--crema-2)]"
-                    }`}
-                  >
+              {clases.map((c) => {
+                const rowClass = `rounded-[18px] shadow-[0_18px_44px_rgba(78,15,38,.13)] flex items-center gap-4 px-6 py-4.5 ${
+                  c.is_free_intro
+                    ? "bg-white border-[1.5px] border-[var(--carmin)] transition hover:-translate-y-0.5 hover:shadow-[0_22px_48px_rgba(78,15,38,.18)]"
+                    : "bg-[var(--crema-2)]"
+                }`;
+                const content = (
+                  <>
+                    <div
+                      className={`flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-full ${
+                        c.is_free_intro ? "bg-[var(--rosa)]" : "bg-[var(--crema-2)]"
+                      }`}
+                    >
+                      {c.is_free_intro ? (
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="var(--carmin)">
+                          <path d="M8 5v14l11-7z" />
+                        </svg>
+                      ) : (
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--tinta-suave)" strokeWidth="1.8">
+                          <rect x="5" y="10" width="14" height="10" rx="2" />
+                          <path d="M8 10V7a4 4 0 018 0v3" />
+                        </svg>
+                      )}
+                    </div>
+                    <div className="flex-1 font-[family-name:var(--font-ui)] text-[.94rem]">
+                      {c.orden}. {c.titulo}
+                    </div>
                     {c.is_free_intro ? (
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="var(--carmin)">
-                        <path d="M8 5v14l11-7z" />
-                      </svg>
-                    ) : (
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--tinta-suave)" strokeWidth="1.8">
-                        <rect x="5" y="10" width="14" height="10" rx="2" />
-                        <path d="M8 10V7a4 4 0 018 0v3" />
-                      </svg>
-                    )}
-                  </div>
-                  <div className="flex-1 font-[family-name:var(--font-ui)] text-[.94rem]">
-                    {c.orden}. {c.titulo}
-                  </div>
-                  {c.is_free_intro ? (
-                    <span className="font-[family-name:var(--font-ui)] text-[.72rem] uppercase tracking-[.08em] text-[var(--carmin)]">
-                      Gratis{c.duracion ? ` · ${formatDuracion(c.duracion)}` : ""}
-                    </span>
-                  ) : (
-                    c.duracion && (
-                      <span className="font-[family-name:var(--font-ui)] text-[.78rem] text-[var(--tinta-suave)]">
-                        {formatDuracion(c.duracion)}
+                      <span className="font-[family-name:var(--font-ui)] text-[.72rem] uppercase tracking-[.08em] text-[var(--carmin)]">
+                        Gratis{c.duracion ? ` · ${formatDuracion(c.duracion)}` : ""}
                       </span>
-                    )
-                  )}
-                </div>
-              ))}
+                    ) : (
+                      c.duracion && (
+                        <span className="font-[family-name:var(--font-ui)] text-[.78rem] text-[var(--tinta-suave)]">
+                          {formatDuracion(c.duracion)}
+                        </span>
+                      )
+                    )}
+                  </>
+                );
+
+                return c.is_free_intro ? (
+                  <Link key={c.id} href={`/cursos/${course.slug}/clase/${c.orden}`} className={rowClass}>
+                    {content}
+                  </Link>
+                ) : (
+                  <div key={c.id} className={rowClass}>
+                    {content}
+                  </div>
+                );
+              })}
             </div>
           </div>
         </section>
