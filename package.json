@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "test:rls": "node --env-file=.env.local scripts/test-rls-cross-access.mjs",
+    "test:vimeo": "node --env-file=.env.local scripts/test-vimeo-upload.mjs",
     "seed:placeholder": "node --env-file=.env.local scripts/seed-placeholder-course.mjs",
     "set-admin": "node --env-file=.env.local scripts/set-admin-role.mjs"
   },
