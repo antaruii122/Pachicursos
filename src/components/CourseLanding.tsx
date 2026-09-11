@@ -32,7 +32,7 @@ export function CourseLanding({
     <div className="flex min-h-svh flex-col bg-[var(--crema)]">
       <SiteHeader />
 
-      <main>
+      <main id="contenido-principal">
       {/* 1. Hero */}
       <section className="pt-14 pb-16 md:pt-20">
         <div className="mx-auto grid w-[min(1160px,90vw)] items-center gap-14 md:grid-cols-[1.05fr_.95fr]">

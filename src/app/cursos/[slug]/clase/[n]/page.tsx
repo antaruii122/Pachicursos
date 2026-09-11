@@ -76,7 +76,7 @@ export default async function ClasePage({
   return (
     <div className="min-h-svh bg-[var(--crema-2)]">
       <SiteHeader />
-      <main className="mx-auto max-w-[920px] px-6 py-10">
+      <main id="contenido-principal" className="mx-auto max-w-[920px] px-6 py-10">
         <Link
           href={`/cursos/${slug}`}
           className="mb-5 flex items-center gap-2 font-[family-name:var(--font-ui)] text-[.85rem] text-[var(--tinta-suave)] hover:text-[var(--vino)]"

@@ -6,7 +6,7 @@ export default function RegistroPage() {
   return (
     <div className="flex min-h-svh flex-col bg-[var(--crema)]">
       <SiteHeader />
-      <main className="flex flex-1 items-center justify-center p-6">
+      <main id="contenido-principal" className="flex flex-1 items-center justify-center p-6">
         <RegistroForm />
       </main>
       <SiteFooter />

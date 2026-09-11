@@ -94,7 +94,7 @@ export default async function MisCursosPage() {
   return (
     <div className="flex min-h-svh flex-col bg-[var(--crema-2)]">
       <SiteHeader />
-      <main className="mx-auto w-[min(1000px,90vw)] flex-1 py-10">
+      <main id="contenido-principal" className="mx-auto w-[min(1000px,90vw)] flex-1 py-10">
         <h1 className="mb-6 font-[family-name:var(--font-heading)] text-[1.8rem] font-semibold text-[var(--vino)]">
           Mis cursos
         </h1>

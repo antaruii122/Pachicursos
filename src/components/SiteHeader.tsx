@@ -14,7 +14,14 @@ export async function SiteHeader() {
   }
 
   return (
-    <header className="sticky top-0 z-20 border-b border-[var(--linea)] bg-[rgba(253,247,248,.94)] backdrop-blur-sm">
+    <>
+      <a
+        href="#contenido-principal"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:rounded-lg focus:bg-[var(--vino)] focus:px-4 focus:py-2 focus:text-white"
+      >
+        Saltar al contenido
+      </a>
+      <header className="sticky top-0 z-20 border-b border-[var(--linea)] bg-[rgba(253,247,248,.94)] backdrop-blur-sm">
       <div className="mx-auto flex w-[min(1160px,90vw)] items-center justify-between gap-6 py-4">
         <Link href="/" className="flex items-center gap-3">
           <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="var(--vino)" strokeWidth="1.4">
@@ -57,6 +64,7 @@ export async function SiteHeader() {
           )}
         </nav>
       </div>
-    </header>
+      </header>
+    </>
   );
 }

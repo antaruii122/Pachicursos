@@ -16,7 +16,7 @@ export function LegalPage({
   return (
     <div className="flex min-h-svh flex-col bg-[var(--crema)]">
       <SiteHeader />
-      <main className="mx-auto w-[min(760px,90vw)] flex-1 py-14">
+      <main id="contenido-principal" className="mx-auto w-[min(760px,90vw)] flex-1 py-14">
         <div className="mb-8 rounded-[14px] border border-[var(--dorado)] bg-[var(--rosa)] p-4 font-[family-name:var(--font-ui)] text-[.85rem] text-[var(--vino)]">
           [PLACEHOLDER] Este texto es una estructura genérica, no es contenido legal real todavía.
           Marcela (o su asesor legal) tiene que reemplazarlo antes del lanzamiento.

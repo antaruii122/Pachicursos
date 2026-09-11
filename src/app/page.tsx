@@ -22,7 +22,7 @@ export default async function Home() {
   return (
     <div className="flex min-h-svh flex-col bg-[var(--crema)]">
       <SiteHeader />
-      <main className="mx-auto w-[min(1160px,90vw)] flex-1 py-14">
+      <main id="contenido-principal" className="mx-auto w-[min(1160px,90vw)] flex-1 py-14">
         <h1 className="mb-2 text-[clamp(1.9rem,4vw,2.6rem)]">Cursos disponibles</h1>
         <p className="mb-10 max-w-[60ch] text-[1.05rem] text-[var(--tinta-suave)]">
           Nutrición y fertilidad femenina, con Marcela Calderón.
