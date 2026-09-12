@@ -115,7 +115,13 @@ export function ClassPlayer({
 
   if (estadoProcesamiento !== "listo") {
     return (
-      <div className={`${card} flex aspect-video items-center justify-center bg-[var(--crema-2)]`}>
+      <div className={`${card} flex aspect-video flex-col items-center justify-center gap-3 bg-[var(--crema-2)] p-6 text-center`}>
+        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--rosa)]">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--carmin)" strokeWidth="1.8">
+            <circle cx="12" cy="12" r="9" />
+            <path d="M12 7v5l3 3" />
+          </svg>
+        </div>
         <p className="text-sm text-[var(--tinta-suave)]">
           Esta clase todavía está procesándose, disponible pronto.
         </p>
@@ -125,7 +131,14 @@ export function ClassPlayer({
 
   if (error) {
     return (
-      <div className={`${card} flex aspect-video items-center justify-center bg-[var(--crema-2)] p-6 text-center`}>
+      <div className={`${card} flex aspect-video flex-col items-center justify-center gap-3 bg-[var(--crema-2)] p-6 text-center`}>
+        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--rosa)]">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--dorado-osc)" strokeWidth="1.8">
+            <rect x="2" y="6" width="14" height="12" rx="2" />
+            <path d="M16 10l6-3v10l-6-3" />
+            <path d="M3 3l18 18" />
+          </svg>
+        </div>
         <p className="text-sm text-[var(--dorado-osc)]">{error}</p>
       </div>
     );
