@@ -34,6 +34,10 @@ export interface ClaseResumen {
   duracion: number | null;
   is_free_intro: boolean;
   estado_procesamiento: "subiendo" | "procesando" | "listo";
+  // Se llena server-side (ver cursos/[slug]/page.tsx) leyendo vimeo_id con
+  // service_role — nunca viaja el vimeo_id en sí al cliente, solo esta URL
+  // de imagen ya resuelta.
+  thumbnailUrl?: string | null;
 }
 
 export function formatCLP(monto: number): string {

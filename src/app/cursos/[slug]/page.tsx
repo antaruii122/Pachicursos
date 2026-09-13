@@ -25,28 +25,43 @@ async function getCourseData(slug: string) {
     .eq("course_id", course.id)
     .order("orden", { ascending: true });
 
-  // Miniatura real de la clase gratis embebida en la landing (hallazgo
-  // repetido de Ricardo, 2026-09-14 — ver src/lib/vimeo.ts). `vimeo_id` está
-  // bloqueado por columna para el cliente normal (0001_init.sql), así que se
-  // lee acá con service_role — seguro porque la clase gratis es pública por
-  // diseño, no hace falta validar acceso primero como con el player real.
+  // Miniatura real por clase (hallazgo repetido de Ricardo, 2026-09-14 — ver
+  // src/lib/vimeo.ts; primero se cerró solo para la clase gratis embebida,
+  // después pidió el mismo criterio "con ojos de alumna" para toda la lista
+  // del currículum). `vimeo_id` está bloqueado por columna para el cliente
+  // normal (0001_init.sql) — se lee acá con service_role. Mostrar solo la
+  // miniatura de una clase bloqueada no da acceso a reproducirla (coincide
+  // con el criterio del plan: una clase bloqueada se ve normal, solo no se
+  // puede reproducir), así que no hace falta validar compra antes de esto,
+  // a diferencia del endpoint real del player.
+  const clasesConThumbnail = (clases ?? []) as ClaseResumen[];
   let claseGratisThumbnailUrl: string | null = null;
-  const claseGratis = clases?.find((c) => c.is_free_intro);
-  if (claseGratis) {
+  if (clasesConThumbnail.length > 0) {
     const serviceRole = createServiceRoleClient();
-    const { data: claseConVimeo } = await serviceRole
+    const { data: vimeoIds } = await serviceRole
       .from("course_videos")
-      .select("vimeo_id")
-      .eq("id", claseGratis.id)
-      .maybeSingle();
-    if (claseConVimeo?.vimeo_id) {
-      claseGratisThumbnailUrl = await getVimeoThumbnailUrl(claseConVimeo.vimeo_id).catch(() => null);
-    }
+      .select("id, vimeo_id")
+      .in(
+        "id",
+        clasesConThumbnail.map((c) => c.id),
+      );
+    const vimeoIdPorClase = new Map((vimeoIds ?? []).map((v) => [v.id, v.vimeo_id]));
+
+    await Promise.all(
+      clasesConThumbnail.map(async (c) => {
+        const vimeoId = vimeoIdPorClase.get(c.id);
+        if (!vimeoId) return;
+        c.thumbnailUrl = await getVimeoThumbnailUrl(vimeoId).catch(() => null);
+      }),
+    );
+
+    claseGratisThumbnailUrl =
+      clasesConThumbnail.find((c) => c.is_free_intro)?.thumbnailUrl ?? null;
   }
 
   return {
     course: course as Course,
-    clases: (clases ?? []) as ClaseResumen[],
+    clases: clasesConThumbnail as ClaseResumen[],
     claseGratisThumbnailUrl,
   };
 }

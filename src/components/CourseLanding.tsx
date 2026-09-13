@@ -231,24 +231,42 @@ export function CourseLanding({
                     ? "bg-white border-[1.5px] border-[var(--carmin)] transition-[transform,box-shadow] duration-[var(--dur)] ease-[var(--ease)] hover:-translate-y-0.5 hover:shadow-[var(--sombra-xl)]"
                     : "bg-[var(--crema-2)] shadow-[var(--sombra-sm)]"
                 }`;
+                const iconBadge = c.is_free_intro ? (
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="var(--carmin)">
+                    <path d="M8 5v14l11-7z" />
+                  </svg>
+                ) : (
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--tinta-suave)" strokeWidth="1.8">
+                    <rect x="5" y="10" width="14" height="10" rx="2" />
+                    <path d="M8 10V7a4 4 0 018 0v3" />
+                  </svg>
+                );
+
                 const content = (
                   <>
-                    <div
-                      className={`flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-full ${
-                        c.is_free_intro ? "bg-[var(--rosa)]" : "bg-[var(--crema-2)]"
-                      }`}
-                    >
-                      {c.is_free_intro ? (
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="var(--carmin)">
-                          <path d="M8 5v14l11-7z" />
-                        </svg>
-                      ) : (
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--tinta-suave)" strokeWidth="1.8">
-                          <rect x="5" y="10" width="14" height="10" rx="2" />
-                          <path d="M8 10V7a4 4 0 018 0v3" />
-                        </svg>
-                      )}
-                    </div>
+                    {/* Miniatura real por clase cuando existe (hallazgo
+                        2026-09-14: "con ojos de alumna", cada fila debería
+                        mostrar su propia miniatura, no solo la embebida
+                        arriba) — cae al mismo círculo con ícono de siempre
+                        si la clase todavía no tiene video real. */}
+                    {c.thumbnailUrl ? (
+                      <div className="relative h-[40px] w-[56px] shrink-0 overflow-hidden rounded-[8px] bg-[var(--crema-2)]">
+                        <Image src={c.thumbnailUrl} alt="" fill sizes="56px" className="object-cover" />
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/25">
+                          <div className="flex h-5 w-5 items-center justify-center rounded-full bg-white/90">
+                            {iconBadge}
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      <div
+                        className={`flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-full ${
+                          c.is_free_intro ? "bg-[var(--rosa)]" : "bg-[var(--crema-2)]"
+                        }`}
+                      >
+                        {iconBadge}
+                      </div>
+                    )}
                     <div className="flex-1 font-[family-name:var(--font-ui)] text-[.94rem]">
                       {c.orden}. {c.titulo}
                     </div>
