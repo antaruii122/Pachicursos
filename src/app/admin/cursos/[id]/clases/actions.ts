@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
+import { getVimeoTranscodeStatus } from "@/lib/vimeo";
 import { revalidatePath } from "next/cache";
 
 async function requireAdmin() {
@@ -105,6 +106,53 @@ export async function swapClaseOrden(
 
     const paso3 = await supabase.from("course_videos").update({ orden: ordenB }).eq("id", idA);
     if (paso3.error) throw paso3.error;
+
+    revalidatePath(`/admin/cursos/${courseId}/clases`);
+    return { ok: true };
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : "Error desconocido" };
+  }
+}
+
+// Alternativa a subir el archivo desde acá (hallazgo 2026-09-14: el token de
+// Vimeo sin scope "upload" bloqueaba la subida en el momento en que Ricardo
+// más la necesitaba). El admin sube el video directo en vimeo.com con su
+// cuenta normal — eso nunca pasó por nuestra API, así que el scope "upload"
+// no importa — y acá solo pega el link. Esto sí necesita el token, pero solo
+// para LEER datos del video (transcode.status/duration), un permiso distinto
+// del que falta.
+export async function attachVimeoVideo(
+  courseId: string,
+  claseId: string,
+  vimeoUrlOrId: string,
+): Promise<{ ok: true } | { error: string }> {
+  try {
+    const supabase = await requireAdmin();
+
+    const match = vimeoUrlOrId.trim().match(/(\d{6,})/);
+    if (!match) {
+      return { error: "No se encontró un ID de video de Vimeo en lo que pegaste. Copiá el link completo de la página del video en vimeo.com." };
+    }
+    const vimeoId = match[1];
+
+    let info;
+    try {
+      info = await getVimeoTranscodeStatus(vimeoId);
+    } catch {
+      return {
+        error: "No se pudo encontrar ese video en la cuenta de Vimeo conectada. Confirmá que lo subiste con la misma cuenta y que el link es correcto.",
+      };
+    }
+
+    const { error } = await supabase
+      .from("course_videos")
+      .update({
+        vimeo_id: vimeoId,
+        estado_procesamiento: info.status === "complete" ? "listo" : "procesando",
+        ...(info.durationSeconds ? { duracion: info.durationSeconds } : {}),
+      })
+      .eq("id", claseId);
+    if (error) throw error;
 
     revalidatePath(`/admin/cursos/${courseId}/clases`);
     return { ok: true };

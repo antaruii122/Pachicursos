@@ -1,6 +1,7 @@
 "use client";
 
 import { addClase, deleteClase, setClaseGratis, swapClaseOrden } from "@/app/admin/cursos/[id]/clases/actions";
+import { VimeoLinkWidget } from "@/components/admin/VimeoLinkWidget";
 import { VideoUploadWidget } from "@/components/VideoUploadWidget";
 import { formatDuracion } from "@/lib/types";
 import { useRouter } from "next/navigation";
@@ -196,11 +197,19 @@ export function ClaseManager({ courseId, clases }: { courseId: string; clases: C
       </div>
 
       {ordenadas.length > 0 && (
-        <div>
-          <h2 className="mb-3 font-[family-name:var(--font-ui)] text-[.95rem] font-semibold text-[var(--vino)]">
-            Subir / reemplazar video
-          </h2>
-          <VideoUploadWidget clases={ordenadas} />
+        <div className="flex flex-col gap-6">
+          <div>
+            <h2 className="mb-3 font-[family-name:var(--font-ui)] text-[.95rem] font-semibold text-[var(--vino)]">
+              Subir / reemplazar video
+            </h2>
+            <VideoUploadWidget clases={ordenadas} />
+          </div>
+          <div>
+            <h2 className="mb-3 font-[family-name:var(--font-ui)] text-[.95rem] font-semibold text-[var(--vino)]">
+              O vincular un video ya subido a Vimeo
+            </h2>
+            <VimeoLinkWidget courseId={courseId} clases={ordenadas} />
+          </div>
         </div>
       )}
     </div>
