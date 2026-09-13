@@ -2,7 +2,7 @@
 
 import { createClient } from "@/lib/supabase/client";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 
 export function LoginForm() {
@@ -10,7 +10,6 @@ export function LoginForm() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const router = useRouter();
   const searchParams = useSearchParams();
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -27,9 +26,14 @@ export function LoginForm() {
       return;
     }
 
+    // Navegación dura (no router.push) a propósito: hallazgo real (2026-09-14,
+    // probado con un browser real) — en una conexión fría, el login a veces
+    // dispara el request de auth dos veces y el router de Next se queda
+    // pegado en /cuenta/login aunque Supabase ya haya autenticado bien. Una
+    // recarga completa siempre ve la cookie de sesión ya escrita, sin la
+    // carrera entre el estado del cliente y el server.
     const next = searchParams.get("next") ?? "/";
-    router.push(next);
-    router.refresh();
+    window.location.href = next;
   };
 
   return (

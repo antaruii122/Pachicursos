@@ -1,19 +1,18 @@
 "use client";
 
 import { createClient } from "@/lib/supabase/client";
-import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
+// Navegación dura a propósito, no router.push (ver el mismo cambio y su
+// motivo en LoginForm.tsx) — mismo tipo de cambio de sesión, mismo riesgo.
 export function LogoutRedirect() {
-  const router = useRouter();
-
   useEffect(() => {
     const supabase = createClient();
     supabase.auth.signOut().then(() => {
-      router.push("/cuenta/login");
-      router.refresh();
+      // eslint-disable-next-line @next/next/no-location-assign-relative-destination -- intencional, ver comentario arriba
+      window.location.href = "/cuenta/login";
     });
-  }, [router]);
+  }, []);
 
   return (
     <p role="status" className="text-sm text-[var(--tinta-suave)]">
