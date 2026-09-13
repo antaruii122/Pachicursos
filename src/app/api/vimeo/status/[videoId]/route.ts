@@ -30,12 +30,13 @@ export async function GET(
     return NextResponse.json({ error: "Requiere rol admin" }, { status: 403 });
   }
 
-  const { data: clase } = await supabase
+  const { data: clase, error: claseError } = await supabase
     .from("course_videos")
     .select("id, vimeo_id, estado_procesamiento")
     .eq("id", videoId)
     .single();
   if (!clase) {
+    console.error("[vimeo/status] course_videos lookup failed", { videoId, claseError });
     return NextResponse.json({ error: "La clase no existe" }, { status: 404 });
   }
 

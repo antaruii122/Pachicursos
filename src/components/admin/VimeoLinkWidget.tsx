@@ -1,7 +1,7 @@
 "use client";
 
 import { attachVimeoVideo } from "@/app/admin/cursos/[id]/clases/actions";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 type Estado = "idle" | "guardando" | "procesando" | "listo" | "error";
 
@@ -21,6 +21,12 @@ export function VimeoLinkWidget({ courseId, claseId }: { courseId: string; clase
   const [estado, setEstado] = useState<Estado>("idle");
   const [error, setError] = useState<string | null>(null);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (pollRef.current) clearInterval(pollRef.current);
+    };
+  }, []);
 
   const startPolling = (idParaConsultar: string) => {
     let attempts = 0;

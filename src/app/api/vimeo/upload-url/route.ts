@@ -35,12 +35,13 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Faltan video_id, filename o filesize" }, { status: 400 });
   }
 
-  const { data: clase } = await supabase
+  const { data: clase, error: claseError } = await supabase
     .from("course_videos")
     .select("id")
     .eq("id", video_id)
     .single();
   if (!clase) {
+    console.error("[vimeo/upload-url] course_videos lookup failed", { video_id, claseError });
     return NextResponse.json({ error: "La clase no existe" }, { status: 404 });
   }
 
