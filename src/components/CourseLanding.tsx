@@ -4,13 +4,15 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Course, ClaseResumen, formatCLP, formatDuracion, toBullets } from "@/lib/types";
 
-const card = "rounded-[18px] bg-white shadow-[0_18px_44px_rgba(78,15,38,.13)]";
+const card = "rounded-[var(--radio-md)] bg-white shadow-[var(--sombra-lg)]";
 const btnSolid =
-  "inline-flex items-center gap-2 rounded-full bg-[var(--vino)] px-8 py-3.5 font-[family-name:var(--font-ui)] text-[.92rem] font-medium text-white transition hover:-translate-y-0.5 hover:bg-[var(--vino-claro)]";
+  "inline-flex items-center gap-2 rounded-full bg-[var(--vino)] px-8 py-3.5 font-[family-name:var(--font-ui)] text-[.92rem] font-medium text-white shadow-[var(--sombra-md)] transition-[transform,box-shadow,background-color] duration-[var(--dur)] ease-[var(--ease)] hover:-translate-y-[3px] hover:bg-[var(--vino-claro)] hover:shadow-[var(--sombra-lg)] active:translate-y-0";
 const btnLine =
-  "inline-flex items-center gap-2 rounded-full border-[1.4px] border-[var(--carmin)] px-8 py-3.5 font-[family-name:var(--font-ui)] text-[.92rem] font-medium text-[var(--carmin)] transition hover:-translate-y-0.5 hover:bg-[var(--carmin)] hover:text-white";
+  "inline-flex items-center gap-2 rounded-full border-[1.4px] border-[var(--carmin)] px-8 py-3.5 font-[family-name:var(--font-ui)] text-[.92rem] font-medium text-[var(--carmin)] transition-[transform,box-shadow,background-color,color] duration-[var(--dur)] ease-[var(--ease)] hover:-translate-y-[3px] hover:bg-[var(--carmin)] hover:text-white hover:shadow-[var(--sombra-md)] active:translate-y-0";
 const eyebrow =
   "mb-4 block font-[family-name:var(--font-ui)] text-[.72rem] font-semibold uppercase tracking-[.26em] text-[var(--carmin)]";
+const cardHover =
+  "transition-[transform,box-shadow] duration-[var(--dur)] ease-[var(--ease)] hover:-translate-y-1 hover:shadow-[var(--sombra-xl)]";
 
 // Plantilla de landing ÚNICA y compartida (ver docs/cursos.md, "Plantilla de
 // landing reutilizable") — cualquier curso pasa por acá, nunca un diseño
@@ -34,9 +36,15 @@ export function CourseLanding({
 
       <main id="contenido-principal">
       {/* 1. Hero */}
-      <section className="pt-14 pb-16 md:pt-20">
-        <div className="mx-auto grid w-[min(1160px,90vw)] items-center gap-14 md:grid-cols-[1.05fr_.95fr]">
-          <div>
+      <section className="relative overflow-hidden pt-14 pb-16 md:pt-20">
+        {/* Forma decorativa de fondo, solo para dar profundidad al hero —
+            mismos tokens de marca, nunca un color nuevo. */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -top-24 -right-24 h-[480px] w-[480px] rounded-full bg-[radial-gradient(circle,var(--rosa)_0%,transparent_70%)] opacity-70"
+        />
+        <div className="relative mx-auto grid w-[min(1160px,90vw)] items-center gap-14 md:grid-cols-[1.05fr_.95fr]">
+          <div className="entrada">
             <span className={eyebrow}>
               Curso en línea · Nutrición &amp; Fertilidad Femenina
             </span>
@@ -60,7 +68,8 @@ export function CourseLanding({
             </div>
           </div>
           <div
-            className={`${card} relative flex aspect-[4/5] items-center justify-center overflow-hidden bg-[linear-gradient(160deg,var(--rosa),var(--dorado))]`}
+            className={`${card} entrada relative flex aspect-[4/5] items-center justify-center overflow-hidden bg-[linear-gradient(160deg,var(--rosa),var(--dorado))]`}
+            style={{ animationDelay: "90ms" }}
           >
             {course.cover_image_url ? (
               <Image
@@ -72,9 +81,8 @@ export function CourseLanding({
                 priority
               />
             ) : (
-              <svg width="72" height="72" viewBox="0 0 24 24" fill="none" stroke="var(--vino)" strokeWidth="1.2">
-                <circle cx="12" cy="12" r="10" />
-                <path d="M12 3v18M3 12h18" strokeOpacity=".3" />
+              <svg width="88" height="88" viewBox="0 0 24 24" fill="none" stroke="var(--vino)" strokeWidth="1.1" opacity=".55">
+                <path d="M12 21c-4-3-7-6.5-7-10.2C5 7 7.2 5 10 5c1 0 1.7.4 2 1 .3-.6 1-1 2-1 2.8 0 5 2 5 5.8 0 3.7-3 7.2-7 10.2z" />
               </svg>
             )}
           </div>
@@ -91,16 +99,18 @@ export function CourseLanding({
             </h2>
             <div className="mt-9 flex flex-wrap gap-6">
               {paraQuienEs.length > 0 && (
-                <div className={`${card} min-w-[280px] flex-1 border-l-4 border-[var(--vino)] p-8`}>
+                <div className={`${card} ${cardHover} min-w-[280px] flex-1 border-l-4 border-[var(--vino)] p-8`}>
                   <h3 className="mb-4 font-[family-name:var(--font-ui)] text-[1.05rem] text-[var(--vino)]">
                     Es para ti si
                   </h3>
-                  <ul className="flex flex-col gap-3 text-[.95rem] text-[var(--tinta-suave)]">
+                  <ul className="flex flex-col gap-3.5 text-[.95rem] text-[var(--tinta-suave)]">
                     {paraQuienEs.map((item, i) => (
-                      <li key={i} className="flex gap-2.5">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--carmin)" strokeWidth="2" className="mt-0.5 shrink-0">
-                          <path d="M20 6L9 17l-5-5" />
-                        </svg>
+                      <li key={i} className="flex gap-3">
+                        <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[var(--rosa)]">
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--carmin)" strokeWidth="2.5">
+                            <path d="M20 6L9 17l-5-5" />
+                          </svg>
+                        </span>
                         {item}
                       </li>
                     ))}
@@ -108,16 +118,18 @@ export function CourseLanding({
                 </div>
               )}
               {paraQuienNoEs.length > 0 && (
-                <div className={`${card} min-w-[280px] flex-1 border-l-4 border-[var(--tinta-suave)] p-8`}>
+                <div className={`${card} ${cardHover} min-w-[280px] flex-1 border-l-4 border-[var(--tinta-suave)] p-8`}>
                   <h3 className="mb-4 font-[family-name:var(--font-ui)] text-[1.05rem] text-[var(--tinta-suave)]">
                     No es para ti si
                   </h3>
-                  <ul className="flex flex-col gap-3 text-[.95rem] text-[var(--tinta-suave)]">
+                  <ul className="flex flex-col gap-3.5 text-[.95rem] text-[var(--tinta-suave)]">
                     {paraQuienNoEs.map((item, i) => (
-                      <li key={i} className="flex gap-2.5">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--tinta-suave)" strokeWidth="2" className="mt-0.5 shrink-0">
-                          <path d="M18 6L6 18M6 6l12 12" />
-                        </svg>
+                      <li key={i} className="flex gap-3">
+                        <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[var(--crema-2)]">
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--tinta-suave)" strokeWidth="2.5">
+                            <path d="M18 6L6 18M6 6l12 12" />
+                          </svg>
+                        </span>
                         {item}
                       </li>
                     ))}
@@ -145,9 +157,9 @@ export function CourseLanding({
           <div className="mx-auto w-[min(1160px,90vw)]">
             <Link
               href={`/cursos/${course.slug}/clase/${claseGratis.orden}`}
-              className={`${card} relative mx-auto flex aspect-video max-w-[820px] items-center justify-center overflow-hidden bg-[var(--vino-osc)]`}
+              className={`${card} group relative mx-auto flex aspect-video max-w-[820px] items-center justify-center overflow-hidden bg-[linear-gradient(160deg,var(--vino),var(--vino-osc))] transition-shadow duration-[var(--dur)] ease-[var(--ease)] hover:shadow-[var(--sombra-xl)]`}
             >
-              <div className="flex h-[76px] w-[76px] items-center justify-center rounded-full bg-white/92">
+              <div className="relative flex h-[76px] w-[76px] items-center justify-center rounded-full bg-white/92 shadow-[var(--sombra-md)] transition-transform duration-[var(--dur)] ease-[var(--ease)] group-hover:scale-110">
                 <svg width="28" height="28" viewBox="0 0 24 24" fill="var(--vino)">
                   <path d="M8 5v14l11-7z" />
                 </svg>
@@ -171,10 +183,12 @@ export function CourseLanding({
             </h2>
             <div className="mt-9 grid gap-6 md:grid-cols-3">
               {course.que_vas_a_aprender.map((item, i) => (
-                <div key={i} className={`${card} p-7`}>
-                  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--carmin)" strokeWidth="1.6" className="mb-3.5">
-                    <path d="M4 12l6 6 10-12" />
-                  </svg>
+                <div key={i} className={`${card} ${cardHover} p-7`}>
+                  <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-full bg-[var(--rosa)]">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--carmin)" strokeWidth="2">
+                      <path d="M4 12l6 6 10-12" />
+                    </svg>
+                  </div>
                   <p className="font-[family-name:var(--font-ui)] text-[.94rem] text-[var(--tinta)]">
                     {item}
                   </p>
@@ -195,10 +209,10 @@ export function CourseLanding({
             </h2>
             <div className="mt-8 flex max-w-[700px] flex-col gap-3.5">
               {clases.map((c) => {
-                const rowClass = `rounded-[18px] shadow-[0_18px_44px_rgba(78,15,38,.13)] flex items-center gap-4 px-6 py-4.5 ${
+                const rowClass = `rounded-[var(--radio-md)] shadow-[var(--sombra-lg)] flex items-center gap-4 px-6 py-4.5 ${
                   c.is_free_intro
-                    ? "bg-white border-[1.5px] border-[var(--carmin)] transition hover:-translate-y-0.5 hover:shadow-[0_22px_48px_rgba(78,15,38,.18)]"
-                    : "bg-[var(--crema-2)]"
+                    ? "bg-white border-[1.5px] border-[var(--carmin)] transition-[transform,box-shadow] duration-[var(--dur)] ease-[var(--ease)] hover:-translate-y-0.5 hover:shadow-[var(--sombra-xl)]"
+                    : "bg-[var(--crema-2)] shadow-[var(--sombra-sm)]"
                 }`;
                 const content = (
                   <>
@@ -256,7 +270,7 @@ export function CourseLanding({
           tiene nada cargado, cae en el texto de marca original. */}
       <section className="bg-[var(--crema-2)] py-16 md:py-20">
         <div className="mx-auto grid w-[min(1160px,90vw)] items-center gap-12 md:grid-cols-[.85fr_1.15fr]">
-          <div className="relative flex aspect-square items-center justify-center overflow-hidden rounded-[18px] bg-[linear-gradient(160deg,var(--dorado),var(--rosa))] shadow-[0_18px_44px_rgba(78,15,38,.13)]">
+          <div className="relative flex aspect-square items-center justify-center overflow-hidden rounded-[var(--radio-lg)] bg-[linear-gradient(160deg,var(--dorado),var(--rosa))] shadow-[var(--sombra-lg)] ring-1 ring-[var(--linea)]">
             {course.instructor_foto_url ? (
               <Image
                 src={course.instructor_foto_url}
@@ -266,7 +280,7 @@ export function CourseLanding({
                 className="object-cover"
               />
             ) : (
-              <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="var(--vino)" strokeWidth="1.2">
+              <svg width="72" height="72" viewBox="0 0 24 24" fill="none" stroke="var(--vino)" strokeWidth="1.1" opacity=".55">
                 <circle cx="12" cy="8" r="4" />
                 <path d="M4 21c1.5-4.5 5-6 8-6s6.5 1.5 8 6" />
               </svg>
@@ -308,9 +322,12 @@ export function CourseLanding({
             <h2 className="max-w-[20ch] text-[clamp(1.7rem,3.4vw,2.3rem)]">Testimonios</h2>
             <div className="mt-8 grid gap-6 md:grid-cols-3">
               {testimonios.map((t, i) => (
-                <div key={i} className={`${card} p-7`}>
+                <div key={i} className={`${card} ${cardHover} p-7`}>
+                  <svg width="28" height="22" viewBox="0 0 32 24" fill="var(--rosa)" className="mb-3">
+                    <path d="M9.5 0C4.3 0 0 4.6 0 10.3 0 15 3.1 18 7 18c-.4 4-3 5.6-5 6l1 3c5-1 9-4.8 9-11.5C12 8 9.7 5 6.5 5c.3-2 2-3 5-3.4L9.5 0zm18 0c-5.2 0-9.5 4.6-9.5 10.3 0 4.7 3.1 7.7 7 7.7-.4 4-3 5.6-5 6l1 3c5-1 9-4.8 9-11.5 0-6.5-2.3-9.5-5.5-9.5.3-2 2-3 5-3.4L27.5 0z" />
+                  </svg>
                   <p className="mb-4 font-[family-name:var(--font-heading)] italic text-[var(--vino)]">
-                    “{t.texto}”
+                    {t.texto}
                   </p>
                   <span className="font-[family-name:var(--font-ui)] text-[.8rem] text-[var(--tinta-suave)]">
                     — {t.autor}
@@ -323,14 +340,18 @@ export function CourseLanding({
       )}
 
       {/* 8. Precio + CTA — sin garantía/reembolso (política del negocio) */}
-      <section id="precio" className="bg-[var(--vino)] py-16 text-white md:py-20">
-        <div className="mx-auto w-[min(760px,90vw)] text-center">
+      <section id="precio" className="relative overflow-hidden bg-[var(--vino)] py-16 text-white md:py-20">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,var(--vino-claro)_0%,transparent_60%)] opacity-60"
+        />
+        <div className="relative mx-auto w-[min(760px,90vw)] text-center">
           <span className={`${eyebrow} !text-[var(--dorado)]`}>Inversión</span>
           <h2 className="!text-white">{course.titulo}</h2>
-          <div className="my-5 font-[family-name:var(--font-heading)] text-[2.6rem] font-semibold">
+          <div className="my-6 inline-flex items-baseline gap-3 rounded-[var(--radio-lg)] border border-white/15 bg-white/[.06] px-8 py-5 font-[family-name:var(--font-heading)] text-[2.6rem] font-semibold shadow-[var(--sombra-lg)]">
             {formatCLP(course.precio)}
             {course.precio_original && (
-              <span className="ml-3 text-[1.4rem] font-normal text-white/50 line-through">
+              <span className="text-[1.4rem] font-normal text-white/50 line-through">
                 {formatCLP(course.precio_original)}
               </span>
             )}
@@ -339,7 +360,10 @@ export function CourseLanding({
             Pago único · con cuotas sin interés disponibles · acceso sin
             vencimiento
           </p>
-          <a href={`/checkout/${course.slug}`} className="inline-flex items-center gap-2 rounded-full bg-white px-8 py-3.5 font-[family-name:var(--font-ui)] text-[.92rem] font-medium text-[var(--vino)] transition hover:-translate-y-0.5">
+          <a
+            href={`/checkout/${course.slug}`}
+            className="inline-flex items-center gap-2 rounded-full bg-white px-9 py-4 font-[family-name:var(--font-ui)] text-[.95rem] font-semibold text-[var(--vino)] shadow-[var(--sombra-lg)] transition-[transform,box-shadow] duration-[var(--dur)] ease-[var(--ease)] hover:-translate-y-[3px] hover:shadow-[var(--sombra-xl)] active:translate-y-0"
+          >
             Comprar el curso
           </a>
         </div>
@@ -353,9 +377,20 @@ export function CourseLanding({
             <h2 className="text-[clamp(1.7rem,3.4vw,2.3rem)]">FAQ</h2>
             <div className="mt-7 flex flex-col gap-3">
               {course.faq.map((item, i) => (
-                <details key={i} className={`${card} px-6 py-5`}>
-                  <summary className="cursor-pointer list-none font-[family-name:var(--font-ui)] text-[1.05rem] font-semibold text-[var(--vino)]">
+                <details key={i} className={`${card} group px-6 py-5 transition-shadow duration-[var(--dur)] ease-[var(--ease)] open:shadow-[var(--sombra-xl)]`}>
+                  <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-[family-name:var(--font-ui)] text-[1.05rem] font-semibold text-[var(--vino)]">
                     {item.pregunta}
+                    <svg
+                      width="16"
+                      height="16"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="var(--carmin)"
+                      strokeWidth="2.5"
+                      className="shrink-0 transition-transform duration-[var(--dur)] ease-[var(--ease)] group-open:rotate-45"
+                    >
+                      <path d="M12 5v14M5 12h14" />
+                    </svg>
                   </summary>
                   <p className="mt-3 text-[.93rem] text-[var(--tinta-suave)]">{item.respuesta}</p>
                 </details>

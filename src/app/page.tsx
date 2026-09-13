@@ -5,7 +5,7 @@ import { formatCLP } from "@/lib/types";
 import Image from "next/image";
 import Link from "next/link";
 
-const card = "rounded-[18px] bg-white shadow-[0_12px_30px_rgba(78,15,38,.1)]";
+const card = "rounded-[var(--radio-md)] bg-white shadow-[var(--sombra-md)]";
 
 // Home del subdominio de cursos: catálogo de cursos publicados. No es la
 // landing de marca del sitio principal (eso queda en alimentatufertilidad.com,
@@ -22,36 +22,42 @@ export default async function Home() {
   return (
     <div className="flex min-h-svh flex-col bg-[var(--crema)]">
       <SiteHeader />
-      <main id="contenido-principal" className="mx-auto w-[min(1160px,90vw)] flex-1 py-14">
-        <h1 className="mb-2 text-[clamp(1.9rem,4vw,2.6rem)]">Cursos disponibles</h1>
-        <p className="mb-10 max-w-[60ch] text-[1.05rem] text-[var(--tinta-suave)]">
-          Nutrición y fertilidad femenina, con Marcela Calderón.
-        </p>
+      <main id="contenido-principal" className="relative mx-auto w-[min(1160px,90vw)] flex-1 py-14">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -top-10 -left-24 h-[420px] w-[420px] rounded-full bg-[radial-gradient(circle,var(--rosa)_0%,transparent_70%)] opacity-60"
+        />
+        <div className="entrada relative">
+          <h1 className="mb-2 text-[clamp(1.9rem,4vw,2.6rem)]">Cursos disponibles</h1>
+          <p className="mb-10 max-w-[60ch] text-[1.05rem] text-[var(--tinta-suave)]">
+            Nutrición y fertilidad femenina, con Marcela Calderón.
+          </p>
+        </div>
 
         {!cursos || cursos.length === 0 ? (
           <p className="text-sm text-[var(--tinta-suave)]">
             Todavía no hay cursos publicados. Volvé pronto.
           </p>
         ) : (
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="relative grid gap-7 sm:grid-cols-2 lg:grid-cols-3">
             {cursos.map((c) => (
               <Link
                 key={c.slug}
                 href={`/cursos/${c.slug}`}
-                className={`${card} overflow-hidden transition hover:shadow-[0_16px_36px_rgba(78,15,38,.16)]`}
+                className={`${card} group overflow-hidden transition-[transform,box-shadow] duration-[var(--dur)] ease-[var(--ease)] hover:-translate-y-1 hover:shadow-[var(--sombra-xl)]`}
               >
-                <div className="relative flex aspect-video items-center justify-center bg-[linear-gradient(160deg,var(--rosa),var(--dorado))]">
+                <div className="relative flex aspect-video items-center justify-center overflow-hidden bg-[linear-gradient(160deg,var(--rosa),var(--dorado))]">
                   {c.cover_image_url ? (
                     <Image
                       src={c.cover_image_url}
                       alt={c.titulo}
                       fill
                       sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
-                      className="object-cover"
+                      className="object-cover transition-transform duration-[calc(var(--dur)*2)] ease-[var(--ease)] group-hover:scale-105"
                     />
                   ) : (
-                    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--vino)" strokeWidth="1.2">
-                      <circle cx="12" cy="12" r="10" />
+                    <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="var(--vino)" strokeWidth="1.1" opacity=".55">
+                      <path d="M12 21c-4-3-7-6.5-7-10.2C5 7 7.2 5 10 5c1 0 1.7.4 2 1 .3-.6 1-1 2-1 2.8 0 5 2 5 5.8 0 3.7-3 7.2-7 10.2z" />
                     </svg>
                   )}
                 </div>
