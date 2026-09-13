@@ -98,12 +98,23 @@ export async function getVimeoTranscodeStatus(
 // el tamaño más grande disponible; si Vimeo no devuelve ninguno (video recién
 // subido, sin miniatura generada todavía), se devuelve null y quien llama
 // muestra el fondo plano como fallback, no un error.
+//
+// CACHEADO A PROPÓSITO (`next: { revalidate }`) — hallazgo real 2026-09-14:
+// sin esto, cada carga de la landing pública dispara un fetch en vivo a
+// Vimeo. Una miniatura casi nunca cambia una vez generada, así que pegarle a
+// la API real en cada pageview no tiene sentido y además rompe seguido con
+// el rate limit de Vimeo (confirmado varias veces hoy mismo) — un visitante
+// real viendo el fondo plano en vez de la miniatura, por una limitación de
+// nuestra propia arquitectura, no del video. 1 hora de caché (vía el data
+// cache de Next.js/Vercel, sin tabla nueva ni migración) alcanza para que
+// esto deje de depender de Vimeo estando disponible en cada request.
 export async function getVimeoThumbnailUrl(vimeoId: string): Promise<string | null> {
   const token = process.env.VIMEO_ACCESS_TOKEN;
   if (!token) throw new Error("Falta VIMEO_ACCESS_TOKEN en las variables de entorno");
 
   const res = await fetch(`${VIMEO_API_BASE}/videos/${vimeoId}?fields=pictures.sizes`, {
     headers: vimeoHeaders(token),
+    next: { revalidate: 3600 },
   });
 
   if (!res.ok) {
