@@ -85,14 +85,21 @@ export function ClaseManager({ courseId, clases }: { courseId: string; clases: C
     else router.refresh();
   };
 
+  const [claseAbierta, setClaseAbierta] = useState<string | null>(null);
+
   return (
     <div className="flex flex-col gap-6">
       {error && <p role="alert" className="text-sm text-[var(--dorado-osc)]">{error}</p>}
 
       <div className={card}>
-        <h2 className="mb-4 font-[family-name:var(--font-ui)] text-[.95rem] font-semibold text-[var(--vino)]">
+        <h2 className="mb-1 font-[family-name:var(--font-ui)] text-[.95rem] font-semibold text-[var(--vino)]">
           Clases ({ordenadas.length})
         </h2>
+        {ordenadas.length > 0 && (
+          <p className="mb-4 text-[.8rem] text-[var(--tinta-suave)]">
+            Tocá <b>Video</b> en cualquier clase para subirle un archivo o vincular uno ya subido a Vimeo.
+          </p>
+        )}
         {ordenadas.length === 0 ? (
           <p className="text-sm text-[var(--tinta-suave)]">Todavía no hay clases.</p>
         ) : (
@@ -100,67 +107,84 @@ export function ClaseManager({ courseId, clases }: { courseId: string; clases: C
             {ordenadas.map((c, i) => (
               <div
                 key={c.id}
-                className={`flex items-center gap-3 rounded-lg border p-3 ${
-                  c.is_free_intro ? "border-[var(--carmin)]" : "border-[var(--linea)]"
-                }`}
+                className={`rounded-lg border ${c.is_free_intro ? "border-[var(--carmin)]" : "border-[var(--linea)]"}`}
               >
-                <div className="flex flex-col gap-0.5">
-                  <button
-                    type="button"
-                    disabled={i === 0}
-                    onClick={() => handleMover(i, -1)}
-                    className="text-[var(--tinta-suave)] disabled:opacity-25"
-                    aria-label="Subir"
-                  >
-                    ▲
-                  </button>
-                  <button
-                    type="button"
-                    disabled={i === ordenadas.length - 1}
-                    onClick={() => handleMover(i, 1)}
-                    className="text-[var(--tinta-suave)] disabled:opacity-25"
-                    aria-label="Bajar"
-                  >
-                    ▼
-                  </button>
-                </div>
+                <div className="flex items-center gap-3 p-3">
+                  <div className="flex flex-col gap-0.5">
+                    <button
+                      type="button"
+                      disabled={i === 0}
+                      onClick={() => handleMover(i, -1)}
+                      className="text-[var(--tinta-suave)] disabled:opacity-25"
+                      aria-label="Subir"
+                    >
+                      ▲
+                    </button>
+                    <button
+                      type="button"
+                      disabled={i === ordenadas.length - 1}
+                      onClick={() => handleMover(i, 1)}
+                      className="text-[var(--tinta-suave)] disabled:opacity-25"
+                      aria-label="Bajar"
+                    >
+                      ▼
+                    </button>
+                  </div>
 
-                <div className="flex-1">
-                  <p className="font-[family-name:var(--font-ui)] text-[.9rem]">
-                    {c.orden}. {c.titulo}
-                  </p>
-                  {c.duracion && (
-                    <p className="text-[.78rem] text-[var(--tinta-suave)]">{formatDuracion(c.duracion)}</p>
+                  <div className="flex-1">
+                    <p className="font-[family-name:var(--font-ui)] text-[.9rem]">
+                      {c.orden}. {c.titulo}
+                    </p>
+                    {c.duracion && (
+                      <p className="text-[.78rem] text-[var(--tinta-suave)]">{formatDuracion(c.duracion)}</p>
+                    )}
+                  </div>
+
+                  {c.is_free_intro ? (
+                    <span className="rounded-full bg-[var(--rosa)] px-3 py-1 font-[family-name:var(--font-ui)] text-[.72rem] uppercase text-[var(--carmin)]">
+                      Gratis
+                    </span>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => handleGratis(c.id)}
+                      className="text-[.78rem] text-[var(--tinta-suave)] underline"
+                    >
+                      Marcar gratis
+                    </button>
                   )}
-                </div>
 
-                {c.is_free_intro ? (
-                  <span className="rounded-full bg-[var(--rosa)] px-3 py-1 font-[family-name:var(--font-ui)] text-[.72rem] uppercase text-[var(--carmin)]">
-                    Gratis
+                  <span
+                    className={`rounded-full px-3 py-1 font-[family-name:var(--font-ui)] text-[.72rem] uppercase ${ESTADO_COLOR[c.estado_procesamiento]}`}
+                  >
+                    {ESTADO_LABEL[c.estado_procesamiento]}
                   </span>
-                ) : (
+
                   <button
                     type="button"
-                    onClick={() => handleGratis(c.id)}
-                    className="text-[.78rem] text-[var(--tinta-suave)] underline"
+                    onClick={() => setClaseAbierta(claseAbierta === c.id ? null : c.id)}
+                    className={`rounded-full px-3 py-1 font-[family-name:var(--font-ui)] text-[.78rem] font-medium ${
+                      claseAbierta === c.id ? "bg-[var(--vino)] text-white" : "bg-[var(--rosa)] text-[var(--carmin)]"
+                    }`}
                   >
-                    Marcar gratis
+                    Video
                   </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleBorrar(c)}
+                    className="text-[.8rem] text-[var(--dorado-osc)]"
+                  >
+                    Borrar
+                  </button>
+                </div>
+
+                {claseAbierta === c.id && (
+                  <div className="flex flex-col gap-3 border-t border-[var(--linea)] p-3">
+                    <VideoUploadWidget claseId={c.id} />
+                    <VimeoLinkWidget courseId={courseId} claseId={c.id} />
+                  </div>
                 )}
-
-                <span
-                  className={`rounded-full px-3 py-1 font-[family-name:var(--font-ui)] text-[.72rem] uppercase ${ESTADO_COLOR[c.estado_procesamiento]}`}
-                >
-                  {ESTADO_LABEL[c.estado_procesamiento]}
-                </span>
-
-                <button
-                  type="button"
-                  onClick={() => handleBorrar(c)}
-                  className="text-[.8rem] text-[var(--dorado-osc)]"
-                >
-                  Borrar
-                </button>
               </div>
             ))}
           </div>
@@ -195,23 +219,6 @@ export function ClaseManager({ courseId, clases }: { courseId: string; clases: C
           </button>
         </form>
       </div>
-
-      {ordenadas.length > 0 && (
-        <div className="flex flex-col gap-6">
-          <div>
-            <h2 className="mb-3 font-[family-name:var(--font-ui)] text-[.95rem] font-semibold text-[var(--vino)]">
-              Subir / reemplazar video
-            </h2>
-            <VideoUploadWidget clases={ordenadas} />
-          </div>
-          <div>
-            <h2 className="mb-3 font-[family-name:var(--font-ui)] text-[.95rem] font-semibold text-[var(--vino)]">
-              O vincular un video ya subido a Vimeo
-            </h2>
-            <VimeoLinkWidget courseId={courseId} clases={ordenadas} />
-          </div>
-        </div>
-      )}
     </div>
   );
 }

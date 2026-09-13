@@ -1,7 +1,7 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
-import { getVimeoTranscodeStatus } from "@/lib/vimeo";
+import { getVimeoTranscodeStatus, VimeoApiError } from "@/lib/vimeo";
 import { revalidatePath } from "next/cache";
 
 async function requireAdmin() {
@@ -138,7 +138,12 @@ export async function attachVimeoVideo(
     let info;
     try {
       info = await getVimeoTranscodeStatus(vimeoId);
-    } catch {
+    } catch (err) {
+      if (err instanceof VimeoApiError && err.status === 429) {
+        return {
+          error: "Vimeo nos está limitando temporalmente por muchos pedidos seguidos (no tiene nada que ver con tu video). Esperá un minuto y probá de nuevo.",
+        };
+      }
       return {
         error: "No se pudo encontrar ese video en la cuenta de Vimeo conectada. Confirmá que lo subiste con la misma cuenta y que el link es correcto.",
       };

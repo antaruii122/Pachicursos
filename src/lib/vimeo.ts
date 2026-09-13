@@ -55,6 +55,23 @@ export type VimeoTranscodeStatus = "in_progress" | "complete" | "error";
 // nunca se llenaba desde ningún lado del código real (solo el script de seed
 // lo hardcodeaba a mano) — hallazgo de Ricardo viendo "12 min" en el curso
 // placeholder y preguntando si eso salía del video real.
+// Error tipado para que quien llama pueda distinguir "Vimeo nos está
+// limitando por muchos pedidos" (429 — reintentar en un rato, no es un
+// problema del video) de "el video no existe / no es de esta cuenta" (403/404
+// — sí requiere que el admin revise el link). Hallazgo real 2026-09-14:
+// antes ambos casos mostraban el mismo mensaje genérico, y un 429 causado
+// por pruebas automáticas nuestras se le mostró a Ricardo como si su video
+// estuviera mal — no tiene nada que ver con lo que él hizo.
+export class VimeoApiError extends Error {
+  constructor(
+    public status: number,
+    message: string,
+  ) {
+    super(message);
+    this.name = "VimeoApiError";
+  }
+}
+
 export async function getVimeoTranscodeStatus(
   vimeoId: string,
 ): Promise<{ status: VimeoTranscodeStatus; durationSeconds: number | null }> {
@@ -67,7 +84,7 @@ export async function getVimeoTranscodeStatus(
 
   if (!res.ok) {
     const detail = await res.text();
-    throw new Error(`Vimeo respondió ${res.status}: ${detail}`);
+    throw new VimeoApiError(res.status, `Vimeo respondió ${res.status}: ${detail}`);
   }
 
   const data = (await res.json()) as { transcode: { status: VimeoTranscodeStatus }; duration?: number };

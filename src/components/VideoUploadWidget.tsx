@@ -15,12 +15,12 @@ const MAX_POLL_ATTEMPTS = 60; // ~5 minutos
 // polling a /api/vimeo/status/:id cada 5s hasta que quede "listo" (decisión
 // confirmada con Ricardo: polling desde el navegador del admin, sin
 // infraestructura nueva).
-export function VideoUploadWidget({
-  clases,
-}: {
-  clases: { id: string; orden: number; titulo: string }[];
-}) {
-  const [videoId, setVideoId] = useState(clases[0]?.id ?? "");
+//
+// Hallazgo 2026-09-14: antes recibía TODAS las clases y un <select> para
+// elegir cuál — Ricardo tenía que bajar hasta un widget compartido y elegir
+// de un dropdown en vez de actuar directo sobre la clase que estaba mirando.
+// Ahora vive scopeado a una sola clase (claseId), embebido en su propia fila.
+export function VideoUploadWidget({ claseId }: { claseId: string }) {
   const [estado, setEstado] = useState<Estado>("idle");
   const [progreso, setProgreso] = useState(0);
   const [error, setError] = useState<string | null>(null);
@@ -76,7 +76,7 @@ export function VideoUploadWidget({
       const res = await fetch("/api/vimeo/upload-url", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ video_id: videoId, filename: file.name, filesize: file.size }),
+        body: JSON.stringify({ video_id: claseId, filename: file.name, filesize: file.size }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "No se pudo iniciar la subida");
@@ -91,7 +91,7 @@ export function VideoUploadWidget({
         },
         onSuccess() {
           setEstado("procesando");
-          startPolling(videoId);
+          startPolling(claseId);
         },
         onError(err) {
           setError(err.message);
@@ -108,29 +108,12 @@ export function VideoUploadWidget({
   const ocupado = estado === "subiendo" || estado === "pidiendo-link" || estado === "procesando";
 
   return (
-    <div className="rounded-[18px] bg-white p-6 shadow-[0_12px_30px_rgba(78,15,38,.1)]">
-      <label htmlFor="clase-select" className="mb-1 block font-[family-name:var(--font-ui)] text-[.85rem] font-medium text-[var(--vino)]">
-        Clase
-      </label>
-      <select
-        id="clase-select"
-        value={videoId}
-        onChange={(e) => setVideoId(e.target.value)}
-        disabled={ocupado}
-        className="mb-4 w-full rounded-lg border border-[var(--linea)] px-3 py-2 text-sm outline-none focus:border-[var(--carmin)]"
-      >
-        {clases.map((c) => (
-          <option key={c.id} value={c.id}>
-            {c.orden}. {c.titulo}
-          </option>
-        ))}
-      </select>
-
-      <label htmlFor="video-file" className="sr-only">
-        Archivo de video
+    <div className="rounded-[14px] bg-[var(--crema-2)] p-4">
+      <label htmlFor={`video-file-${claseId}`} className="mb-1 block font-[family-name:var(--font-ui)] text-[.8rem] font-medium text-[var(--vino)]">
+        Subir archivo de video
       </label>
       <input
-        id="video-file"
+        id={`video-file-${claseId}`}
         type="file"
         accept="video/*"
         disabled={ocupado}
@@ -138,7 +121,7 @@ export function VideoUploadWidget({
           const file = e.target.files?.[0];
           if (file) handleFile(file);
         }}
-        className="mb-4 block w-full text-sm"
+        className="mb-3 block w-full text-sm"
       />
 
       {(estado === "subiendo" || estado === "procesando" || estado === "listo") && (
