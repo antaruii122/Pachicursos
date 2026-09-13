@@ -122,6 +122,29 @@ export function CourseForm({
   };
 
   return (
+    <div className="flex flex-col gap-5">
+      {initialCourse && (
+        <a
+          href={`/admin/cursos/${initialCourse.id}/clases`}
+          className="flex items-center justify-between rounded-[14px] bg-[var(--vino)] px-6 py-4 text-white transition hover:bg-[var(--vino-claro)]"
+        >
+          <span className="flex items-center gap-3">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+              <path d="M15 10l4.5-2.5v9L15 14M4 7h9a2 2 0 012 2v7a2 2 0 01-2 2H4a2 2 0 01-2-2V9a2 2 0 012-2z" />
+            </svg>
+            <span>
+              <b className="block font-[family-name:var(--font-ui)] text-[.95rem]">Clases y videos</b>
+              <span className="text-[.8rem] text-white/75">
+                {clases.length} clase{clases.length === 1 ? "" : "s"} · subir, reordenar o reemplazar video acá
+              </span>
+            </span>
+          </span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M9 6l6 6-6 6" />
+          </svg>
+        </a>
+      )}
+
     <div className="grid gap-6 md:grid-cols-[1fr_280px]">
       <form onSubmit={handleSubmit} className="flex flex-col gap-5">
         <div className={card}>
@@ -423,6 +446,7 @@ export function CourseForm({
           </div>
         )}
       </aside>
+    </div>
     </div>
   );
 }
