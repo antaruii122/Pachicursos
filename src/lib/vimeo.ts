@@ -91,6 +91,32 @@ export async function getVimeoTranscodeStatus(
   return { status: data.transcode.status, durationSeconds: data.duration ?? null };
 }
 
+// Miniatura real generada por Vimeo (campo `pictures.sizes`, estándar de su
+// API) — hallazgo repetido de Ricardo (2026-09-14, ya sabido desde la
+// auditoría del 09-13 y nunca cerrado): la clase gratis embebida no mostraba
+// ninguna miniatura real, solo un fondo plano con el botón de play. Se pide
+// el tamaño más grande disponible; si Vimeo no devuelve ninguno (video recién
+// subido, sin miniatura generada todavía), se devuelve null y quien llama
+// muestra el fondo plano como fallback, no un error.
+export async function getVimeoThumbnailUrl(vimeoId: string): Promise<string | null> {
+  const token = process.env.VIMEO_ACCESS_TOKEN;
+  if (!token) throw new Error("Falta VIMEO_ACCESS_TOKEN en las variables de entorno");
+
+  const res = await fetch(`${VIMEO_API_BASE}/videos/${vimeoId}?fields=pictures.sizes`, {
+    headers: vimeoHeaders(token),
+  });
+
+  if (!res.ok) {
+    const detail = await res.text();
+    throw new VimeoApiError(res.status, `Vimeo respondió ${res.status}: ${detail}`);
+  }
+
+  const data = (await res.json()) as { pictures?: { sizes?: { width: number; link: string }[] } };
+  const sizes = data.pictures?.sizes ?? [];
+  if (sizes.length === 0) return null;
+  return sizes.reduce((biggest, s) => (s.width > biggest.width ? s : biggest), sizes[0]).link;
+}
+
 // player_embed_url ya incluye el hash de privacidad cuando hace falta (video
 // unlisted) — se devuelve tal cual la entrega la API, nunca se arma la URL
 // a mano (eso rompe con privacidad "unlisted"). Campo confirmado real

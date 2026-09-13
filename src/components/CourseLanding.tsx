@@ -21,9 +21,11 @@ const cardHover =
 export function CourseLanding({
   course,
   clases,
+  claseGratisThumbnailUrl,
 }: {
   course: Course;
   clases: ClaseResumen[];
+  claseGratisThumbnailUrl?: string | null;
 }) {
   const paraQuienEs = toBullets(course.para_quien_es);
   const paraQuienNoEs = toBullets(course.para_quien_no_es);
@@ -159,6 +161,21 @@ export function CourseLanding({
               href={`/cursos/${course.slug}/clase/${claseGratis.orden}`}
               className={`${card} group relative mx-auto flex aspect-video max-w-[820px] items-center justify-center overflow-hidden bg-[linear-gradient(160deg,var(--vino),var(--vino-osc))] transition-shadow duration-[var(--dur)] ease-[var(--ease)] hover:shadow-[var(--sombra-xl)]`}
             >
+              {claseGratisThumbnailUrl && (
+                <>
+                  <Image
+                    src={claseGratisThumbnailUrl}
+                    alt=""
+                    fill
+                    sizes="(min-width: 820px) 820px, 90vw"
+                    className="object-cover transition-transform duration-[calc(var(--dur)*2)] ease-[var(--ease)] group-hover:scale-105"
+                  />
+                  {/* Oscurece la miniatura real lo justo para que el botón de
+                      play blanco y el label siempre se lean, sin importar
+                      cuán clara sea la miniatura que Vimeo generó. */}
+                  <div className="absolute inset-0 bg-black/25" />
+                </>
+              )}
               <div className="relative flex h-[76px] w-[76px] items-center justify-center rounded-full bg-white/92 shadow-[var(--sombra-md)] transition-transform duration-[var(--dur)] ease-[var(--ease)] group-hover:scale-110">
                 <svg width="28" height="28" viewBox="0 0 24 24" fill="var(--vino)">
                   <path d="M8 5v14l11-7z" />
