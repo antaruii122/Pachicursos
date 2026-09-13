@@ -21,11 +21,18 @@ interface ImageUploadFieldProps {
 // cambio de esquema ni tocar dónde se muestran estas imágenes.
 export function ImageUploadField({ label, helpText, value, onChange, aspect = "aspect-video" }: ImageUploadFieldProps) {
   const [subiendo, setSubiendo] = useState(false);
+  const [subioRecien, setSubioRecien] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  // Hallazgo real de Ricardo (2026-09-14): la imagen sube de verdad al
+  // instante, pero el curso en sí solo se guarda al tocar "Guardar" más
+  // abajo — sin este aviso, la subida se ve "terminada" (aparece la
+  // preview) y da la impresión de que ya quedó, aunque nada se haya escrito
+  // todavía en la base. `subioRecien` fuerza un recordatorio visible.
   const handleFile = async (file: File) => {
     setSubiendo(true);
+    setSubioRecien(false);
     setError(null);
     const formData = new FormData();
     formData.append("file", file);
@@ -34,6 +41,7 @@ export function ImageUploadField({ label, helpText, value, onChange, aspect = "a
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "No se pudo subir la imagen");
       onChange(data.url);
+      setSubioRecien(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error desconocido");
     } finally {
@@ -94,6 +102,11 @@ export function ImageUploadField({ label, helpText, value, onChange, aspect = "a
           e.target.value = "";
         }}
       />
+      {subioRecien && !error && (
+        <p role="status" className="mt-1.5 text-xs font-medium text-[var(--carmin)]">
+          ✓ Imagen subida — tocá <b>Guardar</b> al final del formulario para aplicar el cambio.
+        </p>
+      )}
       {error && (
         <p role="alert" className="mt-1.5 text-xs text-[var(--dorado-osc)]">
           {error}

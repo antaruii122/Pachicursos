@@ -22,6 +22,9 @@ export interface Course {
   testimonios: { texto: string; autor: string }[] | null;
   seo_titulo: string | null;
   seo_descripcion: string | null;
+  instructor_nombre: string | null;
+  instructor_bio: string | null;
+  instructor_foto_url: string | null;
 }
 
 export interface ClaseResumen {

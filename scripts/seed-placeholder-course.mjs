@@ -62,15 +62,19 @@ const CURSO_PLACEHOLDER = {
   testimonios: [],
 };
 
-// `duracion` acá es de mentira (nunca hubo un video real subido a estas
-// clases) — en cursos reales la escribe automáticamente el polling de
-// /api/vimeo/status/[videoId] leyendo la duración real del video de Vimeo
-// una vez que termina de procesar (ver src/lib/vimeo.ts).
+// Sin `duracion` ni `estado_procesamiento` acá a propósito (hallazgo real de
+// Ricardo, 2026-09-14): antes este script forzaba "listo" + una duración
+// inventada en TODAS las clases, aunque nunca hubiera un video real subido —
+// el admin veía "LISTO" en clases sin ningún video, un dato directamente
+// falso. Sin estos dos campos, una clase nueva cae en el default real de la
+// tabla (`estado_procesamiento = 'subiendo'`, `duracion = null`), y una clase
+// que ya tiene un video real vinculado (como la 1, ver abajo) no se pisa,
+// porque un campo ausente en el objeto no se toca en el upsert.
 const CLASES_PLACEHOLDER = [
-  { orden: 1, titulo: "Introducción: tu ciclo, tu mapa", duracion: 720, is_free_intro: true },
-  { orden: 2, titulo: "Hormonas y ciclo: lo que nadie te explicó", duracion: 1080 },
-  { orden: 3, titulo: "Plato antiinflamatorio para tu fase folicular", duracion: 1320 },
-  { orden: 4, titulo: "Ovulación: cómo apoyarla con alimentación", duracion: 960 },
+  { orden: 1, titulo: "Introducción: tu ciclo, tu mapa", is_free_intro: true },
+  { orden: 2, titulo: "Hormonas y ciclo: lo que nadie te explicó" },
+  { orden: 3, titulo: "Plato antiinflamatorio para tu fase folicular" },
+  { orden: 4, titulo: "Ovulación: cómo apoyarla con alimentación" },
 ];
 
 async function main() {

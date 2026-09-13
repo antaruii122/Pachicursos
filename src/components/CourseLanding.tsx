@@ -250,29 +250,52 @@ export function CourseLanding({
         </section>
       )}
 
-      {/* 6. Autoridad/instructor — contenido fijo de marca, no por curso */}
+      {/* 6. Autoridad/instructor — editable por curso desde 2026-09-14
+          (hallazgo real: antes era contenido fijo en el código, sin ningún
+          campo en el admin para cambiar la foto o la bio). Si el curso no
+          tiene nada cargado, cae en el texto de marca original. */}
       <section className="bg-[var(--crema-2)] py-16 md:py-20">
         <div className="mx-auto grid w-[min(1160px,90vw)] items-center gap-12 md:grid-cols-[.85fr_1.15fr]">
-          <div className="flex aspect-square items-center justify-center rounded-[18px] bg-[linear-gradient(160deg,var(--dorado),var(--rosa))] shadow-[0_18px_44px_rgba(78,15,38,.13)]">
-            <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="var(--vino)" strokeWidth="1.2">
-              <circle cx="12" cy="8" r="4" />
-              <path d="M4 21c1.5-4.5 5-6 8-6s6.5 1.5 8 6" />
-            </svg>
+          <div className="relative flex aspect-square items-center justify-center overflow-hidden rounded-[18px] bg-[linear-gradient(160deg,var(--dorado),var(--rosa))] shadow-[0_18px_44px_rgba(78,15,38,.13)]">
+            {course.instructor_foto_url ? (
+              <Image
+                src={course.instructor_foto_url}
+                alt={course.instructor_nombre ?? "Marcela Calderón"}
+                fill
+                sizes="(min-width: 768px) 40vw, 90vw"
+                className="object-cover"
+              />
+            ) : (
+              <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="var(--vino)" strokeWidth="1.2">
+                <circle cx="12" cy="8" r="4" />
+                <path d="M4 21c1.5-4.5 5-6 8-6s6.5 1.5 8 6" />
+              </svg>
+            )}
           </div>
           <div>
             <span className={eyebrow}>Quién te enseña</span>
-            <h2 className="text-[clamp(1.7rem,3.4vw,2.3rem)]">Marcela Calderón</h2>
-            <p className="mb-4 max-w-[60ch] text-[1.05rem] text-[var(--tinta-suave)]">
-              Nutricionista clínica, especializada en nutrición hormonal y
-              fertilidad femenina. Fundadora de Alimenta tu Fertilidad y de
-              Academia NUTFEM, donde forma a otros profesionales de la
-              nutrición en salud hormonal con enfoque no peso-céntrico.
-            </p>
-            <p className="max-w-[60ch] text-[1.05rem] text-[var(--tinta-suave)]">
-              Ha acompañado a cientos de mujeres a entender su ciclo y
-              preparar su cuerpo para la maternidad desde la alimentación, con
-              base clínica y sin dietas de moda.
-            </p>
+            <h2 className="text-[clamp(1.7rem,3.4vw,2.3rem)]">
+              {course.instructor_nombre ?? "Marcela Calderón"}
+            </h2>
+            {course.instructor_bio ? (
+              <p className="max-w-[60ch] whitespace-pre-line text-[1.05rem] text-[var(--tinta-suave)]">
+                {course.instructor_bio}
+              </p>
+            ) : (
+              <>
+                <p className="mb-4 max-w-[60ch] text-[1.05rem] text-[var(--tinta-suave)]">
+                  Nutricionista clínica, especializada en nutrición hormonal y
+                  fertilidad femenina. Fundadora de Alimenta tu Fertilidad y de
+                  Academia NUTFEM, donde forma a otros profesionales de la
+                  nutrición en salud hormonal con enfoque no peso-céntrico.
+                </p>
+                <p className="max-w-[60ch] text-[1.05rem] text-[var(--tinta-suave)]">
+                  Ha acompañado a cientos de mujeres a entender su ciclo y
+                  preparar su cuerpo para la maternidad desde la alimentación, con
+                  base clínica y sin dietas de moda.
+                </p>
+              </>
+            )}
           </div>
         </div>
       </section>

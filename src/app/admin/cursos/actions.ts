@@ -22,6 +22,9 @@ export interface CourseFormData {
   seo_descripcion: string;
   cover_image_url: string;
   background_image_url: string;
+  instructor_nombre: string;
+  instructor_bio: string;
+  instructor_foto_url: string;
 }
 
 // Defensa en profundidad: aunque las policies RLS de "courses" ya exigen
@@ -64,6 +67,9 @@ export async function saveCourse(
       seo_descripcion: data.seo_descripcion || null,
       cover_image_url: data.cover_image_url || null,
       background_image_url: data.background_image_url || null,
+      instructor_nombre: data.instructor_nombre || null,
+      instructor_bio: data.instructor_bio || null,
+      instructor_foto_url: data.instructor_foto_url || null,
       updated_at: new Date().toISOString(),
     };
 

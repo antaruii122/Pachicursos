@@ -43,6 +43,9 @@ export function CourseForm({
   const [backgroundImageUrl, setBackgroundImageUrl] = useState(
     initialCourse?.background_image_url ?? "",
   );
+  const [instructorNombre, setInstructorNombre] = useState(initialCourse?.instructor_nombre ?? "");
+  const [instructorBio, setInstructorBio] = useState(initialCourse?.instructor_bio ?? "");
+  const [instructorFotoUrl, setInstructorFotoUrl] = useState(initialCourse?.instructor_foto_url ?? "");
 
   const [guardando, setGuardando] = useState(false);
   const [mensaje, setMensaje] = useState<string | null>(null);
@@ -89,6 +92,9 @@ export function CourseForm({
       seo_descripcion: seoDescripcion,
       cover_image_url: coverImageUrl,
       background_image_url: backgroundImageUrl,
+      instructor_nombre: instructorNombre,
+      instructor_bio: instructorBio,
+      instructor_foto_url: instructorFotoUrl,
     };
 
     const result = await saveCourse(data);
@@ -352,16 +358,61 @@ export function CourseForm({
           </div>
         </div>
 
-        {error && <p role="alert" className="text-sm text-[var(--dorado-osc)]">{error}</p>}
-        {mensaje && <p className="text-sm font-medium text-[var(--vino)]">{mensaje}</p>}
+        <div className={card}>
+          <h2 className="mb-1 font-[family-name:var(--font-ui)] text-[.95rem] font-semibold text-[var(--vino)]">
+            Instructor
+          </h2>
+          <p className="mb-4 text-xs text-[var(--tinta-suave)]">
+            Se muestra en la sección &quot;Quién te enseña&quot; de la landing. Antes esto estaba
+            fijo en el código (nombre y foto de Marcela hardcodeados) — hallazgo real: no había
+            forma de cambiarlo sin tocar código. Si se deja vacío, la landing usa &quot;Marcela
+            Calderón&quot; por defecto y no muestra foto.
+          </p>
+          <div className="flex flex-col gap-4">
+            <div>
+              <label htmlFor="f-instructor-nombre" className={label}>Nombre</label>
+              <input
+                id="f-instructor-nombre"
+                className={input}
+                value={instructorNombre}
+                onChange={(e) => setInstructorNombre(e.target.value)}
+                placeholder="Marcela Calderón"
+              />
+            </div>
+            <div>
+              <label htmlFor="f-instructor-bio" className={label}>Bio</label>
+              <textarea
+                id="f-instructor-bio"
+                className={`${input} min-h-[90px]`}
+                value={instructorBio}
+                onChange={(e) => setInstructorBio(e.target.value)}
+              />
+            </div>
+            <ImageUploadField
+              label="Foto"
+              value={instructorFotoUrl}
+              onChange={setInstructorFotoUrl}
+              aspect="aspect-square"
+            />
+          </div>
+        </div>
 
-        <button
-          type="submit"
-          disabled={guardando}
-          className="rounded-full bg-[var(--vino)] px-6 py-3 font-[family-name:var(--font-ui)] text-[.92rem] font-medium text-white hover:bg-[var(--vino-claro)] disabled:opacity-60"
-        >
-          {guardando ? "Guardando..." : "Guardar"}
-        </button>
+        {/* Sticky a propósito (hallazgo real de Ricardo, 2026-09-14): subir
+            una imagen se siente "terminado" apenas aparece la preview, pero
+            nada se guarda hasta tocar este botón — si además queda perdido
+            al final de un formulario largo, ese cambio se pierde en
+            silencio. Fijo abajo de la pantalla, siempre visible. */}
+        <div className="sticky bottom-0 z-10 -mx-6 mt-2 flex items-center gap-4 border-t border-[var(--linea)] bg-[rgba(253,247,248,.97)] px-6 py-3 backdrop-blur-sm">
+          <button
+            type="submit"
+            disabled={guardando}
+            className="rounded-full bg-[var(--vino)] px-6 py-3 font-[family-name:var(--font-ui)] text-[.92rem] font-medium text-white hover:bg-[var(--vino-claro)] disabled:opacity-60"
+          >
+            {guardando ? "Guardando..." : "Guardar"}
+          </button>
+          {error && <p role="alert" className="text-sm text-[var(--dorado-osc)]">{error}</p>}
+          {mensaje && <p className="text-sm font-medium text-[var(--vino)]">{mensaje}</p>}
+        </div>
       </form>
 
       <aside className="flex flex-col gap-4">
