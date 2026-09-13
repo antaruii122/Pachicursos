@@ -1,6 +1,7 @@
 "use client";
 
 import { CourseFormData, deleteCourse, saveCourse, setCourseEstado } from "@/app/admin/cursos/actions";
+import { ImageUploadField } from "@/components/admin/ImageUploadField";
 import { calcularCompletitud, Course, slugify } from "@/lib/types";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -323,19 +324,18 @@ export function CourseForm({
             Imágenes y SEO
           </h2>
           <div className="flex flex-col gap-4">
-            <div>
-              <label htmlFor="f-cover" className={label}>URL imagen de portada</label>
-              <input id="f-cover" className={input} value={coverImageUrl} onChange={(e) => setCoverImageUrl(e.target.value)} />
-            </div>
-            <div>
-              <label htmlFor="f-background" className={label}>URL imagen de fondo</label>
-              <input
-                id="f-background"
-                className={input}
-                value={backgroundImageUrl}
-                onChange={(e) => setBackgroundImageUrl(e.target.value)}
-              />
-            </div>
+            <ImageUploadField
+              label="Imagen de portada"
+              helpText="Se muestra en el hero de la landing del curso y en la card del catálogo."
+              value={coverImageUrl}
+              onChange={setCoverImageUrl}
+            />
+            <ImageUploadField
+              label="Imagen de fondo"
+              helpText="Fondo decorativo de la landing (opcional)."
+              value={backgroundImageUrl}
+              onChange={setBackgroundImageUrl}
+            />
             <div>
               <label htmlFor="f-seo-titulo" className={label}>Título SEO</label>
               <input id="f-seo-titulo" className={input} value={seoTitulo} onChange={(e) => setSeoTitulo(e.target.value)} />
