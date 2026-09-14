@@ -27,6 +27,14 @@ export interface Course {
   instructor_foto_url: string | null;
 }
 
+export interface Profile {
+  id: string;
+  nombre: string | null;
+  email: string | null;
+  role: "admin" | "alumno";
+  created_at: string;
+}
+
 export interface ClaseResumen {
   id: string;
   orden: number;

@@ -1,3 +1,4 @@
+import { AccountMenu } from "@/components/account/AccountMenu";
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
 
@@ -8,9 +9,17 @@ export async function SiteHeader() {
   } = await supabase.auth.getUser();
 
   let isAdmin = false;
+  let nombre = "";
+  let email: string | null = null;
   if (user) {
-    const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).single();
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("role, nombre, email")
+      .eq("id", user.id)
+      .single();
     isAdmin = profile?.role === "admin";
+    nombre = profile?.nombre || user.email?.split("@")[0] || "Cuenta";
+    email = profile?.email ?? user.email ?? null;
   }
 
   return (
@@ -44,19 +53,7 @@ export async function SiteHeader() {
             Volver al sitio principal
           </a>
           {user ? (
-            <>
-              {isAdmin && (
-                <Link href="/admin/cursos" className="font-medium text-[var(--carmin)] hover:text-[var(--vino)]">
-                  Panel admin
-                </Link>
-              )}
-              <Link href="/cuenta/mis-cursos" className="text-[var(--tinta)] hover:text-[var(--vino)]">
-                Mis cursos
-              </Link>
-              <Link href="/cuenta/logout" className="text-[var(--tinta-suave)] hover:text-[var(--vino)]">
-                Cerrar sesión
-              </Link>
-            </>
+            <AccountMenu nombre={nombre} email={email} isAdmin={isAdmin} />
           ) : (
             <Link href="/cuenta/login" className="text-[var(--tinta)] hover:text-[var(--vino)]">
               Iniciar sesión
