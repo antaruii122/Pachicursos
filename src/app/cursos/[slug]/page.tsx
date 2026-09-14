@@ -12,7 +12,7 @@ async function getCourseData(slug: string) {
   const { data: course } = await supabase
     .from("courses")
     .select(
-      "id, slug, titulo, subtitulo_corto, promesa_principal, descripcion, precio, precio_original, estado, cover_image_url, background_image_url, para_quien_es, para_quien_no_es, que_vas_a_aprender, requisitos, faq, testimonios",
+      "id, slug, titulo, subtitulo_corto, promesa_principal, descripcion, precio, precio_original, estado, cover_image_url, background_image_url, para_quien_es, para_quien_no_es, que_vas_a_aprender, requisitos, faq, testimonios, instructor_nombre, instructor_bio, instructor_foto_url",
     )
     .eq("slug", slug)
     .maybeSingle();

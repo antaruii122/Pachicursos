@@ -358,52 +358,44 @@ export function CourseForm({
           </div>
         </div>
 
-        {/* Oculto a propósito hasta que se confirme que la migración 0005
-            (agrega instructor_nombre/bio/foto_url a courses) se corrió en el
-            proyecto real — mostrarlo ahora dejaría que el admin cargue estos
-            campos y los pierda en silencio al guardar (ni siquiera se llega
-            a intentar el UPDATE de esta parte, ver actions.ts). Sacar este
-            `false &&` en cuanto Ricardo confirme 0005. */}
-        {false && (
-          <div className={card}>
-            <h2 className="mb-1 font-[family-name:var(--font-ui)] text-[.95rem] font-semibold text-[var(--vino)]">
-              Instructor
-            </h2>
-            <p className="mb-4 text-xs text-[var(--tinta-suave)]">
-              Se muestra en la sección &quot;Quién te enseña&quot; de la landing. Antes esto estaba
-              fijo en el código (nombre y foto de Marcela hardcodeados) — hallazgo real: no había
-              forma de cambiarlo sin tocar código. Si se deja vacío, la landing usa &quot;Marcela
-              Calderón&quot; por defecto y no muestra foto.
-            </p>
-            <div className="flex flex-col gap-4">
-              <div>
-                <label htmlFor="f-instructor-nombre" className={label}>Nombre</label>
-                <input
-                  id="f-instructor-nombre"
-                  className={input}
-                  value={instructorNombre}
-                  onChange={(e) => setInstructorNombre(e.target.value)}
-                  placeholder="Marcela Calderón"
-                />
-              </div>
-              <div>
-                <label htmlFor="f-instructor-bio" className={label}>Bio</label>
-                <textarea
-                  id="f-instructor-bio"
-                  className={`${input} min-h-[90px]`}
-                  value={instructorBio}
-                  onChange={(e) => setInstructorBio(e.target.value)}
-                />
-              </div>
-              <ImageUploadField
-                label="Foto"
-                value={instructorFotoUrl}
-                onChange={setInstructorFotoUrl}
-                aspect="aspect-square"
+        <div className={card}>
+          <h2 className="mb-1 font-[family-name:var(--font-ui)] text-[.95rem] font-semibold text-[var(--vino)]">
+            Instructor
+          </h2>
+          <p className="mb-4 text-xs text-[var(--tinta-suave)]">
+            Se muestra en la sección &quot;Quién te enseña&quot; de la landing. Antes esto estaba
+            fijo en el código (nombre y foto de Marcela hardcodeados) — hallazgo real: no había
+            forma de cambiarlo sin tocar código. Si se deja vacío, la landing usa &quot;Marcela
+            Calderón&quot; por defecto y no muestra foto.
+          </p>
+          <div className="flex flex-col gap-4">
+            <div>
+              <label htmlFor="f-instructor-nombre" className={label}>Nombre</label>
+              <input
+                id="f-instructor-nombre"
+                className={input}
+                value={instructorNombre}
+                onChange={(e) => setInstructorNombre(e.target.value)}
+                placeholder="Marcela Calderón"
               />
             </div>
+            <div>
+              <label htmlFor="f-instructor-bio" className={label}>Bio</label>
+              <textarea
+                id="f-instructor-bio"
+                className={`${input} min-h-[90px]`}
+                value={instructorBio}
+                onChange={(e) => setInstructorBio(e.target.value)}
+              />
+            </div>
+            <ImageUploadField
+              label="Foto"
+              value={instructorFotoUrl}
+              onChange={setInstructorFotoUrl}
+              aspect="aspect-square"
+            />
           </div>
-        )}
+        </div>
 
         {/* Sticky a propósito (hallazgo real de Ricardo, 2026-09-14): subir
             una imagen se siente "terminado" apenas aparece la preview, pero

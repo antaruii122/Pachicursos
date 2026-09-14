@@ -67,13 +67,10 @@ export async function saveCourse(
       seo_descripcion: data.seo_descripcion || null,
       cover_image_url: data.cover_image_url || null,
       background_image_url: data.background_image_url || null,
+      instructor_nombre: data.instructor_nombre || null,
+      instructor_bio: data.instructor_bio || null,
+      instructor_foto_url: data.instructor_foto_url || null,
       updated_at: new Date().toISOString(),
-      // instructor_nombre/instructor_bio/instructor_foto_url deliberadamente
-      // NO están acá todavía: la migración 0005 que agrega esas columnas no
-      // se corrió en el proyecto real. Incluirlas rompía el UPDATE entero
-      // (columna inexistente = falla toda la fila, no solo esos 3 campos) —
-      // encontrado en producción el 2026-09-14 justo después de deployar.
-      // Reactivar en cuanto Ricardo confirme que corrió 0005.
     };
 
     if (data.id) {
