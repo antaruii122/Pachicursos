@@ -228,6 +228,20 @@ Con esto, un admin ya puede entrar a `/admin/cursos/[id]/editar`, cargar el nomb
 
 **Sigue pendiente** (no repriorizado por Ricardo desde antes de la interrupción de migraciones): miniaturas de video en `/admin/cursos/[id]/preview` y en "Mis cursos" (dashboard de alumno).
 
+## Auditoría "¿qué más tiene este mismo problema?" (2026-09-14)
+
+Después del bug de la bio de Marcela (un campo de admin que se guardaba bien pero no se mostraba en ningún lado), Ricardo pidió explícitamente auditar el resto del sitio buscando la misma familia de bug. Se revisó, columna por columna, cada campo de `courses` y `course_videos` contra: (a) ¿tiene formulario de admin?, (b) ¿se guarda bien?, (c) ¿algo lo muestra realmente en el sitio?
+
+Encontrados y corregidos dos casos reales más de exactamente este bug:
+- [x] **`background_image_url`**: el campo "Imagen de fondo" del admin subía y guardaba la imagen sin error, pero ningún componente la leía jamás — cero efecto visible. Ahora se usa como fondo del hero de la landing (con superposición blanca para que el texto siga siendo legible).
+- [x] **`seo_titulo` / `seo_descripcion`**: los campos de SEO del admin se guardaban bien, pero el SELECT de la landing pública ni siquiera los pedía, y `generateMetadata()` siempre armaba el `<title>`/meta description/Open Graph a partir de `titulo`/`descripcion`, ignorando lo que el admin hubiera escrito ahí. Ahora se leen y se usan primero, con el mismo fallback de antes si quedan vacíos.
+
+Ambos verificados de punta a punta con datos reales (no solo build/lint): se setearon temporalmente los dos campos en el curso real vía un script de un solo uso con `service_role`, se confirmó con `curl` contra un server de producción local que el título/descripción SEO aparecen en el `<head>` real y que la imagen de fondo se renderiza, y se revirtieron los valores de prueba antes de borrar el script.
+
+Revisado y descartado (no tienen este bug): imagen de portada, precio, "para quién es/no es", "qué vas a aprender", requisitos, FAQ, testimonios, nombre de perfil, notas de clase, avance de lección — todos muestran lo real o directamente omiten la sección si está vacía, sin contenido falso de por medio.
+
+**Siguen sin construir del todo** (no es este bug — nunca tuvieron ninguna interfaz, ni rota): `courses.accent_color`, `courses.seo_og_image`, `course_videos.resources` (adjuntar PDF/guía por clase). Decisión pendiente de Ricardo: construir la UI real o sacarlos del esquema.
+
 ---
 
 (el registro de eventos empieza acá — cada línea nueva se agrega debajo, nunca se edita una existente)
