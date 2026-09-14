@@ -12,7 +12,7 @@ async function getCourseData(slug: string) {
   const { data: course } = await supabase
     .from("courses")
     .select(
-      "id, slug, titulo, subtitulo_corto, promesa_principal, descripcion, precio, precio_original, estado, cover_image_url, background_image_url, para_quien_es, para_quien_no_es, que_vas_a_aprender, requisitos, faq, testimonios, instructor_nombre, instructor_bio, instructor_foto_url",
+      "id, slug, titulo, subtitulo_corto, promesa_principal, descripcion, precio, precio_original, estado, cover_image_url, background_image_url, para_quien_es, para_quien_no_es, que_vas_a_aprender, requisitos, faq, testimonios, seo_titulo, seo_descripcion, instructor_nombre, instructor_bio, instructor_foto_url",
     )
     .eq("slug", slug)
     .maybeSingle();
@@ -75,8 +75,13 @@ export async function generateMetadata({
   const data = await getCourseData(slug);
   if (!data) return {};
 
-  const title = `${data.course.titulo} — Alimenta Tu Fertilidad`;
-  const description = data.course.descripcion ?? data.course.subtitulo_corto ?? undefined;
+  // `seo_titulo`/`seo_descripcion` — hallazgo real (2026-09-14): el admin
+  // podía cargar estos dos campos y se guardaban bien, pero esta función
+  // nunca los leía — el <title>/meta description/Open Graph siempre salían
+  // de `titulo`/`descripcion` sin importar lo que dijera el form.
+  const title = data.course.seo_titulo || `${data.course.titulo} — Alimenta Tu Fertilidad`;
+  const description =
+    data.course.seo_descripcion || data.course.descripcion || data.course.subtitulo_corto || undefined;
   const images = data.course.cover_image_url ? [{ url: data.course.cover_image_url }] : undefined;
 
   return {

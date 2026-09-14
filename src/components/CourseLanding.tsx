@@ -39,12 +39,30 @@ export function CourseLanding({
       <main id="contenido-principal">
       {/* 1. Hero */}
       <section className="relative overflow-hidden pt-14 pb-16 md:pt-20">
-        {/* Forma decorativa de fondo, solo para dar profundidad al hero —
-            mismos tokens de marca, nunca un color nuevo. */}
-        <div
-          aria-hidden
-          className="pointer-events-none absolute -top-24 -right-24 h-[480px] w-[480px] rounded-full bg-[radial-gradient(circle,var(--rosa)_0%,transparent_70%)] opacity-70"
-        />
+        {/* `background_image_url` — hallazgo real (2026-09-14): el campo
+            "Imagen de fondo" del admin se subía y guardaba bien, pero nada
+            en la landing lo leía nunca, así que no tenía ningún efecto
+            visible aunque el admin lo hubiera cargado. Ahora sí se usa acá,
+            como fondo del hero. Si no hay imagen cargada, cae en la misma
+            forma decorativa de siempre. */}
+        {course.background_image_url ? (
+          <>
+            <Image
+              src={course.background_image_url}
+              alt=""
+              fill
+              sizes="100vw"
+              className="object-cover"
+              priority
+            />
+            <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,.93),rgba(255,255,255,.86)_55%,var(--crema)_100%)]" />
+          </>
+        ) : (
+          <div
+            aria-hidden
+            className="pointer-events-none absolute -top-24 -right-24 h-[480px] w-[480px] rounded-full bg-[radial-gradient(circle,var(--rosa)_0%,transparent_70%)] opacity-70"
+          />
+        )}
         <div className="relative mx-auto grid w-[min(1160px,90vw)] items-center gap-14 md:grid-cols-[1.05fr_.95fr]">
           <div className="entrada">
             <span className={eyebrow}>
