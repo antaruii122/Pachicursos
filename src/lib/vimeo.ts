@@ -12,6 +12,8 @@
 // "complete" o "error" (fuente: Vimeo Help Center, artículo "Get video
 // transcode status from the API").
 
+import { unstable_cache } from "next/cache";
+
 const VIMEO_API_BASE = "https://api.vimeo.com";
 
 function vimeoHeaders(token: string) {
@@ -99,22 +101,26 @@ export async function getVimeoTranscodeStatus(
 // subido, sin miniatura generada todavía), se devuelve null y quien llama
 // muestra el fondo plano como fallback, no un error.
 //
-// CACHEADO A PROPÓSITO (`next: { revalidate }`) — hallazgo real 2026-09-14:
-// sin esto, cada carga de la landing pública dispara un fetch en vivo a
-// Vimeo. Una miniatura casi nunca cambia una vez generada, así que pegarle a
-// la API real en cada pageview no tiene sentido y además rompe seguido con
-// el rate limit de Vimeo (confirmado varias veces hoy mismo) — un visitante
-// real viendo el fondo plano en vez de la miniatura, por una limitación de
-// nuestra propia arquitectura, no del video. 1 hora de caché (vía el data
-// cache de Next.js/Vercel, sin tabla nueva ni migración) alcanza para que
-// esto deje de depender de Vimeo estando disponible en cada request.
-export async function getVimeoThumbnailUrl(vimeoId: string): Promise<string | null> {
+// CACHEADO A PROPÓSITO, con `unstable_cache` en vez de `fetch(..., {next:
+// {revalidate}})` — corrección real 2026-09-14: la primera versión de esto
+// usaba el cache de `fetch` directamente, y ese cache guarda la respuesta de
+// Vimeo TAL CUAL vino, sin importar el status — así que un solo 429 de
+// rate-limit (esperable un día de pruebas intensas como hoy) quedaba
+// guardado como "sin miniatura" durante la hora entera del `revalidate`,
+// aunque Vimeo ya estuviera respondiendo bien de nuevo un segundo después
+// (confirmado: pegándole a la API de Vimeo directo mientras la miniatura
+// aparecía en blanco en el sitio, Vimeo devolvía 200 con los datos reales).
+// `unstable_cache` solo persiste el RESULTADO resuelto de la función — si
+// adentro se lanza `VimeoApiError`, esa rechazo nunca se guarda, así que un
+// error transitorio se reintenta solo en la próxima visita, en vez de
+// quedar pegado una hora entera.
+async function fetchVimeoThumbnailUrl(vimeoId: string): Promise<string | null> {
   const token = process.env.VIMEO_ACCESS_TOKEN;
   if (!token) throw new Error("Falta VIMEO_ACCESS_TOKEN en las variables de entorno");
 
   const res = await fetch(`${VIMEO_API_BASE}/videos/${vimeoId}?fields=pictures.sizes`, {
     headers: vimeoHeaders(token),
-    next: { revalidate: 3600 },
+    cache: "no-store",
   });
 
   if (!res.ok) {
@@ -126,6 +132,10 @@ export async function getVimeoThumbnailUrl(vimeoId: string): Promise<string | nu
   const sizes = data.pictures?.sizes ?? [];
   if (sizes.length === 0) return null;
   return sizes.reduce((biggest, s) => (s.width > biggest.width ? s : biggest), sizes[0]).link;
+}
+
+export async function getVimeoThumbnailUrl(vimeoId: string): Promise<string | null> {
+  return unstable_cache(fetchVimeoThumbnailUrl, ["vimeo-thumbnail"], { revalidate: 3600 })(vimeoId);
 }
 
 // player_embed_url ya incluye el hash de privacidad cuando hace falta (video
