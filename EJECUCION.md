@@ -242,6 +242,24 @@ Revisado y descartado (no tienen este bug): imagen de portada, precio, "para qui
 
 **Siguen sin construir del todo** (no es este bug — nunca tuvieron ninguna interfaz, ni rota): `courses.accent_color`, `courses.seo_og_image`, `course_videos.resources` (adjuntar PDF/guía por clase). Decisión pendiente de Ricardo: construir la UI real o sacarlos del esquema.
 
+## Área de Perfil/Cuenta real, para alumnas y admin (2026-09-14)
+
+A pedido explícito de Ricardo ("no un perfil básico, un área de producto completa"), se reemplazó la fila plana de links de texto del header (captura: "Volver al sitio principal / Panel admin / Mis cursos / Cerrar sesión") por un área de cuenta real. Antes de construir se hizo una auditoría de qué falta lógicamente (ver plan) — sin migración de base de datos nueva, todo con columnas/tablas que ya existían.
+
+- [x] Menú de cuenta real en el header (`src/components/account/AccountMenu.tsx`): dropdown con nombre/email, Mi perfil, Mis cursos, Panel admin (solo si admin), Cerrar sesión.
+- [x] Shell compartido `/cuenta/(area)/layout.tsx` (route group, para que login/registro/logout no queden atrapados por el gate de sesión) con sub-navegación Resumen/Mis cursos/Actividad/Seguridad.
+- [x] `/cuenta/perfil`: nombre editable (ya estaba permitido por 0002, solo faltaba la UI), miembro desde, estadísticas reales de progreso, y para admin una tarjeta compacta de KPIs.
+- [x] `/cuenta/mis-cursos`: misma lógica de siempre (ahora compartida vía `lib/progreso.ts`), + badge real de "Completado".
+- [x] `/cuenta/seguridad`: cambiar contraseña sin el viaje por email de "olvidé mi contraseña" (reusa el mismo `updateUser` de siempre).
+- [x] `/cuenta/actividad`: historial de compras + actividad reciente de clases — datos 100% reales (`purchases`, `lesson_progress`), sin ninguna bandeja de notificaciones falsa.
+- [x] `/admin` (antes 404 — no existía ningún `page.tsx` en esa ruta): dashboard real con ingresos totales, alumnas pagantes, cursos publicados/totales, ventas recientes.
+- [x] `/admin/usuarios` (primera vez que existe una lista de TODOS los usuarios, no solo de compras): buscar/filtrar, y promover/degradar el rol admin desde la UI — antes esto requería correr `scripts/set-admin-role.mjs` a mano en una terminal. Bloquea que un admin se quite el rol a sí mismo (evita quedar afuera sin querer).
+- [x] Nav de `admin/layout.tsx` actualizado con Resumen/Usuarios y un link de vuelta a "Mi perfil" (antes solo tenía "Cerrar sesión").
+
+**Decisiones confirmadas con Ricardo antes de construir**: sin notificaciones en v1 (no hay ninguna infraestructura real detrás — se documenta como pendiente, no se inventa); certificados = badge real de "Completado" nomás, no PDF descargable (eso sería una funcionalidad aparte); header de admin y del sitio se mantienen separados, solo con links cruzados (no se rediseña el panel admin que ya funciona).
+
+**Verificado de punta a punta con Puppeteer** (no solo build/lint): sesión real como admin de prueba (todas las páginas cargan con datos reales), sesión real como alumna de prueba desechable creada y borrada vía la API de admin de Supabase (sin "Panel admin" en el menú, `/admin` y `/admin/usuarios` redirigen correctamente), y el botón de promover/degradar admin clickeado en vivo contra el proyecto real de Supabase con una cuenta desechable (nunca la cuenta de Ricardo ni la cuenta de prueba ya existente) — creada y borrada al terminar. Deployado y confirmado en `https://pachicursos.vercel.app` (las 6 rutas nuevas responden 200, cero errores de página).
+
 ---
 
 (el registro de eventos empieza acá — cada línea nueva se agrega debajo, nunca se edita una existente)
