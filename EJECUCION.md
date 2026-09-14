@@ -211,6 +211,23 @@ A pedido explícito y enfático de Ricardo ("the design is terrible, you fix it,
 
 **Para retomar rápido**: ver este bloque antes que nada. Los checkboxes sin marcar son exactamente lo que falta. Código de Partes C, D, E completo, F con Flow.cl completo (Stripe pausado a pedido de Ricardo, ver arriba), G arrancada. El sitio real está en producción en `https://pachicursos.vercel.app` (Vercel conectado al repo; el deploy automático en push todavía no se confirmó que ande solo, así que cada cambio de esta sesión se deployó a mano con `vercel --prod`). **Migraciones pendientes de correr en el proyecto real, en orden: `0002` (ya corrida), `0003`, `0004`, `0005`.** 🔴 **`0003` ya no es "pendiente" — es un bloqueante confirmado: sin ella, otorgar acceso manual falla siempre, para cualquier alumno.** **Pendiente en Supabase**: agregar `https://pachicursos.vercel.app` a Authentication → URL Configuration → Redirect URLs — todavía no confirmado que esté hecho, y sin esto el login por link de confirmación/reset falla aunque el login normal con contraseña funcione bien. Pendientes de Parte A: DNS del subdominio real, cuenta Resend, trámite Flow.cl (este último bloquea probar un pago real y puede tardar días/semanas — conviene iniciarlo pronto, aunque no se toque el código de pagos mientras tanto). **🔴 Nuevo bloqueante (2026-09-12): el `VIMEO_ACCESS_TOKEN` actual no tiene el scope "upload" — hay que regenerarlo en developer.vimeo.com/apps con Upload+Edit+Private tildados y actualizarlo en `.env.local` y en Vercel (ver detalle en Parte D). Sin esto, subir un video real no va a funcionar para nadie.**
 
+## Migraciones 0003/0004/0005 corridas y feature de instructor reactivado (2026-09-14)
+
+Ricardo corrió las 3 migraciones pendientes en el SQL Editor de Supabase (confirmado con "done"). Verificado con consultas directas contra la base real: `profiles.email` existe (`0003`), `courses.instructor_nombre/bio/foto_url` existen (`0005`). `0004` (política RLS de curso comprado-pero-despublicado) no se probó funcionalmente todavía, solo se infiere que corrió porque estaba en el mismo bloque SQL antes de `0005`.
+
+Con esto confirmado, se reactivó todo lo que había quedado bloqueado por el incidente del 404 (ver más arriba, "Incidente evitado a tiempo"):
+- [x] Los 3 SELECT (`editar`, `preview`, landing pública) vuelven a pedir `instructor_nombre/bio/foto_url`.
+- [x] `saveCourse` vuelve a escribir esos 3 campos.
+- [x] Se sacó el `{false && (...)}` que ocultaba la sección "Instructor" en el form de admin — ahora se ve siempre.
+- [x] Verificado local: `npm run build` y `npm run lint` limpios, servidor de producción local levantado y probado con `curl` — landing del curso responde 200 y el HTML contiene la sección "Quién te enseña" con el texto de respaldo ("Marcela Calderón", porque todavía nadie cargó el campo real).
+- [x] Commit, push, `vercel --prod`, y verificado contra el sitio real (`https://pachicursos.vercel.app/cursos/placeholder-regula-tu-ciclo` → 200, sección de instructor presente).
+
+Con esto, un admin ya puede entrar a `/admin/cursos/[id]/editar`, cargar el nombre real, la bio y subir la foto de Marcela en la sección "Instructor", guardar, y verlo reflejado en la landing pública — el hallazgo original de Ricardo ("la foto de Marcela no se puede editar, no hay forma") queda cerrado de punta a punta.
+
+**Todavía sin probar en vivo**: acceso manual (`grantAccess`, depende de `0003`) y la política RLS de `0004`. Se recomienda una prueba real la próxima vez que se otorgue acceso a un alumno.
+
+**Sigue pendiente** (no repriorizado por Ricardo desde antes de la interrupción de migraciones): miniaturas de video en `/admin/cursos/[id]/preview` y en "Mis cursos" (dashboard de alumno).
+
 ---
 
 (el registro de eventos empieza acá — cada línea nueva se agrega debajo, nunca se edita una existente)
