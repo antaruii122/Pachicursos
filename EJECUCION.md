@@ -352,3 +352,12 @@ Pendiente (no arreglado todavía):
   - Migración `0007_class_questions.sql` — **pendiente de correr por Ricardo**. El código ya maneja que la tabla no exista: la sección no aparece y nada se rompe (lección del incidente 2026-09-14).
 - [x] Mi Campus en curso sin módulos: lista de clases con check / "Sigue aquí" / duración, en vez de una sola fila.
 - [x] Lint + guardia de marca + build limpios; páginas públicas 200, admin redirige a login sin sesión. **No deployado.**
+
+## Deploy a producción (2026-09-30) — "go live" explícito de Ricardo
+
+- [x] WhatsApp sacado del panel "Datos de acceso" y de los textos (Ricardo: todavía no lo tienen). Queda solo "Copiar mensaje con los datos".
+- [x] Commit `0ff5b74`, push a `origin/master`, `vercel --prod`. Confirmado que el push también dispara deploy automático (2 deploys "Ready" en Production).
+- [x] Verificado en `https://pachicursos.vercel.app`: home, landing, clase gratis, login, favicon → 200; `/admin`, `/admin/preguntas`, `/admin/usuarios/nuevo` → 307 a login sin sesión; logo → `/`; paleta ciruela en el CSS de producción; sin logo viejo ni voseo; logs de error de Vercel vacíos.
+- Único resto de la paleta vieja en producción: sombra de las 2 páginas de `checkout/*` (congeladas por la pausa de pagos, excepción documentada en `check-marca.mjs`).
+- [ ] Pendiente: correr `0007_class_questions.sql` para activar Preguntas (el código en producción ya lo tolera). Probar en producción con sesión: Crear usuario, Nueva contraseña, subir material, módulos.
+- No se invocó `curso-platform-reviewer` — ninguna Parte se marca cerrada con esto.
