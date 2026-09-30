@@ -33,8 +33,9 @@ export async function CampusHeader() {
   const links: CampusNavLink[] = [
     { href: "/", label: "Cursos" },
     { href: "/cuenta/mis-cursos", label: "Mi Campus", activoEn: ["/cursos/"] },
-    { href: "/cuenta/actividad", label: "Actividad" },
-    { href: "/cuenta/perfil", label: "Mi perfil" },
+    { href: "/cuenta/comunidad", label: "Comunidad" },
+    // Actividad y Seguridad viven DENTRO de Mi perfil (pedido de Ricardo).
+    { href: "/cuenta/perfil", label: "Mi perfil", activoEn: ["/cuenta/actividad"] },
   ];
 
   return (

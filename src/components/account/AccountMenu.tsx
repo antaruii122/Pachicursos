@@ -97,6 +97,20 @@ export function AccountMenu({
             >
               {variante === "campus" ? "Mi Campus" : "Mis cursos"}
             </Link>
+            <Link
+              href="/cuenta/comunidad"
+              onClick={() => setAbierto(false)}
+              className="px-4 py-2 text-[var(--tinta)] hover:bg-[var(--crema-2)]"
+            >
+              Comunidad
+            </Link>
+            <Link
+              href="/cuenta/actividad"
+              onClick={() => setAbierto(false)}
+              className="px-4 py-2 text-[var(--tinta)] hover:bg-[var(--crema-2)]"
+            >
+              Actividad
+            </Link>
             {isAdmin && (
               <Link
                 href="/admin"

@@ -381,3 +381,8 @@ Pendiente (no arreglado todavía):
   - Base (los 3 cursos reales): orden 1..N sin huecos, ≤1 clase gratis, ninguna clase apuntando a un módulo borrado. Las restricciones que lo garantizan son por curso en el esquema (UNIQUE(course_id, orden), índice único de gratis por course_id, módulos con course_id, `normalizar_orden_clases(course_id)`).
   - Render, producción y local: el catálogo lista los 2 publicados y oculta el borrador; landing 200 en ambos, borrador 404; clase gratis 200, clase paga → login; módulos del curso "test" aparecen en landing y en el reproductor.
   - No verificado visualmente: Mi Campus de una alumna con 2 cursos a la vez (la lógica lo soporta — lista "Tus otros cursos" — pero ninguna cuenta tiene 2 cursos hoy).
+
+## Menú del campus: Cursos · Mi Campus · Comunidad · Mi perfil (2026-09-30)
+
+- [x] Pedido de Ricardo: Actividad y Seguridad adentro de Mi perfil (pestañas Resumen · Actividad · Seguridad), y el foro en el menú principal como **Comunidad** (como la maqueta). `/cuenta/comunidad` junta las preguntas de todas las clases con acceso (RLS de 0007 filtra), filtros Todas / Mis preguntas / Sin respuesta, link a la clase. Menú del avatar suma Comunidad y Actividad.
+- [x] Hallazgo en su captura: Actividad mostraba intentos de pago abandonados como "$480.000 PENDIENTE" (se lee como deuda). Ahora solo muestra cursos con acceso/reembolsados/quitados; "Acceso dado por el equipo" en vez de "Otorgado manualmente $0 PAGADO".

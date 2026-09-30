@@ -1,4 +1,6 @@
 import { CambiarPasswordForm } from "@/components/account/CambiarPasswordForm";
+import { PerfilTabs } from "@/components/account/PerfilTabs";
+import { Eyebrow } from "@/components/campus/ui";
 import { EditableNombre } from "@/components/account/EditableNombre";
 import { getAdminStats } from "@/lib/admin-stats";
 import { cursosConProgresoDelUsuario } from "@/lib/progreso";
@@ -37,6 +39,10 @@ export default async function PerfilPage() {
     : null;
 
   return (
+    <div>
+      <Eyebrow>Mi perfil</Eyebrow>
+      <h1 className="mb-5 mt-1 text-[1.9rem] font-normal">Resumen</h1>
+      <PerfilTabs />
     <div className="flex flex-col gap-6">
       <div className={card}>
         <EditableNombre nombreInicial={profile?.nombre || user.email?.split("@")[0] || "Sin nombre"} />
@@ -129,6 +135,7 @@ export default async function PerfilPage() {
           </Link>
         </div>
       </section>
+    </div>
     </div>
   );
 }
