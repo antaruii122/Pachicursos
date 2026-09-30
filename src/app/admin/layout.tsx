@@ -28,7 +28,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   // Contador de preguntas sin responder para el menú (0 si la tabla todavía
   // no existe — la migración 0007 puede no estar corrida).
   const { data: qs } = await supabase.from("class_questions").select("*").limit(1000);
-  const pendientes = armarHilos((qs ?? []) as Pregunta[]).filter((h) => !h.respondida && !h.oculto).length;
+  const pendientes = armarHilos((qs ?? []) as Pregunta[]).filter((h) => !h.respondida && !h.oculto && !h.es_equipo).length;
 
   const nombre = profile?.nombre || user.email?.split("@")[0] || "Admin";
   const partes = nombre.trim().split(/\s+/);

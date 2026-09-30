@@ -52,7 +52,7 @@ export default async function AdminPreguntasPage({
   const cursoDe = new Map((cursos ?? []).map((c) => [c.id, c]));
 
   const hilos = armarHilos(filas);
-  const pendientes = hilos.filter((h) => !h.respondida && !h.oculto);
+  const pendientes = hilos.filter((h) => !h.respondida && !h.oculto && !h.es_equipo);
   const visibles =
     filtro === "todas" ? hilos : filtro === "ocultas" ? hilos.filter((h) => h.oculto) : pendientes;
 
