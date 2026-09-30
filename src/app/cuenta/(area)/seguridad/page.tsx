@@ -3,7 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
-const card = "rounded-[18px] bg-white p-6 shadow-[0_12px_30px_rgba(78,15,38,.1)]";
+const card = "rounded-[18px] bg-white p-6 shadow-[var(--sombra-md)]";
 
 export default async function SeguridadPage() {
   const supabase = await createClient();
@@ -32,7 +32,7 @@ export default async function SeguridadPage() {
         <p className="mb-2 text-[.9rem] text-[var(--tinta)]">{user.email}</p>
         <p className="text-[.78rem] text-[var(--tinta-suave)]">
           El email no se puede cambiar desde acá todavía — requiere un flujo de confirmación aparte.
-          Escribinos si necesitás cambiarlo.
+          Escríbenos si necesitas cambiarlo.
         </p>
       </div>
 

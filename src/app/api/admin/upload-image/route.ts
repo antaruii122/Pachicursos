@@ -37,7 +37,7 @@ export async function POST(request: Request) {
 
   if (!ALLOWED_TYPES.includes(file.type)) {
     return NextResponse.json(
-      { error: "Formato no soportado. Usá JPG, PNG, WEBP o AVIF." },
+      { error: "Formato no soportado. Usa JPG, PNG, WEBP o AVIF." },
       { status: 400 },
     );
   }

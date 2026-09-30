@@ -1,16 +1,28 @@
 "use client";
 
-import { addClase, deleteClase, setClaseGratis, swapClaseOrden } from "@/app/admin/cursos/[id]/clases/actions";
+import {
+  addClase,
+  addModulo,
+  deleteClase,
+  deleteModulo,
+  renameModulo,
+  setClaseGratis,
+  setClaseModulo,
+  swapClaseOrden,
+  swapModuloOrden,
+} from "@/app/admin/cursos/[id]/clases/actions";
+import { MaterialesManager } from "@/components/admin/MaterialesManager";
 import { VimeoLinkWidget } from "@/components/admin/VimeoLinkWidget";
 import { VideoUploadWidget } from "@/components/VideoUploadWidget";
-import { formatDuracion } from "@/lib/types";
+import { parseRecursos } from "@/lib/recursos";
+import { agruparPorModulo, formatDuracion, type Modulo } from "@/lib/types";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-const card = "rounded-[14px] bg-white p-6 shadow-[0_8px_20px_rgba(78,15,38,.08)]";
+const card = "rounded-[14px] bg-white p-6 shadow-[var(--sombra-md)]";
 
 const ESTADO_LABEL: Record<string, string> = {
-  subiendo: "Subiendo",
+  subiendo: "Sin video", // estado inicial de toda clase nueva: nada subiéndose todavía
   procesando: "Procesando",
   listo: "Listo",
 };
@@ -27,23 +39,78 @@ interface Clase {
   duracion: number | null;
   is_free_intro: boolean;
   estado_procesamiento: "subiendo" | "procesando" | "listo";
+  module_id: string | null;
+  resources: unknown;
 }
 
-export function ClaseManager({ courseId, clases }: { courseId: string; clases: Clase[] }) {
+export function ClaseManager({
+  courseId,
+  clases,
+  modulos,
+}: {
+  courseId: string;
+  clases: Clase[];
+  modulos: Modulo[];
+}) {
   const router = useRouter();
   const [nuevoTitulo, setNuevoTitulo] = useState("");
   const [nuevoEsGratis, setNuevoEsGratis] = useState(clases.length === 0);
   const [error, setError] = useState<string | null>(null);
   const [agregando, setAgregando] = useState(false);
+  // Bloquea TODAS las flechas mientras un movimiento se guarda: dos clicks
+  // rápidos lanzaban dos intercambios en paralelo (bug real 2026-09-30).
+  const [moviendo, setMoviendo] = useState(false);
+  const [nuevoModuloId, setNuevoModuloId] = useState<string>("");
+  const [nuevoModulo, setNuevoModulo] = useState("");
+  const [editandoModulo, setEditandoModulo] = useState<string | null>(null);
+  const [tituloModulo, setTituloModulo] = useState("");
 
   const ordenadas = [...clases].sort((a, b) => a.orden - b.orden);
+  const grupos = agruparPorModulo(ordenadas, modulos);
+  const modulosOrdenados = [...modulos].sort((a, b) => a.orden - b.orden);
+
+  const run = async (p: Promise<{ ok: true } | { error: string }>) => {
+    setError(null);
+    const result = await p;
+    if ("error" in result) {
+      setError(result.error);
+      return false;
+    }
+    router.refresh();
+    return true;
+  };
+
+  const handleAgregarModulo = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!nuevoModulo.trim()) return;
+    if (await run(addModulo(courseId, nuevoModulo.trim()))) setNuevoModulo("");
+  };
+
+  const handleMoverModulo = async (i: number, direccion: -1 | 1) => {
+    const a = modulosOrdenados[i];
+    const b = modulosOrdenados[i + direccion];
+    if (!a || !b || moviendo) return;
+    setMoviendo(true);
+    await run(swapModuloOrden(courseId, a.id, a.orden, b.id, b.orden));
+    setMoviendo(false);
+  };
+
+  const handleGuardarModulo = async (moduloId: string) => {
+    if (!tituloModulo.trim()) return;
+    if (await run(renameModulo(courseId, moduloId, tituloModulo.trim()))) setEditandoModulo(null);
+  };
+
+  const handleBorrarModulo = (m: Modulo) => {
+    if (!confirm(`¿Borrar el módulo "${m.titulo}"? Sus clases NO se borran: quedan sin módulo.`)) return;
+    run(deleteModulo(courseId, m.id));
+  };
 
   const handleAgregar = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!nuevoTitulo.trim()) return;
     setAgregando(true);
     setError(null);
-    const result = await addClase(courseId, nuevoTitulo.trim(), nuevoEsGratis);
+    const result = await addClase(courseId, nuevoTitulo.trim(), nuevoEsGratis, nuevoModuloId || null);
     setAgregando(false);
     if ("error" in result) {
       setError(result.error);
@@ -54,15 +121,19 @@ export function ClaseManager({ courseId, clases }: { courseId: string; clases: C
     router.refresh();
   };
 
-  const handleMover = async (i: number, direccion: -1 | 1) => {
+  // Solo dentro del mismo módulo; para cambiar de módulo está el selector.
+  const handleMover = async (grupo: Clase[], i: number, direccion: -1 | 1) => {
     const j = i + direccion;
-    if (j < 0 || j >= ordenadas.length) return;
+    if (j < 0 || j >= grupo.length) return;
     setError(null);
-    const a = ordenadas[i];
-    const b = ordenadas[j];
+    if (moviendo) return;
+    const a = grupo[i];
+    const b = grupo[j];
+    setMoviendo(true);
     const result = await swapClaseOrden(courseId, a.id, a.orden, b.id, b.orden);
     if ("error" in result) setError(result.error);
-    else router.refresh();
+    router.refresh();
+    setMoviendo(false);
   };
 
   const handleGratis = async (claseId: string) => {
@@ -97,14 +168,76 @@ export function ClaseManager({ courseId, clases }: { courseId: string; clases: C
         </h2>
         {ordenadas.length > 0 && (
           <p className="mb-4 text-[.8rem] text-[var(--tinta-suave)]">
-            Tocá <b>Video</b> en cualquier clase para subirle un archivo o vincular uno ya subido a Vimeo.
+            Toca <b>Video y material</b> en cualquier clase para subir el video, vincular uno de Vimeo, o agregar PDF, presentaciones y enlaces.
           </p>
         )}
-        {ordenadas.length === 0 ? (
+        {ordenadas.length === 0 && modulos.length === 0 ? (
           <p className="text-sm text-[var(--tinta-suave)]">Todavía no hay clases.</p>
         ) : (
-          <div className="flex flex-col gap-2">
-            {ordenadas.map((c, i) => (
+          <div className="flex flex-col gap-5">
+            {grupos.map((grupo) => {
+              const m = grupo.modulo;
+              const iModulo = m ? modulosOrdenados.findIndex((x) => x.id === m.id) : -1;
+              return (
+              <section key={m?.id ?? "sin-modulo"} aria-label={m ? `Módulo ${m.titulo}` : "Clases sin módulo"}>
+                {m ? (
+                  <div className="mb-2 flex items-center gap-2 rounded-lg bg-[var(--crema-2)] px-3 py-2">
+                    <div className="flex flex-col gap-0.5">
+                      <button type="button" disabled={iModulo === 0 || moviendo} onClick={() => handleMoverModulo(iModulo, -1)} className="text-[.7rem] text-[var(--tinta-suave)] disabled:opacity-25" aria-label={`Subir módulo ${m.titulo}`}>▲</button>
+                      <button type="button" disabled={iModulo === modulosOrdenados.length - 1 || moviendo} onClick={() => handleMoverModulo(iModulo, 1)} className="text-[.7rem] text-[var(--tinta-suave)] disabled:opacity-25" aria-label={`Bajar módulo ${m.titulo}`}>▼</button>
+                    </div>
+                    {editandoModulo === m.id ? (
+                      <form
+                        className="flex flex-1 items-center gap-2"
+                        onSubmit={(e) => {
+                          e.preventDefault();
+                          handleGuardarModulo(m.id);
+                        }}
+                      >
+                        <input
+                          aria-label="Nombre del módulo"
+                          autoFocus
+                          className="flex-1 rounded-lg border border-[var(--linea)] bg-white px-3 py-1.5 text-sm outline-none focus:border-[var(--carmin)]"
+                          value={tituloModulo}
+                          onChange={(e) => setTituloModulo(e.target.value)}
+                        />
+                        <button type="submit" className="text-[.8rem] font-medium text-[var(--vino)]">Guardar</button>
+                        <button type="button" onClick={() => setEditandoModulo(null)} className="text-[.8rem] text-[var(--tinta-suave)]">Cancelar</button>
+                      </form>
+                    ) : (
+                      <>
+                        <p className="flex-1 font-[family-name:var(--font-ui)] text-[.9rem] font-semibold text-[var(--vino)]">
+                          Módulo {iModulo + 1} · {m.titulo}
+                          <span className="ml-2 font-normal text-[var(--tinta-suave)]">({grupo.clases.length} clases)</span>
+                        </p>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setEditandoModulo(m.id);
+                            setTituloModulo(m.titulo);
+                          }}
+                          className="text-[.78rem] text-[var(--tinta-suave)] underline"
+                        >
+                          Renombrar
+                        </button>
+                        <button type="button" onClick={() => handleBorrarModulo(m)} className="text-[.78rem] text-[var(--dorado-osc)]">
+                          Borrar módulo
+                        </button>
+                      </>
+                    )}
+                  </div>
+                ) : (
+                  modulos.length > 0 && (
+                    <p className="mb-2 px-1 font-[family-name:var(--font-ui)] text-[.75rem] font-semibold uppercase tracking-[.08em] text-[var(--tinta-suave)]">
+                      Sin módulo (se muestran primero)
+                    </p>
+                  )
+                )}
+                {grupo.clases.length === 0 && (
+                  <p className="px-3 text-[.8rem] text-[var(--tinta-suave)]">Este módulo todavía no tiene clases.</p>
+                )}
+                <div className="flex flex-col gap-2">
+            {grupo.clases.map((c, i) => (
               <div
                 key={c.id}
                 className={`rounded-lg border ${c.is_free_intro ? "border-[var(--carmin)]" : "border-[var(--linea)]"}`}
@@ -113,8 +246,8 @@ export function ClaseManager({ courseId, clases }: { courseId: string; clases: C
                   <div className="flex flex-col gap-0.5">
                     <button
                       type="button"
-                      disabled={i === 0}
-                      onClick={() => handleMover(i, -1)}
+                      disabled={i === 0 || moviendo}
+                      onClick={() => handleMover(grupo.clases, i, -1)}
                       className="text-[var(--tinta-suave)] disabled:opacity-25"
                       aria-label="Subir"
                     >
@@ -122,8 +255,8 @@ export function ClaseManager({ courseId, clases }: { courseId: string; clases: C
                     </button>
                     <button
                       type="button"
-                      disabled={i === ordenadas.length - 1}
-                      onClick={() => handleMover(i, 1)}
+                      disabled={i === grupo.clases.length - 1 || moviendo}
+                      onClick={() => handleMover(grupo.clases, i, 1)}
                       className="text-[var(--tinta-suave)] disabled:opacity-25"
                       aria-label="Bajar"
                     >
@@ -139,6 +272,22 @@ export function ClaseManager({ courseId, clases }: { courseId: string; clases: C
                       <p className="text-[.78rem] text-[var(--tinta-suave)]">{formatDuracion(c.duracion)}</p>
                     )}
                   </div>
+
+                  {modulos.length > 0 && (
+                    <select
+                      aria-label={`Módulo de la clase ${c.titulo}`}
+                      value={c.module_id ?? ""}
+                      onChange={(e) => run(setClaseModulo(courseId, c.id, e.target.value || null))}
+                      className="max-w-[160px] rounded-lg border border-[var(--linea)] bg-white px-2 py-1 text-[.78rem] text-[var(--tinta)]"
+                    >
+                      <option value="">Sin módulo</option>
+                      {modulosOrdenados.map((mo) => (
+                        <option key={mo.id} value={mo.id}>
+                          {mo.titulo}
+                        </option>
+                      ))}
+                    </select>
+                  )}
 
                   {c.is_free_intro ? (
                     <span className="rounded-full bg-[var(--rosa)] px-3 py-1 font-[family-name:var(--font-ui)] text-[.72rem] uppercase text-[var(--carmin)]">
@@ -167,7 +316,12 @@ export function ClaseManager({ courseId, clases }: { courseId: string; clases: C
                       claseAbierta === c.id ? "bg-[var(--vino)] text-white" : "bg-[var(--rosa)] text-[var(--carmin)]"
                     }`}
                   >
-                    Video
+                    Video y material
+                    {parseRecursos(c.resources).length > 0 && (
+                      <span className="ml-1.5 rounded-full bg-white/80 px-1.5 text-[.68rem] text-[var(--vino)]">
+                        {parseRecursos(c.resources).length}
+                      </span>
+                    )}
                   </button>
 
                   <button
@@ -183,12 +337,40 @@ export function ClaseManager({ courseId, clases }: { courseId: string; clases: C
                   <div className="flex flex-col gap-3 border-t border-[var(--linea)] p-3">
                     <VideoUploadWidget claseId={c.id} />
                     <VimeoLinkWidget courseId={courseId} claseId={c.id} />
+                    <div className="border-t border-[var(--linea)] pt-3">
+                      <MaterialesManager courseId={courseId} claseId={c.id} recursos={parseRecursos(c.resources)} />
+                    </div>
                   </div>
                 )}
               </div>
             ))}
+                </div>
+              </section>
+              );
+            })}
           </div>
         )}
+
+        <form onSubmit={handleAgregarModulo} className="mt-5 flex items-end gap-3 border-t border-[var(--linea)] pt-5">
+          <div className="flex-1">
+            <label htmlFor="nuevo-modulo-titulo" className="mb-1 block font-[family-name:var(--font-ui)] text-[.8rem] text-[var(--vino)]">
+              Nuevo módulo (opcional — agrupa clases, ej. &quot;Tu ciclo&quot;)
+            </label>
+            <input
+              id="nuevo-modulo-titulo"
+              className="w-full rounded-lg border border-[var(--linea)] px-3 py-2 text-sm outline-none focus:border-[var(--carmin)]"
+              value={nuevoModulo}
+              onChange={(e) => setNuevoModulo(e.target.value)}
+            />
+          </div>
+          <button
+            type="submit"
+            disabled={!nuevoModulo.trim()}
+            className="rounded-full border border-[var(--vino)] px-5 py-2 font-[family-name:var(--font-ui)] text-[.85rem] text-[var(--vino)] disabled:opacity-50"
+          >
+            + Módulo
+          </button>
+        </form>
 
         <form onSubmit={handleAgregar} className="mt-5 flex items-end gap-3 border-t border-[var(--linea)] pt-5">
           <div className="flex-1">
@@ -202,6 +384,26 @@ export function ClaseManager({ courseId, clases }: { courseId: string; clases: C
               onChange={(e) => setNuevoTitulo(e.target.value)}
             />
           </div>
+          {modulos.length > 0 && (
+            <div>
+              <label htmlFor="nueva-clase-modulo" className="mb-1 block font-[family-name:var(--font-ui)] text-[.8rem] text-[var(--vino)]">
+                Módulo
+              </label>
+              <select
+                id="nueva-clase-modulo"
+                value={nuevoModuloId}
+                onChange={(e) => setNuevoModuloId(e.target.value)}
+                className="rounded-lg border border-[var(--linea)] bg-white px-3 py-2 text-sm"
+              >
+                <option value="">Sin módulo</option>
+                {modulosOrdenados.map((mo) => (
+                  <option key={mo.id} value={mo.id}>
+                    {mo.titulo}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
           <label className="flex items-center gap-1.5 pb-2 text-[.8rem] text-[var(--tinta-suave)]">
             <input
               type="checkbox"

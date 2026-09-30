@@ -1,3 +1,4 @@
+import { mensajeError } from "@/lib/errores";
 import { createClient } from "@/lib/supabase/server";
 import { getVimeoTranscodeStatus } from "@/lib/vimeo";
 import { NextResponse } from "next/server";
@@ -73,7 +74,7 @@ export async function GET(
     }
     return NextResponse.json({ estado_procesamiento: "procesando" });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "Error desconocido";
+    const message = mensajeError(err);
     return NextResponse.json({ error: message }, { status: 502 });
   }
 }

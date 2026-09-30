@@ -2,7 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { formatCLP } from "@/lib/types";
 import { redirect } from "next/navigation";
 
-const card = "rounded-[18px] bg-white p-6 shadow-[0_12px_30px_rgba(78,15,38,.1)]";
+const card = "rounded-[18px] bg-white p-6 shadow-[var(--sombra-md)]";
 
 const ESTADO_LABEL: Record<string, string> = {
   pendiente: "Pendiente",
@@ -63,7 +63,7 @@ export default async function ActividadPage() {
           Historial de compras
         </h2>
         {comprasNorm.length === 0 ? (
-          <p className="text-sm text-[var(--tinta-suave)]">Todavía no tenés compras.</p>
+          <p className="text-sm text-[var(--tinta-suave)]">Todavía no tienes compras.</p>
         ) : (
           <div className="flex flex-col gap-2">
             {comprasNorm.map((c) => (

@@ -1,5 +1,6 @@
 "use server";
 
+import { mensajeError } from "@/lib/errores";
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 
@@ -25,7 +26,7 @@ export async function grantAccess(
   email: string,
 ): Promise<{ ok: true } | { error: string }> {
   try {
-    const { supabase, adminId } = await requireAdmin();
+    const { supabase } = await requireAdmin();
 
     const { data: alumno } = await supabase
       .from("profiles")
@@ -33,22 +34,36 @@ export async function grantAccess(
       .eq("email", email.trim().toLowerCase())
       .maybeSingle();
     if (!alumno) {
-      return { error: "No existe ninguna cuenta con ese email. El alumno tiene que registrarse primero." };
+      return { error: "No existe ninguna cuenta con ese email. Créala primero desde Alumnas y usuarios." };
     }
+    return await grantAccessToUser(courseId, alumno.id);
+  } catch (err) {
+    return { error: mensajeError(err) };
+  }
+}
+
+// Mismo acceso manual, pero directo por id de usuaria — lo usa la lista de
+// "Alumnas y usuarios" para asignar un curso con un click, sin tipear email.
+export async function grantAccessToUser(
+  courseId: string,
+  userId: string,
+): Promise<{ ok: true } | { error: string }> {
+  try {
+    const { supabase, adminId } = await requireAdmin();
 
     const { data: existente } = await supabase
       .from("purchases")
       .select("id")
-      .eq("user_id", alumno.id)
+      .eq("user_id", userId)
       .eq("course_id", courseId)
       .eq("estado", "pagado")
       .maybeSingle();
     if (existente) {
-      return { error: "Ese alumno ya tiene acceso pagado a este curso." };
+      return { error: "Esa persona ya tiene acceso a este curso." };
     }
 
     const { error } = await supabase.from("purchases").insert({
-      user_id: alumno.id,
+      user_id: userId,
       course_id: courseId,
       monto: 0,
       moneda: "CLP",
@@ -59,9 +74,10 @@ export async function grantAccess(
     if (error) throw error;
 
     revalidatePath(`/admin/cursos/${courseId}/accesos`);
+    revalidatePath("/admin/usuarios");
     return { ok: true };
   } catch (err) {
-    return { error: err instanceof Error ? err.message : "Error desconocido" };
+    return { error: mensajeError(err) };
   }
 }
 
@@ -75,8 +91,9 @@ export async function updatePurchaseEstado(
     const { error } = await supabase.from("purchases").update({ estado }).eq("id", purchaseId);
     if (error) throw error;
     revalidatePath(`/admin/cursos/${courseId}/accesos`);
+    revalidatePath("/admin/usuarios");
     return { ok: true };
   } catch (err) {
-    return { error: err instanceof Error ? err.message : "Error desconocido" };
+    return { error: mensajeError(err) };
   }
 }

@@ -12,11 +12,15 @@ const ESTADO_LABEL: Record<string, string> = {
 export default async function VentasPage() {
   const supabase = await createClient();
 
-  const { data: raw } = await supabase
+  const { data: raw, error: rawError } = await supabase
     .from("purchases")
-    .select("id, monto, proveedor_pago, estado, fecha, profiles(nombre, email), courses(titulo, slug)")
+    .select("id, monto, proveedor_pago, estado, fecha, profiles:profiles!purchases_user_id_fkey(nombre, email), courses(titulo, slug)")
     .order("fecha", { ascending: false })
     .limit(200);
+  // Nunca mostrar "0 resultados" cuando en realidad la consulta falló
+  // (bug 2026-09-30: un embed ambiguo de `profiles` devolvía error y esta
+  // pantalla mostraba "(0)" en silencio, con accesos reales en la base).
+  if (rawError) throw new Error(`No se pudieron cargar los accesos: ${rawError.message}`);
 
   const ventas = (raw ?? []).map((v) => ({
     ...v,
@@ -33,7 +37,7 @@ export default async function VentasPage() {
       {ventas.length === 0 ? (
         <p className="text-sm text-[var(--tinta-suave)]">Todavía no hay ventas ni accesos otorgados.</p>
       ) : (
-        <div className="overflow-x-auto rounded-[14px] bg-white shadow-[0_8px_20px_rgba(78,15,38,.08)]">
+        <div className="overflow-x-auto rounded-[14px] bg-white shadow-[var(--sombra-md)]">
           <table className="w-full text-left text-sm">
             <thead>
               <tr className="border-b border-[var(--linea)] font-[family-name:var(--font-ui)] text-[.78rem] uppercase text-[var(--tinta-suave)]">

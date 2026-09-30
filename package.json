@@ -4,9 +4,11 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "check:marca": "node scripts/check-marca.mjs",
+    "prebuild": "node scripts/check-marca.mjs",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint",
+    "lint": "eslint && node scripts/check-marca.mjs",
     "test:rls": "node --env-file=.env.local scripts/test-rls-cross-access.mjs",
     "test:vimeo": "node --env-file=.env.local scripts/test-vimeo-upload.mjs",
     "seed:placeholder": "node --env-file=.env.local scripts/seed-placeholder-course.mjs",

@@ -50,7 +50,7 @@ export function ClassNotes({
   };
 
   return (
-    <div className="rounded-[18px] bg-white p-6 shadow-[0_12px_30px_rgba(78,15,38,.1)]">
+    <div className="rounded-[18px] bg-white p-6 shadow-[var(--sombra-md)]">
       <div className="mb-1 flex items-center justify-between">
         <b className="font-[family-name:var(--font-ui)] text-[.92rem] text-[var(--vino)]">
           Tus notas de esta clase

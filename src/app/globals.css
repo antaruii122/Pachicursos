@@ -1,44 +1,52 @@
 @import "tailwindcss";
 
-/* Sistema visual de marca — extraído de nutfem2027PRUEBAfondoclaro.html,
-   confirmado para Alimenta Tu Fertilidad (ver docs/cursos.md). Paleta fija:
-   no se agregan colores nuevos fuera de estos 12 tokens. */
+/* ============================================================
+   MARCA ÚNICA — UNA sola paleta y UN solo logo para TODO el sitio
+   (público, campus, admin, favicon). Decisión de Ricardo 2026-09-30:
+   la maqueta aprobada del campus (docs/maqueta-campus.md) es la marca; los
+   colores se muestrearon de sus capturas. Antes convivían dos paletas
+   (vino/carmín en el sitio público, ciruela en el campus) y tres logos —
+   exactamente lo que no puede volver a pasar.
+   Reglas (las hace cumplir `npm run lint` vía scripts/check-marca.mjs):
+   - Ningún color hex/rgba de marca fuera de este archivo: siempre var(--…).
+   - El logo solo existe en src/components/brand/Logo.tsx.
+   Contraste AA verificado: tinta-suave 5.2:1, vino 9.7:1, dorado-osc 5.4:1.
+   ============================================================ */
 :root {
-  --vino: #4e0f26;
-  --vino-osc: #380a1b;
-  --vino-claro: #7a1533;
-  --carmin: #c31c44;
-  --dorado: #e8c9a8;
-  /* Ajustado 2026-09-12: el valor original (#ef5950) daba 3.38:1 de contraste
-     como texto sobre blanco/crema — insuficiente para WCAG AA (4.5:1). Es el
-     único color de error/warning de toda la app (14 usos, siempre como texto
-     o borde, nunca como fondo), así que se oscureció acá mismo en vez de
-     agregar un token nuevo — ahora da 5.44:1. */
+  --vino: #6e2b5e; /* ciruela — botones, links, barras de progreso */
+  --vino-osc: #3b1433; /* ciruela oscuro — títulos, tarjeta destacada */
+  --vino-claro: #843a72; /* hover de botones */
+  --carmin: #6e2b5e; /* acento (eyebrows, badges) — mismo ciruela */
+  --dorado: #dbc3d1; /* malva — texto claro sobre fondos oscuros, degradés */
+  --malva: #dbc3d1; /* aro decorativo */
+  /* Único color de error/aviso (texto o borde, nunca fondo) — 5.44:1. */
   --dorado-osc: #bf3a30;
+  --ok: #4f7d63; /* check de completado (verde de la maqueta) */
+  --video: #2a1c2d; /* superficie del reproductor */
   --crema: #ffffff;
-  --crema-2: #fdf7f8;
-  --rosa: #fbe7eb;
-  --tinta: #3b1420;
-  --tinta-suave: #8a5c68;
-  --linea: #efd6dc;
+  --crema-2: #fbf9fa; /* fondo de página */
+  --rosa: #f4e8ed; /* blush — píldora activa, fondos suaves */
+  --tinta: #2a1c2d;
+  --tinta-suave: #7d6676;
+  --linea: #ede3e9;
+  /* Degradé del aro del logo */
+  --aro-1: #6e2b5e;
+  --aro-2: #a5708f;
+  --aro-3: #e6d3de;
+  /* Header translúcido */
+  --header-bg: rgba(255, 255, 255, 0.95);
 
   --font-body: var(--font-lato), system-ui, sans-serif;
   --font-heading: var(--font-noto-serif), Georgia, serif;
   --font-ui: var(--font-poppins), sans-serif;
 
-  /* Sistema de sombra/profundidad (2026-09-14) — antes cada componente
-     inventaba su propia sombra rgba a mano (valores ligeramente distintos
-     por todos lados, sin relación entre sí). Una escala real de 4 pasos,
-     todas con el mismo tinte vino en vez de negro puro, para que la
-     "elevación" se sienta a propósito y no accidental. */
-  --sombra-sm: 0 1px 2px rgba(78, 15, 38, 0.06), 0 1px 3px rgba(78, 15, 38, 0.05);
-  --sombra-md: 0 4px 14px rgba(78, 15, 38, 0.08), 0 1px 3px rgba(78, 15, 38, 0.06);
-  --sombra-lg: 0 14px 36px rgba(78, 15, 38, 0.13), 0 2px 8px rgba(78, 15, 38, 0.07);
-  --sombra-xl: 0 26px 60px rgba(78, 15, 38, 0.18), 0 6px 16px rgba(78, 15, 38, 0.08);
+  /* Escala de sombra de 4 pasos, tinte ciruela en vez de negro puro. */
+  --sombra-sm: 0 1px 2px rgba(59, 20, 51, 0.06), 0 1px 3px rgba(59, 20, 51, 0.05);
+  --sombra-md: 0 4px 14px rgba(59, 20, 51, 0.07), 0 1px 3px rgba(59, 20, 51, 0.05);
+  --sombra-lg: 0 14px 36px rgba(59, 20, 51, 0.1), 0 2px 8px rgba(59, 20, 51, 0.06);
+  --sombra-xl: 0 26px 60px rgba(59, 20, 51, 0.15), 0 6px 16px rgba(59, 20, 51, 0.07);
 
-  /* Radios y movimiento — una sola escala reutilizada, no un valor por
-     componente. --ease es la misma curva en toda la app, para que un hover
-     se sienta igual en un botón que en una card. */
+  /* Radios y movimiento — una sola escala reutilizada. */
   --radio-sm: 10px;
   --radio-md: 16px;
   --radio-lg: 22px;
@@ -46,21 +54,36 @@
   --dur: 220ms;
 }
 
-body {
-  background: var(--crema);
-  color: var(--tinta);
-  font-family: var(--font-body);
-  font-size: 17px;
-  line-height: 1.7;
+/* Contenedor de las pantallas del campus (fondo de página de la maqueta).
+   Ya no cambia colores: la paleta es una sola, definida arriba. */
+@layer components {
+  .tema-campus {
+    background: var(--crema-2);
+    color: var(--tinta);
+  }
 }
 
-h1,
-h2,
-h3 {
-  font-family: var(--font-heading);
-  color: var(--vino);
-  letter-spacing: -0.01em;
-  text-wrap: balance;
+/* En @layer base (no suelto): un estilo sin capa le gana a TODAS las
+   utilidades de Tailwind, así que un `h3 { color }` global pisaba el
+   `text-white` de cada título sobre fondo oscuro — bug real 2026-09-30: el
+   título de "Continúa donde quedaste" era invisible (ciruela sobre ciruela). */
+@layer base {
+  body {
+    background: var(--crema);
+    color: var(--tinta);
+    font-family: var(--font-body);
+    font-size: 17px;
+    line-height: 1.7;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-heading);
+    color: var(--vino-osc);
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+  }
 }
 
 /* Movimiento de entrada para las secciones de la landing (ver
@@ -79,6 +102,26 @@ h3 {
   }
   .entrada {
     animation: entrada 700ms var(--ease) both;
+  }
+
+  /* Anillo y barras de progreso del campus (components/campus/ui.tsx):
+     se "llenan" al cargar en vez de aparecer ya completos. */
+  @keyframes anillo {
+    from {
+      stroke-dashoffset: var(--anillo-desde);
+    }
+  }
+  .anillo-progreso {
+    animation: anillo 1100ms var(--ease) both;
+  }
+  @keyframes barra {
+    from {
+      transform: scaleX(0);
+    }
+  }
+  .barra-progreso {
+    transform-origin: left;
+    animation: barra 900ms var(--ease) both;
   }
 }
 

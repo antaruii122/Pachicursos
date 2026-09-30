@@ -1,4 +1,5 @@
 import { AccountMenu } from "@/components/account/AccountMenu";
+import { Logo } from "@/components/brand/Logo";
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
 
@@ -30,33 +31,34 @@ export async function SiteHeader() {
       >
         Saltar al contenido
       </a>
-      <header className="sticky top-0 z-20 border-b border-[var(--linea)] bg-[rgba(253,247,248,.94)] backdrop-blur-sm">
+      <header className="sticky top-0 z-20 border-b border-[var(--linea)] bg-[var(--header-bg)] backdrop-blur-sm">
       <div className="mx-auto flex w-[min(1160px,90vw)] items-center justify-between gap-3 py-4 sm:gap-6">
-        <Link href="/" className="flex min-w-0 items-center gap-2 sm:gap-3">
-          <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="var(--vino)" strokeWidth="1.4" className="shrink-0">
-            <path d="M12 21c-4-3-7-6.5-7-10.2C5 7 7.2 5 10 5c1 0 1.7.4 2 1 .3-.6 1-1 2-1 2.8 0 5 2 5 5.8 0 3.7-3 7.2-7 10.2z" />
-          </svg>
-          <span className="flex min-w-0 flex-col leading-tight">
-            <b className="truncate font-[family-name:var(--font-heading)] text-[.95rem] text-[var(--vino)] sm:text-[1.1rem]">
-              Alimenta tu Fertilidad
-            </b>
-            <span className="hidden font-[family-name:var(--font-ui)] text-[.55rem] uppercase tracking-[.22em] text-[var(--tinta-suave)] sm:block">
-              Cursos con Marcela Calderón
-            </span>
-          </span>
+        <Link href="/" aria-label="Alimenta tu Fertilidad — inicio" className="min-w-0">
+          <Logo />
         </Link>
         <nav className="flex shrink-0 items-center gap-2.5 font-[family-name:var(--font-ui)] text-[.78rem] sm:gap-6 sm:text-[.86rem]">
           <Link
             href="/"
             className="hidden text-[var(--tinta-suave)] hover:text-[var(--vino)] sm:inline"
           >
-            Cursos disponibles
+            Cursos
           </Link>
           {user ? (
-            <AccountMenu nombre={nombre} email={email} isAdmin={isAdmin} />
+            <>
+              <Link
+                href="/cuenta/mis-cursos"
+                className="rounded-full bg-[var(--rosa)] px-3.5 py-1.5 font-medium text-[var(--vino)] transition-colors hover:bg-[var(--vino)] hover:text-white"
+              >
+                Mi Campus
+              </Link>
+              <AccountMenu nombre={nombre} email={email} isAdmin={isAdmin} variante="campus" />
+            </>
           ) : (
-            <Link href="/cuenta/login" className="text-[var(--tinta)] hover:text-[var(--vino)]">
-              Iniciar sesión
+            <Link
+              href="/cuenta/login"
+              className="rounded-full bg-[var(--vino)] px-4 py-1.5 font-medium text-white transition-colors hover:bg-[var(--vino-claro)]"
+            >
+              Ingresar
             </Link>
           )}
         </nav>

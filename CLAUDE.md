@@ -32,6 +32,17 @@ Esto existe para que, sin importar qué sesión de Claude Code retome este proye
 - 100% del contenido de la interfaz en español.
 - Ningún secreto/credencial (API keys, service role key, etc.) en código versionado ni expuesto al cliente — siempre variables de entorno server-side.
 
+## Reglas de calidad aprendidas a la fuerza (2026-09-30) — obligatorias
+
+Cada regla sale de un error real que Ricardo tuvo que encontrar él mismo. Detalle y análisis en `EJECUCION.md`, sección "Análisis de errores 2026-09-30".
+
+1. **UNA sola marca en todo el sitio.** Un solo logo (`src/components/brand/Logo.tsx`), una sola paleta (tokens en `src/app/globals.css`). Nunca un logo dibujado a mano, nunca un color hex/rgba de marca fuera de `globals.css`, nunca "un tema para esta sección y otro para aquella". `npm run lint` y `prebuild` corren `scripts/check-marca.mjs` y fallan si esto se rompe — no se desactiva ni se agregan excepciones sin motivo escrito.
+2. **La maqueta aprobada es la referencia visual** (`docs/maqueta-campus.md`). Si una pantalla nueva no está en la maqueta, se construye con las mismas piezas (`src/components/campus/ui.tsx`), no con estilos nuevos.
+3. **Nunca ignorar el `error` de una consulta Supabase.** Siempre `const { data, error } = ...` y si hay error, lanzarlo o mostrarlo. Mostrar "0 resultados" / 404 cuando la consulta en realidad falló ya causó 3 incidentes (acceso manual siempre "no existe", landing 404 en producción, admin mostrando "(0) accesos" con accesos reales).
+4. **Embeds de `profiles` desde `purchases`** siempre con la FK explícita: `profiles:profiles!purchases_user_id_fkey(...)` — `purchases` tiene dos FKs a `profiles` (`user_id`, `otorgado_por`) y el embed sin FK falla con PGRST201.
+5. **"Hecho" = visto.** Ningún cambio de UI se reporta como terminado sin captura real de CADA pantalla afectada, incluidas las que requieren sesión (pedirle a Ricardo que inicie sesión en la pestaña del navegador de pruebas; el agente no escribe contraseñas). Si no se pudo ver, se dice explícitamente "no verificado visualmente".
+6. **Decidir, no preguntar, en lo que ya está definido.** Ricardo ya dio la maqueta y la marca: aplicar sin consultar. Preguntar solo decisiones de negocio nuevas (precios, qué funciones construir).
+
 <!-- BEGIN:nextjs-agent-rules -->
 
 # This is NOT the Next.js you know

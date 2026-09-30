@@ -1,6 +1,8 @@
 "use client";
 
-import { setUserRole } from "@/app/admin/usuarios/actions";
+import { grantAccessToUser, updatePurchaseEstado } from "@/app/admin/cursos/[id]/accesos/actions";
+import { asignarContrasenaNueva, setUserRole, type ResultadoAcceso } from "@/app/admin/usuarios/actions";
+import { DatosDeAcceso } from "@/components/admin/DatosDeAcceso";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -10,28 +12,75 @@ interface Usuario {
   email: string | null;
   role: string;
   created_at: string;
-  cursosComprados: number;
+  accesos: { purchaseId: string; courseId: string; titulo: string }[];
 }
 
-const card = "rounded-[14px] bg-white shadow-[0_8px_20px_rgba(78,15,38,.08)]";
+interface Curso {
+  id: string;
+  titulo: string;
+  estado: string;
+}
+
+const card = "rounded-[14px] bg-white shadow-[var(--sombra-md)]";
 
 export function UsuariosManager({
   usuarios,
+  cursos,
   currentUserId,
 }: {
   usuarios: Usuario[];
+  cursos: Curso[];
   currentUserId: string;
 }) {
   const router = useRouter();
   const [busqueda, setBusqueda] = useState("");
   const [cambiando, setCambiando] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [acceso, setAcceso] = useState<{ quien: string; datos: Extract<ResultadoAcceso, { ok: true }> } | null>(null);
 
   const filtrados = usuarios.filter((u) => {
     const q = busqueda.trim().toLowerCase();
     if (!q) return true;
     return (u.nombre ?? "").toLowerCase().includes(q) || (u.email ?? "").toLowerCase().includes(q);
   });
+
+  // Asignar / quitar curso directo desde la fila (pedido de Ricardo
+  // 2026-09-30: "una forma más fácil de trabajar para el admin").
+  const handleAsignar = async (u: Usuario, courseId: string) => {
+    if (!courseId) return;
+    setCambiando(u.id);
+    setError(null);
+    const result = await grantAccessToUser(courseId, u.id);
+    setCambiando(null);
+    if ("error" in result) setError(result.error);
+    else router.refresh();
+  };
+
+  const handleQuitar = async (u: Usuario, a: Usuario["accesos"][number]) => {
+    if (!confirm(`¿Quitarle a ${u.nombre || u.email} el acceso a "${a.titulo}"? No devuelve dinero, solo deja de ver el curso.`)) return;
+    setCambiando(u.id);
+    setError(null);
+    const result = await updatePurchaseEstado(a.courseId, a.purchaseId, "revocado");
+    setCambiando(null);
+    if ("error" in result) setError(result.error);
+    else router.refresh();
+  };
+
+  // Contraseña nueva sin depender del correo (el SMTP por defecto de Supabase
+  // no le envía correos a las alumnas) — el admin se la envía copiando el mensaje.
+  const handleContrasena = async (u: Usuario) => {
+    if (!confirm(`¿Asignarle una contraseña nueva a ${u.nombre || u.email}? La actual dejará de funcionar.`)) return;
+    setCambiando(u.id);
+    setError(null);
+    setAcceso(null);
+    const r = await asignarContrasenaNueva(u.id);
+    setCambiando(null);
+    if ("error" in r) setError(r.error);
+    else {
+      setAcceso({ quien: u.nombre || u.email || "", datos: r });
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
 
   const handleCambiarRole = async (u: Usuario) => {
     const nuevoRole = u.role === "admin" ? "alumno" : "admin";
@@ -62,6 +111,17 @@ export function UsuariosManager({
         className="w-full max-w-sm rounded-lg border border-[var(--linea)] px-3 py-2 text-sm outline-none focus:border-[var(--carmin)]"
       />
       {error && <p role="alert" className="text-sm text-[var(--dorado-osc)]">{error}</p>}
+      {acceso && (
+        <div className="max-w-xl">
+          <p className="mb-2 font-[family-name:var(--font-ui)] text-[.8rem] text-[var(--tinta-suave)]">
+            Contraseña nueva para <b className="text-[var(--tinta)]">{acceso.quien}</b>:
+          </p>
+          <DatosDeAcceso {...acceso.datos} />
+          <button type="button" onClick={() => setAcceso(null)} className="mt-2 text-[.78rem] text-[var(--tinta-suave)] underline">
+            Listo, cerrar
+          </button>
+        </div>
+      )}
 
       <div className={`${card} overflow-x-auto`}>
         <table className="w-full text-left text-sm">
@@ -89,16 +149,63 @@ export function UsuariosManager({
                     {u.role}
                   </span>
                 </td>
-                <td className="px-5 py-3">{u.cursosComprados}</td>
+                <td className="px-5 py-3">
+                  <div className="flex max-w-[360px] flex-wrap items-center gap-1.5">
+                    {u.accesos.map((a) => (
+                      <span
+                        key={a.purchaseId}
+                        className="inline-flex items-center gap-1 rounded-full bg-[var(--rosa)] py-1 pl-3 pr-1 font-[family-name:var(--font-ui)] text-[.72rem] text-[var(--vino)]"
+                      >
+                        {a.titulo}
+                        <button
+                          type="button"
+                          onClick={() => handleQuitar(u, a)}
+                          disabled={cambiando === u.id}
+                          aria-label={`Quitar acceso a ${a.titulo}`}
+                          className="flex h-5 w-5 items-center justify-center rounded-full hover:bg-white"
+                        >
+                          ×
+                        </button>
+                      </span>
+                    ))}
+                    {cursos.some((c) => !u.accesos.some((a) => a.courseId === c.id)) && (
+                      <select
+                        aria-label={`Asignar curso a ${u.nombre || u.email}`}
+                        value=""
+                        disabled={cambiando === u.id}
+                        onChange={(e) => handleAsignar(u, e.target.value)}
+                        className="rounded-full border border-dashed border-[var(--vino)] bg-white px-2.5 py-1 font-[family-name:var(--font-ui)] text-[.72rem] text-[var(--vino)]"
+                      >
+                        <option value="">{cambiando === u.id ? "Guardando..." : "+ Asignar curso"}</option>
+                        {cursos
+                          .filter((c) => !u.accesos.some((a) => a.courseId === c.id))
+                          .map((c) => (
+                            <option key={c.id} value={c.id}>
+                              {c.titulo}
+                              {c.estado !== "publicado" ? " (borrador)" : ""}
+                            </option>
+                          ))}
+                      </select>
+                    )}
+                  </div>
+                </td>
                 <td className="px-5 py-3 text-[var(--tinta-suave)]">
                   {new Date(u.created_at).toLocaleDateString("es-CL")}
                 </td>
                 <td className="px-5 py-3 text-right">
                   <button
                     type="button"
+                    disabled={cambiando === u.id}
+                    onClick={() => handleContrasena(u)}
+                    className="mr-4 text-[.8rem] text-[var(--vino)] underline disabled:opacity-40"
+                  >
+                    Nueva contraseña
+                  </button>
+                  <button
+                    type="button"
                     disabled={cambiando === u.id || (u.id === currentUserId && u.role === "admin")}
                     onClick={() => handleCambiarRole(u)}
-                    title={u.id === currentUserId && u.role === "admin" ? "No podés quitarte tu propio rol de admin" : ""}
+                    title={u.id === currentUserId && u.role === "admin" ? "No puedes quitarte tu propio rol de admin" : ""}
                     className="text-[.8rem] text-[var(--carmin)] underline disabled:cursor-not-allowed disabled:text-[var(--tinta-suave)] disabled:no-underline"
                   >
                     {cambiando === u.id

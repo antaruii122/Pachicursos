@@ -14,11 +14,14 @@ export default async function ClasesCursoPage({
   const { data: course } = await supabase.from("courses").select("id, titulo").eq("id", id).maybeSingle();
   if (!course) notFound();
 
-  const { data: clases } = await supabase
-    .from("course_videos")
-    .select("id, orden, titulo, duracion, is_free_intro, estado_procesamiento")
-    .eq("course_id", id)
-    .order("orden", { ascending: true });
+  const [{ data: clases }, { data: modulos }] = await Promise.all([
+    supabase
+      .from("course_videos")
+      .select("id, orden, titulo, duracion, is_free_intro, estado_procesamiento, module_id, resources")
+      .eq("course_id", id)
+      .order("orden", { ascending: true }),
+    supabase.from("course_modules").select("id, orden, titulo").eq("course_id", id),
+  ]);
 
   return (
     <div>
@@ -31,7 +34,7 @@ export default async function ClasesCursoPage({
       <h1 className="mb-6 font-[family-name:var(--font-heading)] text-[1.6rem] font-semibold text-[var(--vino)]">
         Clases de &quot;{course.titulo}&quot;
       </h1>
-      <ClaseManager courseId={id} clases={clases ?? []} />
+      <ClaseManager courseId={id} clases={clases ?? []} modulos={modulos ?? []} />
     </div>
   );
 }

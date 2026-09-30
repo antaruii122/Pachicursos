@@ -6,7 +6,7 @@ import { formatCLP } from "@/lib/types";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
-const card = "rounded-[18px] bg-white p-6 shadow-[0_12px_30px_rgba(78,15,38,.1)]";
+const card = "rounded-[18px] bg-white p-6 shadow-[var(--sombra-md)]";
 const stat = "flex flex-col gap-1 rounded-[14px] bg-[var(--crema-2)] p-4";
 
 export default async function PerfilPage() {

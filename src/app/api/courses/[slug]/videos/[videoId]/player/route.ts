@@ -1,3 +1,4 @@
+import { mensajeError } from "@/lib/errores";
 import { createClient } from "@/lib/supabase/server";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { getVimeoEmbedUrl } from "@/lib/vimeo";
@@ -51,11 +52,12 @@ export async function GET(
       .eq("course_id", course.id)
       .eq("estado", "pagado")
       .maybeSingle();
-    tieneAcceso = !!purchase;
+    const { data: perfil } = await supabase.from("profiles").select("role").eq("id", user.id).single();
+    tieneAcceso = !!purchase || perfil?.role === "admin";
   }
 
   if (!tieneAcceso) {
-    return NextResponse.json({ error: "No tenés acceso a esta clase" }, { status: 403 });
+    return NextResponse.json({ error: "No tienes acceso a esta clase" }, { status: 403 });
   }
 
   if (clase.estado_procesamiento !== "listo") {
@@ -76,7 +78,7 @@ export async function GET(
     const embedUrl = await getVimeoEmbedUrl(full.vimeo_id);
     return NextResponse.json({ embedUrl });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "Error desconocido";
+    const message = mensajeError(err);
     return NextResponse.json({ error: message }, { status: 502 });
   }
 }

@@ -1,5 +1,6 @@
 "use server";
 
+import { mensajeError } from "@/lib/errores";
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 
@@ -90,7 +91,7 @@ export async function saveCourse(
     revalidatePath("/admin/cursos");
     return { id: inserted.id };
   } catch (err) {
-    return { error: err instanceof Error ? err.message : "Error desconocido" };
+    return { error: mensajeError(err) };
   }
 }
 
@@ -105,7 +106,7 @@ export async function setCourseEstado(
     revalidatePath("/admin/cursos");
     return { ok: true };
   } catch (err) {
-    return { error: err instanceof Error ? err.message : "Error desconocido" };
+    return { error: mensajeError(err) };
   }
 }
 
@@ -122,7 +123,7 @@ export async function deleteCourse(id: string): Promise<{ ok: true } | { error: 
       .eq("course_id", id);
     if (count && count > 0) {
       return {
-        error: "Este curso tiene compras registradas — no se puede borrar. Usá 'Archivar' en vez de borrar.",
+        error: "Este curso tiene compras registradas — no se puede borrar. Usa 'Archivar' en vez de borrar.",
       };
     }
 
@@ -131,6 +132,6 @@ export async function deleteCourse(id: string): Promise<{ ok: true } | { error: 
     revalidatePath("/admin/cursos");
     return { ok: true };
   } catch (err) {
-    return { error: err instanceof Error ? err.message : "Error desconocido" };
+    return { error: mensajeError(err) };
   }
 }

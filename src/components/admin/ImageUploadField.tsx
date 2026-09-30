@@ -1,5 +1,6 @@
 "use client";
 
+import { mensajeError } from "@/lib/errores";
 import Image from "next/image";
 import { useRef, useState } from "react";
 
@@ -13,7 +14,7 @@ interface ImageUploadFieldProps {
   aspect?: string;
 }
 
-// Reemplaza el campo de texto "pegá una URL" por una subida real (hallazgo
+// Reemplaza el campo de texto "pega una URL" por una subida real (hallazgo
 // 2026-09-13/14: el admin no tenía ninguna forma de subir una foto propia).
 // Sube a /api/admin/upload-image (Supabase Storage), que devuelve una URL
 // pública — se guarda en el mismo campo de texto que ya existía
@@ -43,7 +44,7 @@ export function ImageUploadField({ label, helpText, value, onChange, aspect = "a
       onChange(data.url);
       setSubioRecien(true);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Error desconocido");
+      setError(mensajeError(err));
     } finally {
       setSubiendo(false);
     }
@@ -104,7 +105,7 @@ export function ImageUploadField({ label, helpText, value, onChange, aspect = "a
       />
       {subioRecien && !error && (
         <p role="status" className="mt-1.5 text-xs font-medium text-[var(--carmin)]">
-          ✓ Imagen subida — tocá <b>Guardar</b> al final del formulario para aplicar el cambio.
+          ✓ Imagen subida — toca <b>Guardar</b> al final del formulario para aplicar el cambio.
         </p>
       )}
       {error && (

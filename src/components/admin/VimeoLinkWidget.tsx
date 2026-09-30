@@ -1,5 +1,6 @@
 "use client";
 
+import { mensajeError } from "@/lib/errores";
 import { attachVimeoVideo } from "@/app/admin/cursos/[id]/clases/actions";
 import { useEffect, useRef, useState } from "react";
 
@@ -50,14 +51,14 @@ export function VimeoLinkWidget({ courseId, claseId }: { courseId: string; clase
         }
       } catch (err) {
         if (pollRef.current) clearInterval(pollRef.current);
-        setError(err instanceof Error ? err.message : "Error desconocido");
+        setError(mensajeError(err));
         setEstado("error");
         return;
       }
 
       if (attempts >= MAX_POLL_ATTEMPTS) {
         if (pollRef.current) clearInterval(pollRef.current);
-        setError("Está tardando más de lo esperado. Podés cerrar esta página y revisar más tarde.");
+        setError("Está tardando más de lo esperado. Puedes cerrar esta página y revisar más tarde.");
         setEstado("error");
       }
     }, POLL_INTERVAL_MS);

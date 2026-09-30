@@ -9,7 +9,7 @@ import { useState } from "react";
 const input =
   "w-full rounded-lg border border-[var(--linea)] px-3 py-2 text-sm outline-none focus:border-[var(--carmin)]";
 const label = "mb-1 block font-[family-name:var(--font-ui)] text-[.85rem] font-medium text-[var(--vino)]";
-const card = "rounded-[14px] bg-white p-6 shadow-[0_8px_20px_rgba(78,15,38,.08)]";
+const card = "rounded-[14px] bg-white p-6 shadow-[var(--sombra-md)]";
 
 export function CourseForm({
   initialCourse,
@@ -402,7 +402,7 @@ export function CourseForm({
             nada se guarda hasta tocar este botón — si además queda perdido
             al final de un formulario largo, ese cambio se pierde en
             silencio. Fijo abajo de la pantalla, siempre visible. */}
-        <div className="sticky bottom-0 z-10 -mx-6 mt-2 flex items-center gap-4 border-t border-[var(--linea)] bg-[rgba(253,247,248,.97)] px-6 py-3 backdrop-blur-sm">
+        <div className="sticky bottom-0 z-10 -mx-6 mt-2 flex items-center gap-4 border-t border-[var(--linea)] bg-[var(--header-bg)] px-6 py-3 backdrop-blur-sm">
           <button
             type="submit"
             disabled={guardando}

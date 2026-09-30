@@ -1,8 +1,10 @@
 import Image from "next/image";
+import { LogoMark } from "@/components/brand/Logo";
 import Link from "next/link";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
-import { Course, ClaseResumen, formatCLP, formatDuracion, toBullets } from "@/lib/types";
+import { Course, ClaseResumen, Modulo, agruparPorModulo, formatCLP, formatDuracion, toBullets } from "@/lib/types";
+import { Fragment } from "react";
 
 const card = "rounded-[var(--radio-md)] bg-white shadow-[var(--sombra-lg)]";
 const btnSolid =
@@ -21,11 +23,18 @@ const cardHover =
 export function CourseLanding({
   course,
   clases,
+  modulos = [],
   claseGratisThumbnailUrl,
+  accesoHref = null,
 }: {
   course: Course;
   clases: ClaseResumen[];
+  modulos?: Modulo[];
   claseGratisThumbnailUrl?: string | null;
+  // Si quien mira YA tiene el curso: link a su próxima clase. Nunca se le
+  // muestra "Comprar" a alguien que ya pagó (hallazgo 2026-09-30 recorriendo
+  // el sitio como alumna).
+  accesoHref?: string | null;
 }) {
   const paraQuienEs = toBullets(course.para_quien_es);
   const paraQuienNoEs = toBullets(course.para_quien_no_es);
@@ -82,9 +91,15 @@ export function CourseLanding({
                   Ver la clase 1 gratis
                 </a>
               )}
-              <a href="#precio" className={btnSolid}>
-                Comprar el curso
-              </a>
+              {accesoHref ? (
+                <Link href={accesoHref} className={btnSolid}>
+                  Ir a mi curso
+                </Link>
+              ) : (
+                <a href="#precio" className={btnSolid}>
+                  Comprar el curso
+                </a>
+              )}
             </div>
           </div>
           <div
@@ -101,9 +116,7 @@ export function CourseLanding({
                 priority
               />
             ) : (
-              <svg width="88" height="88" viewBox="0 0 24 24" fill="none" stroke="var(--vino)" strokeWidth="1.1" opacity=".55">
-                <path d="M12 21c-4-3-7-6.5-7-10.2C5 7 7.2 5 10 5c1 0 1.7.4 2 1 .3-.6 1-1 2-1 2.8 0 5 2 5 5.8 0 3.7-3 7.2-7 10.2z" />
-              </svg>
+              <LogoMark size={88} className="opacity-60" />
             )}
           </div>
         </div>
@@ -243,7 +256,16 @@ export function CourseLanding({
               {clases.length} clases, a tu ritmo
             </h2>
             <div className="mt-8 flex max-w-[700px] flex-col gap-3.5">
-              {clases.map((c) => {
+              {agruparPorModulo(clases, modulos)
+                .filter((g) => g.clases.length > 0)
+                .map((g) => (
+                <Fragment key={g.modulo?.id ?? "sin-modulo"}>
+                {g.modulo && (
+                  <h3 className="mt-4 font-[family-name:var(--font-ui)] text-[.8rem] font-semibold uppercase tracking-[.12em] text-[var(--carmin)] first:mt-0">
+                    Módulo {[...modulos].sort((a, b) => a.orden - b.orden).findIndex((m) => m.id === g.modulo!.id) + 1} · {g.modulo.titulo}
+                  </h3>
+                )}
+              {g.clases.map((c) => {
                 const rowClass = `rounded-[var(--radio-md)] shadow-[var(--sombra-lg)] flex items-center gap-4 px-6 py-4.5 ${
                   c.is_free_intro
                     ? "bg-white border-[1.5px] border-[var(--carmin)] transition-[transform,box-shadow] duration-[var(--dur)] ease-[var(--ease)] hover:-translate-y-0.5 hover:shadow-[var(--sombra-xl)]"
@@ -312,6 +334,8 @@ export function CourseLanding({
                   </div>
                 );
               })}
+                </Fragment>
+              ))}
             </div>
           </div>
         </section>
@@ -409,15 +433,19 @@ export function CourseLanding({
               </span>
             )}
           </div>
-          <p className="mb-7 text-white/75">
-            Pago único · con cuotas sin interés disponibles · acceso sin
-            vencimiento
-          </p>
+          {accesoHref ? (
+            <p className="mb-7 text-white/80">Ya tienes este curso · acceso sin vencimiento</p>
+          ) : (
+            <p className="mb-7 text-white/75">
+              Pago único · con cuotas sin interés disponibles · acceso sin
+              vencimiento
+            </p>
+          )}
           <a
-            href={`/checkout/${course.slug}`}
+            href={accesoHref ?? `/checkout/${course.slug}`}
             className="inline-flex items-center gap-2 rounded-full bg-white px-9 py-4 font-[family-name:var(--font-ui)] text-[.95rem] font-semibold text-[var(--vino)] shadow-[var(--sombra-lg)] transition-[transform,box-shadow] duration-[var(--dur)] ease-[var(--ease)] hover:-translate-y-[3px] hover:shadow-[var(--sombra-xl)] active:translate-y-0"
           >
-            Comprar el curso
+            {accesoHref ? "Ir a mi curso" : "Comprar el curso"}
           </a>
         </div>
       </section>

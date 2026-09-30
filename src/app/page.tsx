@@ -3,6 +3,7 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { createClient } from "@/lib/supabase/server";
 import { formatCLP } from "@/lib/types";
 import Image from "next/image";
+import { LogoMark } from "@/components/brand/Logo";
 import Link from "next/link";
 
 const card = "rounded-[var(--radio-md)] bg-white shadow-[var(--sombra-md)]";
@@ -15,9 +16,27 @@ export default async function Home() {
   const supabase = await createClient();
   const { data: cursos } = await supabase
     .from("courses")
-    .select("slug, titulo, subtitulo_corto, precio, cover_image_url")
+    .select("id, slug, titulo, subtitulo_corto, precio, cover_image_url")
     .eq("estado", "publicado")
     .order("created_at", { ascending: false });
+
+  // Cursos que quien mira ya tiene → badge "Ya es tuyo" y el click va a su
+  // campus, no a la página de venta.
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const propios = new Set<string>();
+  if (user) {
+    const { data: compras } = await supabase
+      .from("purchases")
+      .select("courses(slug)")
+      .eq("user_id", user.id)
+      .eq("estado", "pagado");
+    for (const c of compras ?? []) {
+      const curso = Array.isArray(c.courses) ? c.courses[0] : c.courses;
+      if (curso?.slug) propios.add(curso.slug);
+    }
+  }
 
   return (
     <div className="flex min-h-svh flex-col bg-[var(--crema)]">
@@ -36,14 +55,14 @@ export default async function Home() {
 
         {!cursos || cursos.length === 0 ? (
           <p className="text-sm text-[var(--tinta-suave)]">
-            Todavía no hay cursos publicados. Volvé pronto.
+            Todavía no hay cursos publicados. Vuelve pronto.
           </p>
         ) : (
           <div className="relative grid gap-7 sm:grid-cols-2 lg:grid-cols-3">
             {cursos.map((c) => (
               <Link
                 key={c.slug}
-                href={`/cursos/${c.slug}`}
+                href={propios.has(c.slug) ? "/cuenta/mis-cursos" : `/cursos/${c.slug}`}
                 className={`${card} group overflow-hidden transition-[transform,box-shadow] duration-[var(--dur)] ease-[var(--ease)] hover:-translate-y-1 hover:shadow-[var(--sombra-xl)]`}
               >
                 <div className="relative flex aspect-video items-center justify-center overflow-hidden bg-[linear-gradient(160deg,var(--rosa),var(--dorado))]">
@@ -56,9 +75,7 @@ export default async function Home() {
                       className="object-cover transition-transform duration-[calc(var(--dur)*2)] ease-[var(--ease)] group-hover:scale-105"
                     />
                   ) : (
-                    <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="var(--vino)" strokeWidth="1.1" opacity=".55">
-                      <path d="M12 21c-4-3-7-6.5-7-10.2C5 7 7.2 5 10 5c1 0 1.7.4 2 1 .3-.6 1-1 2-1 2.8 0 5 2 5 5.8 0 3.7-3 7.2-7 10.2z" />
-                    </svg>
+                    <LogoMark size={44} className="opacity-60" />
                   )}
                 </div>
                 <div className="p-5">
@@ -69,7 +86,13 @@ export default async function Home() {
                     <p className="mb-3 text-[.85rem] text-[var(--tinta-suave)]">{c.subtitulo_corto}</p>
                   )}
                   <p className="font-[family-name:var(--font-ui)] text-[.95rem] font-medium text-[var(--carmin)]">
-                    {formatCLP(c.precio)}
+                    {propios.has(c.slug) ? (
+                      <span className="inline-flex items-center gap-1.5 rounded-full bg-[var(--rosa)] px-3 py-1 text-[.78rem] text-[var(--vino)]">
+                        Ya es tuyo · Ir a Mi Campus →
+                      </span>
+                    ) : (
+                      formatCLP(c.precio)
+                    )}
                   </p>
                 </div>
               </Link>

@@ -1,10 +1,10 @@
 "use client";
 
+import { mensajeError } from "@/lib/errores";
 import { createClient } from "@/lib/supabase/client";
 import Player from "@vimeo/player";
 import { useEffect, useRef, useState } from "react";
 
-const card = "rounded-[18px] bg-white shadow-[0_12px_30px_rgba(78,15,38,.1)]";
 
 // Cada cuántos segundos de reproducción real se guarda el avance — no en
 // cada `timeupdate` (dispara varias veces por segundo), para no saturar la
@@ -48,7 +48,7 @@ export function ClassPlayer({
         if (!cancelado) setEmbedUrl(data.embedUrl);
       })
       .catch((err) => {
-        if (!cancelado) setError(err instanceof Error ? err.message : "Error desconocido");
+        if (!cancelado) setError(mensajeError(err));
       });
 
     return () => {
@@ -113,47 +113,57 @@ export function ClassPlayer({
     };
   }, [embedUrl, videoId, initialProgressSeconds]);
 
+  // Superficie oscura de video en todos los estados (pantalla 3 de la
+  // maqueta): mientras Vimeo carga, o si la clase no está lista, se ve el
+  // mismo marco ciruela en vez de un recuadro blanco vacío.
+  const marco =
+    "relative flex aspect-video flex-col items-center justify-center gap-3 overflow-hidden rounded-[var(--radio-lg)] bg-[var(--video,var(--vino-osc))] p-6 text-center shadow-[var(--sombra-md)]";
+  const icono = "flex h-14 w-14 items-center justify-center rounded-full border border-white/25 bg-white/10";
+
   if (estadoProcesamiento !== "listo") {
     return (
-      <div className={`${card} flex aspect-video flex-col items-center justify-center gap-3 bg-[var(--crema-2)] p-6 text-center`}>
-        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--rosa)]">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--carmin)" strokeWidth="1.8">
+      <div className={marco}>
+        <div className={icono}>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.6" aria-hidden="true">
             <circle cx="12" cy="12" r="9" />
             <path d="M12 7v5l3 3" />
           </svg>
         </div>
-        <p className="text-sm text-[var(--tinta-suave)]">
-          Esta clase todavía está procesándose, disponible pronto.
-        </p>
+        <p className="text-sm text-white/75">Esta clase todavía está procesándose, disponible pronto.</p>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className={`${card} flex aspect-video flex-col items-center justify-center gap-3 bg-[var(--crema-2)] p-6 text-center`}>
-        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--rosa)]">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--dorado-osc)" strokeWidth="1.8">
+      <div className={marco}>
+        <div className={icono}>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="1.6" aria-hidden="true">
             <rect x="2" y="6" width="14" height="12" rx="2" />
             <path d="M16 10l6-3v10l-6-3" />
             <path d="M3 3l18 18" />
           </svg>
         </div>
-        <p className="text-sm text-[var(--dorado-osc)]">{error}</p>
+        <p className="max-w-[40ch] text-sm text-white/80">{error}</p>
       </div>
     );
   }
 
   if (!embedUrl) {
     return (
-      <div className={`${card} flex aspect-video items-center justify-center bg-[var(--vino-osc)]`}>
-        <p className="text-sm text-white/70">Cargando video…</p>
+      <div className={marco}>
+        <div className={`${icono} animate-pulse`}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="#fff" aria-hidden="true">
+            <path d="M8 5v14l11-7z" />
+          </svg>
+        </div>
+        <p className="text-[.8rem] text-white/60">Cargando la clase…</p>
       </div>
     );
   }
 
   return (
-    <div className={`${card} aspect-video overflow-hidden`}>
+    <div className="aspect-video overflow-hidden rounded-[var(--radio-lg)] bg-[var(--video,var(--vino-osc))] shadow-[var(--sombra-md)]">
       <iframe
         ref={iframeRef}
         src={embedUrl}

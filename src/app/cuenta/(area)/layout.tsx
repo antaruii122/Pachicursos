@@ -1,6 +1,5 @@
-import { AccountSubNav } from "@/components/account/AccountSubNav";
+import { CampusHeader } from "@/components/campus/CampusHeader";
 import { SiteFooter } from "@/components/SiteFooter";
-import { SiteHeader } from "@/components/SiteHeader";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 
@@ -18,17 +17,12 @@ export default async function CuentaAreaLayout({ children }: { children: React.R
   } = await supabase.auth.getUser();
   if (!user) redirect("/cuenta/login?next=/cuenta/perfil");
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", user.id)
-    .single();
-
   return (
-    <div className="flex min-h-svh flex-col bg-[var(--crema-2)]">
-      <SiteHeader />
-      <AccountSubNav isAdmin={profile?.role === "admin"} />
-      <main id="contenido-principal" className="mx-auto w-[min(1000px,90vw)] flex-1 py-10">
+    // tema-campus: paleta de la maqueta aprobada (ver globals.css). El header
+    // del campus reemplaza SiteHeader + la sub-nav de pestañas.
+    <div className="tema-campus flex min-h-svh flex-col">
+      <CampusHeader />
+      <main id="contenido-principal" className="mx-auto w-[min(1180px,92vw)] flex-1 py-10">
         {children}
       </main>
       <SiteFooter />

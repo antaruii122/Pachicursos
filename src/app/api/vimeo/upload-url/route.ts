@@ -1,3 +1,4 @@
+import { mensajeError } from "@/lib/errores";
 import { createClient } from "@/lib/supabase/server";
 import { createVimeoTusUpload } from "@/lib/vimeo";
 import { NextResponse } from "next/server";
@@ -58,7 +59,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ uploadLink, vimeoId });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "Error desconocido";
+    const message = mensajeError(err);
     return NextResponse.json({ error: message }, { status: 502 });
   }
 }

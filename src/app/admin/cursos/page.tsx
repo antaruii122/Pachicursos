@@ -58,7 +58,7 @@ export default async function AdminCursosPage() {
           {cursos.map((c) => (
             <div
               key={c.id}
-              className="flex flex-col gap-4 rounded-[14px] bg-white px-5 py-4 shadow-[0_8px_20px_rgba(78,15,38,.08)] sm:flex-row sm:items-center sm:justify-between"
+              className="flex flex-col gap-4 rounded-[14px] bg-white px-5 py-4 shadow-[var(--sombra-md)] sm:flex-row sm:items-center sm:justify-between"
             >
               <Link href={`/admin/cursos/${c.id}/editar`} className="min-w-0 flex-1 hover:opacity-80">
                 <p className="font-[family-name:var(--font-ui)] text-[.95rem] font-medium text-[var(--tinta)]">

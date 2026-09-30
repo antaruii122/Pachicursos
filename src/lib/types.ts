@@ -42,10 +42,41 @@ export interface ClaseResumen {
   duracion: number | null;
   is_free_intro: boolean;
   estado_procesamiento: "subiendo" | "procesando" | "listo";
+  module_id?: string | null;
   // Se llena server-side (ver cursos/[slug]/page.tsx) leyendo vimeo_id con
   // service_role — nunca viaja el vimeo_id en sí al cliente, solo esta URL
   // de imagen ya resuelta.
   thumbnailUrl?: string | null;
+}
+
+export interface Modulo {
+  id: string;
+  orden: number;
+  titulo: string;
+}
+
+export interface GrupoModulo<T> {
+  modulo: Modulo | null; // null = clases sin módulo (van primero)
+  clases: T[];
+}
+
+// Agrupa clases por módulo en el mismo orden que usa
+// normalizar_orden_clases (0006): sin módulo primero, después módulos por
+// `orden`. Módulos vacíos se incluyen (el admin los necesita ver); el que
+// muestra a alumnas los filtra.
+export function agruparPorModulo<T extends { orden: number; module_id?: string | null }>(
+  clases: T[],
+  modulos: Modulo[],
+): GrupoModulo<T>[] {
+  const ordenadas = [...clases].sort((a, b) => a.orden - b.orden);
+  const idsModulo = new Set(modulos.map((m) => m.id));
+  const grupos: GrupoModulo<T>[] = [];
+  const sueltas = ordenadas.filter((c) => !c.module_id || !idsModulo.has(c.module_id));
+  if (sueltas.length > 0 || modulos.length === 0) grupos.push({ modulo: null, clases: sueltas });
+  for (const m of [...modulos].sort((a, b) => a.orden - b.orden)) {
+    grupos.push({ modulo: m, clases: ordenadas.filter((c) => c.module_id === m.id) });
+  }
+  return grupos;
 }
 
 export function formatCLP(monto: number): string {

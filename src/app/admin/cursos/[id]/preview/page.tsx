@@ -23,18 +23,21 @@ export default async function PreviewCursoPage({
     .maybeSingle();
   if (!course) notFound();
 
-  const { data: clases } = await supabase
-    .from("course_videos")
-    .select("id, orden, titulo, duracion, is_free_intro, estado_procesamiento")
-    .eq("course_id", id)
-    .order("orden", { ascending: true });
+  const [{ data: clases }, { data: modulos }] = await Promise.all([
+    supabase
+      .from("course_videos")
+      .select("id, orden, titulo, duracion, is_free_intro, estado_procesamiento, module_id")
+      .eq("course_id", id)
+      .order("orden", { ascending: true }),
+    supabase.from("course_modules").select("id, orden, titulo").eq("course_id", id),
+  ]);
 
   return (
     <div>
       <div className="bg-[var(--dorado)] py-2 text-center font-[family-name:var(--font-ui)] text-[.8rem] text-[var(--vino)]">
         Vista previa — así se ve la landing pública (estado actual: {course.estado})
       </div>
-      <CourseLanding course={course as Course} clases={(clases ?? []) as ClaseResumen[]} />
+      <CourseLanding course={course as Course} clases={(clases ?? []) as ClaseResumen[]} modulos={modulos ?? []} />
     </div>
   );
 }

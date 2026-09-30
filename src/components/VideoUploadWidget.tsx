@@ -1,5 +1,6 @@
 "use client";
 
+import { mensajeError } from "@/lib/errores";
 import { useEffect, useRef, useState } from "react";
 import { Upload } from "tus-js-client";
 
@@ -54,14 +55,14 @@ export function VideoUploadWidget({ claseId }: { claseId: string }) {
         }
       } catch (err) {
         if (pollRef.current) clearInterval(pollRef.current);
-        setError(err instanceof Error ? err.message : "Error desconocido");
+        setError(mensajeError(err));
         setEstado("error");
         return;
       }
 
       if (attempts >= MAX_POLL_ATTEMPTS) {
         if (pollRef.current) clearInterval(pollRef.current);
-        setError("Está tardando más de lo esperado. Podés cerrar esta página y revisar más tarde.");
+        setError("Está tardando más de lo esperado. Puedes cerrar esta página y revisar más tarde.");
         setEstado("error");
       }
     }, POLL_INTERVAL_MS);
@@ -100,7 +101,7 @@ export function VideoUploadWidget({ claseId }: { claseId: string }) {
       });
       upload.start();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Error desconocido");
+      setError(mensajeError(err));
       setEstado("error");
     }
   };

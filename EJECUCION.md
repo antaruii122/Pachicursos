@@ -263,3 +263,92 @@ A pedido explícito de Ricardo ("no un perfil básico, un área de producto comp
 ---
 
 (el registro de eventos empieza acá — cada línea nueva se agrega debajo, nunca se edita una existente)
+
+## Alcance nuevo acordado con Ricardo (2026-09-30)
+
+Referencia de diseño: maqueta "Campus NUTFEM · plataforma privada" (artifact `SPAZw5G8WMCFMj8im5hish`, 4 pantallas). **No se pudo abrir en esta sesión** (es de otra cuenta y el permiso de lectura no se puede aprobar acá) — Ricardo tiene que pasar el HTML/capturas al repo antes de tocar las pantallas 1–4. Se usan siempre los tokens de marca propios (vino/carmín/crema), nunca los colores literales de NUTFEM.
+
+Ricardo confirmó (respuesta explícita): **las 4 pantallas** (1 login restyle, 2 anillo de progreso + checklist por módulo en Mis cursos, 3 comparar clase con la maqueta, 4 admin crea usuarias directamente — nueva, con service_role) **y las 3 funciones nuevas de clase: módulos, archivos descargables por clase (PPT/PDF), foro/preguntas por clase.** Pagos (Flow.cl/Stripe) siguen congelados ("don't worry about it now").
+
+Orden de trabajo: Módulos primero (la pantalla 2 depende de ellos) → archivos → foro → pantalla 4 → pantallas 1–3 cuando esté la maqueta. Cada uno como Parte propia con revisión de `curso-platform-reviewer` antes de cerrarla.
+
+- [x] Verificado en vivo (2026-09-30): el token actual de Vimeo lee videos **públicos de otras cuentas** (`GET /videos/{id}` → 200 con `player_embed_url` en 2 videos ajenos) — pegar el link de un video público ya funciona con `attachVimeoVideo`, no hacía falta código nuevo. Solo se corrigió el mensaje de error, que decía que el video tenía que estar en "la cuenta conectada". Riesgos anotados para Ricardo: un video público se ve gratis en vimeo.com (no es contenido protegido) y el dueño puede borrarlo/privatizarlo/restringir el embed.
+
+**Módulos** (código listo, NO deployado — depende de migración):
+- [x] `supabase/migrations/0006_course_modules.sql` — tabla `course_modules` (RLS igual que `course_videos` en 0004), `course_videos.module_id` (on delete set null: borrar un módulo no borra clases), `GRANT select (module_id)` (sin esto falla por el revoke columna-por-columna de 0001), y función `normalizar_orden_clases()` que renumera `orden` 1..N (sin módulo primero, luego por módulo) para que "Clase N" y la URL `/clase/[n]` sigan el orden visual. Progreso y notas van por `video_id`, renumerar no pierde nada.
+- [x] Admin (`ClaseManager`): crear/renombrar/borrar/reordenar módulos, selector de módulo por clase y al agregar clase; ▲▼ de clases solo dentro de su módulo.
+- [x] Alumna: sidebar del reproductor y currículum de la landing (y preview admin) agrupados por módulo, con contador hechas/total por módulo en el sidebar. Curso sin módulos se ve igual que antes.
+- [x] `npm run lint` y `npm run build` limpios.
+- [ ] 🔴 **NO deployar antes de correr `0006` en Supabase** — el código ya pide `module_id` y `course_modules`; sin la migración la landing da 404 (mismo incidente del 2026-09-14 con 0005).
+- [ ] Prueba en vivo con sesión admin después de la migración, y revisión de `curso-platform-reviewer`.
+
+## Campus con el diseño de la maqueta (2026-09-30)
+
+- [x] Migración `0006` (módulos) corrida por Ricardo en el SQL Editor y **verificada contra la base real**: tabla `course_modules` existe, `course_videos.module_id` legible con la anon key (el GRANT de columna funciona), `normalizar_orden_clases` rechaza a no-admin ("Requiere rol admin").
+- [x] Logs de producción de Vercel revisados: 0 errores/warnings.
+- [x] Plan completo en `docs/plan-campus.md`; maqueta documentada en `docs/maqueta-campus.md`.
+- [x] **Decisión de Ricardo (explícita, enojado con razón porque se había cambiado el estilo): el campus copia la maqueta 1:1** — logo de aro con degradé, "CAMPUS" bajo el nombre, paleta ciruela de la maqueta (muestreada de las capturas: `#6e2b5e`, `#3b1433`, `#2a1c2d`, `#dbc3d1`, `#f4e8ed`, fondo `#fbf9fa`), píldoras de navegación, avatar con iniciales. El nombre es "Alimenta tu Fertilidad", no NUTFEM. El sitio público de venta mantiene su paleta vino/carmín.
+- [x] Implementado como tema: clase `.tema-campus` en `globals.css` que redefine los mismos tokens (contraste verificado ≥4.7:1) → login, `/cuenta/**`, clase y `/admin/**` cambian juntos sin tocar cada componente.
+- [x] Piezas compartidas `src/components/campus/` (logo, anillo y barra de progreso animados, eyebrow, stats, tarjetas-atajo, header del campus con píldoras).
+- [x] Pantalla 1 login, pantalla 2 Mi Campus (saludo, "Continúa donde quedaste" real, anillo %, módulos completados, desglose por módulo con barras reales), pantalla 3 clase (breadcrumb, tarjeta del módulo actual + "Ver todo el curso", título serif, botón "Marcar como completada y seguir" — se suma al completado automático), pantalla 4 layout admin con sidebar.
+- [x] Lint + build limpios; revisado visualmente en local (login y clase gratis). **No deployado.**
+- [ ] Mi Campus y admin sin revisión visual con sesión (el agente no ingresa contraseñas) — Ricardo puede verlo en `http://localhost:3055` con su cuenta.
+- [ ] Siguen del plan: Paso 4 crear usuaria (form + service_role + migración `0007` profesión/país), Paso 5 materiales, Paso 6 preguntas. Luego `curso-platform-reviewer`.
+
+## Análisis de errores 2026-09-30 (pedido explícito de Ricardo: "deep analysis, never do these mistakes again")
+
+**1. Tres logos y dos paletas al mismo tiempo.** Qué pasó: al aplicar la maqueta, el agente decidió por su cuenta aplicarla "solo al campus" y dejar el sitio público con el logo del corazón y la paleta vino/carmín — sin que Ricardo lo pidiera. Resultado: la landing mostraba un logo, el login otro, el favicon un tercero. Causa raíz: no había una fuente única de marca — cada pantalla dibujaba su logo y tipeaba sus colores (40+ colores sueltos en 20 archivos). Arreglo: paleta única de la maqueta en `:root` de `globals.css`; logo único `src/components/brand/Logo.tsx` usado en header público, campus, admin, login, "sin foto" y favicon; todas las sombras/fondos sueltos pasados a tokens. **Prevención automática**: `scripts/check-marca.mjs` corre en `npm run lint` y en `prebuild` (Vercel lo ejecuta antes de cada deploy) — falla ante cualquier color de marca fuera de `globals.css`, cualquier degradé/logo fuera de `Logo.tsx`, o el logo viejo. Probado plantando las 3 violaciones a propósito: las detecta todas.
+
+**2. El admin nunca vio ni un acceso ni una venta.** Qué pasó: `/admin/cursos/[id]/accesos`, `/admin/ventas` y "ventas recientes" del dashboard pedían `profiles(nombre, email)` desde `purchases`, que tiene DOS FKs a `profiles` → PostgREST devuelve error PGRST201 → el código ignoraba el error y mostraba "(0)". Confirmado contra la base real (3 filas para el curso, pantalla decía 0). Causa raíz: el mismo patrón de "ignorar `error`" que ya causó el bug de `grantAccess` y el 404 de la landing — nunca se corrigió como regla. Arreglo: FK explícita en las 3 consultas + ahora lanzan el error en vez de mostrar una lista vacía falsa. Regla nueva en `CLAUDE.md`.
+
+**3. Pantallas reportadas como "listas" sin verlas con sesión.** Mi Campus y el admin se reportaron terminados solo con build limpio. Regla nueva: "hecho" = captura real de cada pantalla afectada, o se declara "no verificado visualmente".
+
+**4. "Se perdieron las fotos" — investigado, no era pérdida.** La portada existe y carga en producción (200 vía el optimizador de Vercel). En el servidor local de prueba, el optimizador de imágenes de Next agotó el tiempo en la primera carga ("upstream image response timed out") desde esta red; al reintentar carga bien. Ningún dato se perdió.
+
+**Hecho en esta misma ronda:**
+- [x] Acceso manual al curso publicado "Regula tu Ciclo" otorgado a `Antario@gmail.com` (pedido explícito; fila `purchases` manual/pagado, verificada).
+- [x] Admin más fácil (pedido explícito): en **Alumnas y usuarios** cada persona muestra sus cursos como chips (× para quitar) y un selector "+ Asignar curso" — un click, sin tipear email. En **Accesos de un curso**: lista clara "Con acceso (N)" con buscar y "Quitar acceso", "Dar acceso" con autocompletado de cuentas existentes, y los pagos sin terminar/quitados en un historial plegado.
+- [x] Anillo de progreso segmentado por módulo (como la maqueta); nombre del curso en gris como la maqueta; sidebar admin más ancha (el logo se cortaba).
+- [x] Lint + guardia de marca + build limpios. **No deployado.**
+
+## Materiales por clase (PDF/PPT) — Paso 5 del plan (2026-09-30)
+
+- [x] Bucket **privado** `materiales` en Supabase Storage (50 MB, PDF/PPT/Word/Excel/imágenes/zip), creado con `scripts/create-storage-bucket.mjs` (idempotente).
+- [x] Admin: botón "Video y material" en cada clase → subir (arrastrar/soltar, varios a la vez), agregar enlaces, borrar. Subida directa navegador→Storage con link de subida de un solo uso firmado server-side tras validar admin (un PPT de 30 MB no pasa por la función serverless). Se guarda en `course_videos.resources`.
+- [x] Alumna: "Material de la clase" (grilla de la maqueta). Descarga vía `/api/courses/[slug]/videos/[videoId]/recursos/[id]`: valida acceso (gratis/compra/admin) y redirige a un link firmado de 2 min con el nombre real del archivo. Nunca hay URL pública.
+- [x] **Prueba real de punta a punta** contra Storage: subida por link firmado OK; URL pública del archivo → 400; clase gratis sin sesión → descarga PDF 200 con nombre correcto; clase paga sin sesión → login; id inexistente → 404; grilla visible en la página. Limpieza verificada. Captura de la grilla tomada.
+- [x] Ricardo probó en vivo subiendo un PDF a las clases 1 y 2 — la de clase 1 funciona (descarga 200, 104.952 bytes).
+
+**Bugs encontrados al probar con sesión real (todos arreglados):**
+- Título de "Continúa donde quedaste" invisible: la regla global `h1,h2,h3 { color }` estaba fuera de `@layer`, y un estilo sin capa le gana a toda utilidad de Tailwind (`text-white`). Movida a `@layer base` — arregla todos los títulos sobre fondo oscuro del sitio.
+- **Orden de clases corrupto (-1) en la base real**: el ▲▼ hace 3 updates y usaba siempre el temporal `-1`; dos clicks rápidos (Ricardo y el agente usando la misma pestaña a la vez) chocaron. Reparado en la base (1-2-3-4). Arreglo: temporal negativo único por llamada, auto-renumeración 1..N si algo falla, flechas bloqueadas mientras se guarda.
+- "Error desconocido" escondía el motivo real: los errores de Supabase no son `instanceof Error`. Nuevo `src/lib/errores.ts` (`mensajeError`) aplicado en 11 archivos.
+- Material de clase 2 listado sin archivo (descarga 502): borrar sacaba el archivo antes que el registro; si la acción se corta a la mitad (reinicio del servidor local), quedaba roto. Ahora se saca el registro primero. Registro huérfano limpiado; la ruta de descarga devuelve un mensaje claro si falta el archivo.
+
+## Recorrido como admin y como alumna (2026-09-30) — pedido de Ricardo: "no revisar código, pensar como admin y alumna"
+
+Arreglado:
+- **El logo no llevaba siempre al inicio** (en el campus iba a Mi Campus, en admin al panel, en login no era link). Ahora el logo va a `/` en TODAS las pantallas (verificado en el HTML de las 4 plantillas).
+- **Una alumna que ya compró veía "Comprar el curso"** en la página de venta (invitación a pagar dos veces). Ahora ve "Ir a mi curso" (a su próxima clase) arriba y en el bloque de precio; en el catálogo del inicio su curso dice "Ya es tuyo · Ir a Mi Campus".
+- Al ingresar sin destino, la alumna caía en el catálogo de venta → ahora entra directo a Mi Campus. Header público con sesión: botón "Mi Campus".
+- **El admin no podía ver las clases pagas** de su propio curso sin "comprarlo" → admin ve todas (página de clase + endpoint del player + materiales).
+- **Dashboard admin mentía**: un acceso de cortesía aparecía como "venta de $0" y contaba como "alumna pagante". Ahora: ingresos y pagantes solo con pagos reales, "Alumnas con acceso" aparte, "Acceso dado por admin" en la actividad, y accesos directos a las tareas del día (dar acceso, subir material, ver como alumna). Verificado con captura.
+- Estado "Subiendo" en clases sin video (nada se estaba subiendo) → "Sin video".
+- Errores de red mostraban un volcado técnico ("TypeError: fetch failed … ConnectTimeoutError") → mensaje humano.
+- **Texto mezclaba voseo argentino con tú** ("Volvé pronto", "podés", "Tocá"…) → 19 frases pasadas a tú (público chileno). Pendiente: 4 frases dentro de `checkout/*` (congelado por la pausa de pagos).
+
+Pendiente (no arreglado todavía):
+- "¿Olvidaste tu contraseña?" probablemente no funciona hasta configurar Redirect URLs en Supabase (anotado desde antes) — una alumna que olvida su clave queda bloqueada.
+- Crear usuaria desde admin (pantalla 4), foro/preguntas por clase.
+- Mi Campus sin módulos muestra una sola fila "Todas las clases" — poco útil.
+
+## Contraseñas, crear usuaria, preguntas por clase, Mi Campus sin módulos (2026-09-30)
+
+- **Por qué "olvidé mi contraseña" no sirve hoy** (confirmado en la doc oficial, supabase.com/docs/guides/auth/auth-smtp): sin SMTP propio, Supabase "refuses to deliver messages to addresses that are not part of the project's team" y limita a ~2 correos/hora. Ninguna alumna recibe el correo. Arreglo real = cuenta Resend (Parte A, nunca creada) + SMTP en Supabase + plantilla de email + Redirect URLs. Mientras tanto:
+- [x] **Admin → "Nueva contraseña"** por persona (Alumnas y usuarios): genera una legible (estilo maqueta "Ciclo-7kq2-M9xw"), la muestra UNA vez, con "Copiar mensaje" y "Enviar por WhatsApp".
+- [x] **Crear usuario** (pantalla 4 de la maqueta) en `/admin/usuarios/nuevo`: nombre, correo, contraseña (vacía = generada), tipo (alumna/admin), curso. Cuenta creada con correo ya confirmado (`auth.admin.createUser`), perfil vía trigger existente, acceso manual. Panel "Datos de acceso" + mensaje de bienvenida listo. El link del mensaje usa el dominio desde donde trabaja el admin — **`NEXT_PUBLIC_SITE_URL` apunta a cursos.alimentatufertilidad.com, cuyo DNS no está conectado: cualquier link armado con esa variable hoy no funciona.**
+  - No probado creando una cuenta real (el agente no crea cuentas en el sistema en vivo) — lo prueba Ricardo.
+- [x] **Preguntas de la clase** — investigado Teachable (comentarios por lección, responder desde el admin) y Hotmart Club (moderación con ocultar, responder con identidad fija). Versión propia: pregunta + respuestas de un nivel, publicación inmediata, admin oculta; "Equipo docente" con el logo; la alumna aparece como "Nombre I."; aviso de no compartir datos médicos. Nombre/curso/marca de equipo los fija un trigger en la base (nadie puede hacerse pasar por el equipo). Bandeja `/admin/preguntas` (Sin responder / Todas / Ocultas, responder ahí mismo) + contador en el menú admin.
+  - Migración `0007_class_questions.sql` — **pendiente de correr por Ricardo**. El código ya maneja que la tabla no exista: la sección no aparece y nada se rompe (lección del incidente 2026-09-14).
+- [x] Mi Campus en curso sin módulos: lista de clases con check / "Sigue aquí" / duración, en vez de una sola fila.
+- [x] Lint + guardia de marca + build limpios; páginas públicas 200, admin redirige a login sin sesión. **No deployado.**

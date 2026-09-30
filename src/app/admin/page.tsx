@@ -1,94 +1,107 @@
+import { campusCard, Eyebrow } from "@/components/campus/ui";
 import { getAdminStats } from "@/lib/admin-stats";
 import { createClient } from "@/lib/supabase/server";
 import { formatCLP } from "@/lib/types";
 import Link from "next/link";
 
-const card = "rounded-[14px] bg-white p-6 shadow-[0_8px_20px_rgba(78,15,38,.08)]";
-const stat = "flex flex-col gap-1 rounded-[14px] bg-[var(--crema-2)] p-5";
-
-// Dashboard de administración (2026-09-14 — antes /admin (a secas) ni
-// siquiera tenía un page.tsx, así que 404eaba; lo único que existía era la
-// tabla cruda de /admin/ventas, sin ningún resumen del negocio en ningún
-// lado). Todo calculado desde tablas que ya existen, sin esquema nuevo.
+// Dashboard de administración. Rediseñado 2026-09-30 pensando como la
+// administradora: (1) números que no mienten — ingresos y "pagantes" solo
+// cuentan pagos reales, los accesos dados a mano van aparte; (2) las tareas
+// del día a un click (dar acceso, subir material, ver como alumna) en vez de
+// dos botones genéricos "Gestionar".
 export default async function AdminDashboardPage() {
   const supabase = await createClient();
   const stats = await getAdminStats(supabase);
 
+  const kpis = [
+    { valor: formatCLP(stats.revenueTotal), label: "Ingresos (pagos reales)" },
+    { valor: stats.estudiantesPagantes, label: "Alumnas que pagaron" },
+    { valor: stats.alumnasConAcceso, label: "Alumnas con acceso" },
+    { valor: `${stats.cursosPublicados} de ${stats.cursosTotal}`, label: "Cursos publicados" },
+  ];
+
+  const tareas = [
+    { href: "/admin/usuarios/nuevo", titulo: "Crear alumna", detalle: "Cuenta + curso + mensaje de bienvenida" },
+    { href: "/admin/usuarios", titulo: "Dar acceso a un curso", detalle: "Busca a la persona y asígnale el curso" },
+    { href: "/admin/cursos", titulo: "Subir clases y material", detalle: "Videos, PDF y presentaciones por clase" },
+    { href: "/cuenta/mis-cursos", titulo: "Ver el campus como alumna", detalle: "Revisa lo que ven tus alumnas" },
+  ];
+
   return (
     <div className="flex flex-col gap-8">
       <div>
-        <h1 className="mb-6 font-[family-name:var(--font-heading)] text-[1.6rem] font-semibold text-[var(--vino)]">
-          Resumen
-        </h1>
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-          <div className={stat}>
-            <span className="text-[1.5rem] font-semibold text-[var(--vino)]">
-              {formatCLP(stats.revenueTotal)}
-            </span>
-            <span className="text-[.8rem] text-[var(--tinta-suave)]">Ingresos totales</span>
-          </div>
-          <div className={stat}>
-            <span className="text-[1.5rem] font-semibold text-[var(--vino)]">
-              {stats.estudiantesPagantes}
-            </span>
-            <span className="text-[.8rem] text-[var(--tinta-suave)]">Alumnas pagantes</span>
-          </div>
-          <div className={stat}>
-            <span className="text-[1.5rem] font-semibold text-[var(--vino)]">
-              {stats.cursosPublicados}
-            </span>
-            <span className="text-[.8rem] text-[var(--tinta-suave)]">Cursos publicados</span>
-          </div>
-          <div className={stat}>
-            <span className="text-[1.5rem] font-semibold text-[var(--vino)]">{stats.cursosTotal}</span>
-            <span className="text-[.8rem] text-[var(--tinta-suave)]">Cursos totales</span>
-          </div>
-        </div>
+        <Eyebrow>Panel de administración</Eyebrow>
+        <h1 className="mt-1 text-[1.9rem] font-normal">Resumen</h1>
       </div>
 
-      <div className={card}>
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+        {kpis.map((k) => (
+          <div key={k.label} className={`${campusCard} flex flex-col gap-1 p-5`}>
+            <span className="font-[family-name:var(--font-heading)] text-[1.7rem] leading-tight text-[var(--vino-osc)]">
+              {k.valor}
+            </span>
+            <span className="font-[family-name:var(--font-ui)] text-[.72rem] uppercase tracking-[.1em] text-[var(--tinta-suave)]">
+              {k.label}
+            </span>
+          </div>
+        ))}
+      </div>
+
+      <section>
+        <h2 className="mb-3 text-[1.25rem] font-normal">¿Qué quieres hacer?</h2>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          {tareas.map((t) => (
+            <Link
+              key={t.href}
+              href={t.href}
+              className={`${campusCard} group flex items-start justify-between gap-3 p-5 transition-[transform,box-shadow,border-color] duration-[var(--dur)] ease-[var(--ease)] hover:-translate-y-0.5 hover:border-[var(--rosa)] hover:shadow-[var(--sombra-md)]`}
+            >
+              <span>
+                <span className="block font-[family-name:var(--font-heading)] text-[1.05rem] text-[var(--vino)]">{t.titulo}</span>
+                <span className="mt-0.5 block text-[.8rem] text-[var(--tinta-suave)]">{t.detalle}</span>
+              </span>
+              <span aria-hidden="true" className="mt-1 text-[var(--vino)] transition-transform group-hover:translate-x-1">
+                →
+              </span>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      <section className={`${campusCard} p-6`}>
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="font-[family-name:var(--font-ui)] text-[.95rem] font-semibold text-[var(--vino)]">
-            Ventas recientes
-          </h2>
-          <Link href="/admin/ventas" className="text-[.82rem] text-[var(--carmin)] underline">
-            Ver todas
+          <h2 className="text-[1.25rem] font-normal">Actividad reciente</h2>
+          <Link href="/admin/ventas" className="font-[family-name:var(--font-ui)] text-[.8rem] text-[var(--vino)] underline underline-offset-4">
+            Ver todo
           </Link>
         </div>
         {stats.ventasRecientes.length === 0 ? (
-          <p className="text-sm text-[var(--tinta-suave)]">Todavía no hay ventas.</p>
+          <p className="text-sm text-[var(--tinta-suave)]">Todavía no hay compras ni accesos.</p>
         ) : (
-          <div className="flex flex-col gap-2">
+          <ul className="divide-y divide-[var(--linea)]">
             {stats.ventasRecientes.map((v) => (
-              <div key={v.id} className="flex items-center justify-between gap-3 rounded-lg border border-[var(--linea)] p-3 text-sm">
-                <div>
-                  <p className="font-medium text-[var(--tinta)]">{v.alumno}</p>
-                  <p className="text-[.78rem] text-[var(--tinta-suave)]">{v.curso}</p>
+              <li key={v.id} className="flex items-center justify-between gap-3 py-3 text-sm">
+                <div className="min-w-0">
+                  <p className="truncate font-medium text-[var(--tinta)]">{v.alumno}</p>
+                  <p className="truncate text-[.78rem] text-[var(--tinta-suave)]">{v.curso}</p>
                 </div>
-                <div className="text-right">
-                  <p className="font-medium text-[var(--vino)]">{formatCLP(v.monto)}</p>
-                  <p className="text-[.78rem] text-[var(--tinta-suave)]">
+                <div className="shrink-0 text-right">
+                  {v.manual ? (
+                    <span className="rounded-full bg-[var(--rosa)] px-3 py-1 font-[family-name:var(--font-ui)] text-[.72rem] text-[var(--vino)]">
+                      Acceso dado por admin
+                    </span>
+                  ) : (
+                    <p className="font-medium text-[var(--vino)]">{formatCLP(v.monto)}</p>
+                  )}
+                  <p className="mt-1 text-[.74rem] text-[var(--tinta-suave)]">
                     {new Date(v.fecha).toLocaleDateString("es-CL")}
                   </p>
                 </div>
-              </div>
+              </li>
             ))}
-          </div>
+          </ul>
         )}
-      </div>
-
-      <div className="grid gap-4 sm:grid-cols-2">
-        <Link href="/admin/cursos" className={`${card} block hover:opacity-90`}>
-          <h3 className="font-[family-name:var(--font-ui)] text-[.9rem] font-medium text-[var(--vino)]">
-            Gestionar cursos →
-          </h3>
-        </Link>
-        <Link href="/admin/usuarios" className={`${card} block hover:opacity-90`}>
-          <h3 className="font-[family-name:var(--font-ui)] text-[.9rem] font-medium text-[var(--vino)]">
-            Gestionar usuarios →
-          </h3>
-        </Link>
-      </div>
+      </section>
     </div>
   );
 }
