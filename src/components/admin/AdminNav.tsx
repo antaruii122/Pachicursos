@@ -46,6 +46,12 @@ export function AdminNav({ horizontal = false, pendientes = 0 }: { horizontal?: 
       })}
       {!horizontal && <hr className="my-3 border-[var(--linea)]" />}
       <Link
+        href="/"
+        className="whitespace-nowrap rounded-[var(--radio-sm)] px-3 py-2 text-[var(--tinta-suave)] transition-colors hover:bg-[var(--crema-2)] hover:text-[var(--vino)]"
+      >
+        Ir a la página de cursos
+      </Link>
+      <Link
         href="/cuenta/mis-cursos"
         className="whitespace-nowrap rounded-[var(--radio-sm)] px-3 py-2 text-[var(--tinta-suave)] transition-colors hover:bg-[var(--crema-2)] hover:text-[var(--vino)]"
       >

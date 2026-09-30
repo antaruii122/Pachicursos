@@ -28,7 +28,10 @@ export async function CampusHeader() {
     email = profile?.email ?? user.email ?? null;
   }
 
+  // "Cursos" (la home) siempre visible: antes el logo era la ÚNICA forma de
+  // volver al inicio (hallazgo de Ricardo 2026-09-30).
   const links: CampusNavLink[] = [
+    { href: "/", label: "Cursos" },
     { href: "/cuenta/mis-cursos", label: "Mi Campus", activoEn: ["/cursos/"] },
     { href: "/cuenta/actividad", label: "Actividad" },
     { href: "/cuenta/perfil", label: "Mi perfil" },
@@ -49,7 +52,7 @@ export async function CampusHeader() {
           <Link href="/" aria-label="Alimenta tu Fertilidad — inicio">
             <CampusLogo />
           </Link>
-          {user && <CampusNav links={links} className="hidden md:flex" />}
+          <CampusNav links={user ? links : links.slice(0, 1)} className="hidden md:flex" />
           {user ? (
             <div className="flex items-center gap-3">
               {isAdmin && (
@@ -71,11 +74,9 @@ export async function CampusHeader() {
             </Link>
           )}
         </div>
-        {user && (
-          <div className="border-t border-[var(--linea)] md:hidden">
-            <CampusNav links={links} className="mx-auto w-[min(1180px,92vw)] py-2" />
-          </div>
-        )}
+        <div className="border-t border-[var(--linea)] md:hidden">
+          <CampusNav links={user ? links : links.slice(0, 1)} className="mx-auto w-[min(1180px,92vw)] py-2" />
+        </div>
       </header>
     </>
   );

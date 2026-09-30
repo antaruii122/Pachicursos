@@ -361,3 +361,9 @@ Pendiente (no arreglado todavía):
 - Único resto de la paleta vieja en producción: sombra de las 2 páginas de `checkout/*` (congeladas por la pausa de pagos, excepción documentada en `check-marca.mjs`).
 - [ ] Pendiente: correr `0007_class_questions.sql` para activar Preguntas (el código en producción ya lo tolera). Probar en producción con sesión: Crear usuario, Nueva contraseña, subir material, módulos.
 - No se invocó `curso-platform-reviewer` — ninguna Parte se marca cerrada con esto.
+
+## Preguntas de la clase activadas (2026-09-30)
+
+- [x] Ricardo corrió `0007_class_questions.sql` ("Success. No rows returned"). Verificado contra la base real: tabla existe; anon no lee nada; intento de publicar sin sesión haciéndose pasar por otra usuaria y marcando `es_equipo:true` → rechazado por el trigger ("Debes iniciar sesión"), 0 filas escritas; `puede_ver_clase` devuelve false para anon. Producción ya tenía el código → la sección quedó activa en vivo.
+- [x] Navegación (hallazgo de Ricardo: el logo era la única forma de volver al inicio): píldora "Cursos" primera en el header del campus (también sin sesión), "Cursos" visible en celular en el header público, "Ir a la página de cursos" en la barra del admin. Build limpio, verificado en el HTML local. **Pendiente de deploy.**
+- [ ] Probar con sesión real: publicar pregunta como alumna y responder desde `/admin/preguntas`.

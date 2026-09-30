@@ -39,7 +39,7 @@ export async function SiteHeader() {
         <nav className="flex shrink-0 items-center gap-2.5 font-[family-name:var(--font-ui)] text-[.78rem] sm:gap-6 sm:text-[.86rem]">
           <Link
             href="/"
-            className="hidden text-[var(--tinta-suave)] hover:text-[var(--vino)] sm:inline"
+            className="text-[var(--tinta-suave)] hover:text-[var(--vino)]"
           >
             Cursos
           </Link>
