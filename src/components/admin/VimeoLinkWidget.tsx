@@ -77,6 +77,12 @@ export function VimeoLinkWidget({ courseId, claseId }: { courseId: string; clase
       return;
     }
     setLink("");
+    // Si Vimeo ya lo tiene procesado (lo normal al pegar un link), no hay
+    // nada que esperar: se muestra "Listo" sin consultar de nuevo.
+    if (result.listo) {
+      setEstado("listo");
+      return;
+    }
     setEstado("procesando");
     startPolling(claseId);
   };

@@ -1,5 +1,6 @@
 import { mensajeError } from "@/lib/errores";
 import { createClient } from "@/lib/supabase/server";
+import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { getVimeoTranscodeStatus } from "@/lib/vimeo";
 import { NextResponse } from "next/server";
 
@@ -31,7 +32,12 @@ export async function GET(
     return NextResponse.json({ error: "Requiere rol admin" }, { status: 403 });
   }
 
-  const { data: clase, error: claseError } = await supabase
+  // `vimeo_id` está bloqueada por columna para anon/authenticated (0001) —
+  // incluso para un admin con su sesión normal. Pedirla con el cliente
+  // normal fallaba con "permission denied" y la pantalla decía "La clase no
+  // existe" (bug real 2026-09-30, al vincular un video). Ya validado que es
+  // admin → se lee con service_role.
+  const { data: clase, error: claseError } = await createServiceRoleClient()
     .from("course_videos")
     .select("id, vimeo_id, estado_procesamiento")
     .eq("id", videoId)

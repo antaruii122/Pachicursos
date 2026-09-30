@@ -268,7 +268,7 @@ export async function attachVimeoVideo(
   courseId: string,
   claseId: string,
   vimeoUrlOrId: string,
-): Promise<{ ok: true } | { error: string }> {
+): Promise<{ ok: true; listo: boolean } | { error: string }> {
   try {
     const supabase = await requireAdmin();
 
@@ -303,7 +303,7 @@ export async function attachVimeoVideo(
     if (error) throw error;
 
     revalidatePath(`/admin/cursos/${courseId}/clases`);
-    return { ok: true };
+    return { ok: true, listo: info.status === "complete" };
   } catch (err) {
     return { error: mensajeError(err) };
   }

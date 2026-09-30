@@ -367,3 +367,8 @@ Pendiente (no arreglado todavía):
 - [x] Ricardo corrió `0007_class_questions.sql` ("Success. No rows returned"). Verificado contra la base real: tabla existe; anon no lee nada; intento de publicar sin sesión haciéndose pasar por otra usuaria y marcando `es_equipo:true` → rechazado por el trigger ("Debes iniciar sesión"), 0 filas escritas; `puede_ver_clase` devuelve false para anon. Producción ya tenía el código → la sección quedó activa en vivo.
 - [x] Navegación (hallazgo de Ricardo: el logo era la única forma de volver al inicio): píldora "Cursos" primera en el header del campus (también sin sesión), "Cursos" visible en celular en el header público, "Ir a la página de cursos" en la barra del admin. Build limpio, verificado en el HTML local. **Pendiente de deploy.**
 - [ ] Probar con sesión real: publicar pregunta como alumna y responder desde `/admin/preguntas`.
+
+## Bug: "La clase no existe" al vincular video de Vimeo (2026-09-30, encontrado por Ricardo en producción)
+
+- Causa: `/api/vimeo/status/[videoId]` pedía `vimeo_id` con el cliente de sesión normal; esa columna está bloqueada para `authenticated` desde 0001 (incluso para admin) → "permission denied" → el código lo leía como "no existe" → 404 falso. Bug existente desde la Parte D: rompía también el seguimiento de la subida de archivo. El video SÍ quedaba vinculado (verificado en la base: clase `352deec4…`, vimeo 1231583833, "listo", 255 s).
+- Arreglo: la lectura va con service_role después de validar admin; si Vimeo ya lo tiene procesado al vincular, se muestra "Listo" directo sin consultar.
