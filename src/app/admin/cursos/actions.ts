@@ -101,9 +101,28 @@ export async function setCourseEstado(
 ): Promise<{ ok: true } | { error: string }> {
   try {
     const supabase = await requireAdmin();
+    // Publicar se valida también acá (antes solo el botón del editor lo
+    // chequeaba): nunca queda publicado un curso sin precio, sin clases o con
+    // clases sin video listo.
+    if (estado === "publicado") {
+      const [{ data: curso, error: e1 }, { data: clases, error: e2 }] = await Promise.all([
+        supabase.from("courses").select("titulo, precio").eq("id", id).single(),
+        supabase.from("course_videos").select("estado_procesamiento").eq("course_id", id),
+      ]);
+      if (e1) throw e1;
+      if (e2) throw e2;
+      const faltan: string[] = [];
+      if (!curso?.titulo?.trim()) faltan.push("el título");
+      if (!curso?.precio || curso.precio <= 0) faltan.push("el precio");
+      if (!clases || clases.length === 0) faltan.push("al menos 1 clase");
+      const sinVideo = (clases ?? []).filter((c) => c.estado_procesamiento !== "listo").length;
+      if (sinVideo > 0) faltan.push(`video listo en ${sinVideo} clase(s)`);
+      if (faltan.length) return { error: `Para publicar falta: ${faltan.join(", ")}.` };
+    }
     const { error } = await supabase.from("courses").update({ estado }).eq("id", id);
     if (error) throw error;
     revalidatePath("/admin/cursos");
+    revalidatePath("/");
     return { ok: true };
   } catch (err) {
     return { error: mensajeError(err) };

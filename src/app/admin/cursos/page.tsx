@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { EstadoCursoAcciones } from "@/components/admin/EstadoCursoAcciones";
 import { formatCLP } from "@/lib/types";
 import Link from "next/link";
 
@@ -24,16 +25,20 @@ export default async function AdminCursosPage() {
     .order("created_at", { ascending: false });
 
   const clasesPorCurso = new Map<string, number>();
+  const sinVideoPorCurso = new Map<string, number>();
   if (cursos && cursos.length > 0) {
     const { data: clases } = await supabase
       .from("course_videos")
-      .select("course_id")
+      .select("course_id, estado_procesamiento")
       .in(
         "course_id",
         cursos.map((c) => c.id),
       );
     for (const cl of clases ?? []) {
       clasesPorCurso.set(cl.course_id, (clasesPorCurso.get(cl.course_id) ?? 0) + 1);
+      if (cl.estado_procesamiento !== "listo") {
+        sinVideoPorCurso.set(cl.course_id, (sinVideoPorCurso.get(cl.course_id) ?? 0) + 1);
+      }
     }
   }
 
@@ -55,10 +60,17 @@ export default async function AdminCursosPage() {
         <p className="text-sm text-[var(--tinta-suave)]">Todavía no hay cursos creados.</p>
       ) : (
         <div className="flex flex-col gap-3">
-          {cursos.map((c) => (
+          {cursos.map((c) => {
+            // Mismos requisitos que valida setCourseEstado al publicar.
+            const faltan: string[] = [];
+            if (!c.precio || c.precio <= 0) faltan.push("el precio");
+            if (!clasesPorCurso.get(c.id)) faltan.push("al menos 1 clase");
+            const sinVideo = sinVideoPorCurso.get(c.id) ?? 0;
+            if (sinVideo > 0) faltan.push(`video en ${sinVideo} clase(s)`);
+            return (
             <div
               key={c.id}
-              className="flex flex-col gap-4 rounded-[14px] bg-white px-5 py-4 shadow-[var(--sombra-md)] sm:flex-row sm:items-center sm:justify-between"
+              className="flex flex-col gap-4 rounded-[14px] bg-white px-5 py-4 shadow-[var(--sombra-md)] sm:flex-row sm:flex-wrap sm:items-center sm:justify-between"
             >
               <Link href={`/admin/cursos/${c.id}/editar`} className="min-w-0 flex-1 hover:opacity-80">
                 <p className="font-[family-name:var(--font-ui)] text-[.95rem] font-medium text-[var(--tinta)]">
@@ -74,6 +86,9 @@ export default async function AdminCursosPage() {
                   </span>
                 </div>
               </Link>
+              <div className="w-full sm:order-last">
+                <EstadoCursoAcciones id={c.id} slug={c.slug} estado={c.estado} faltan={faltan} />
+              </div>
               <div className="flex shrink-0 flex-wrap items-center gap-2">
                 <Link
                   href={`/admin/cursos/${c.id}/clases`}
@@ -92,7 +107,8 @@ export default async function AdminCursosPage() {
                 </Link>
               </div>
             </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>
