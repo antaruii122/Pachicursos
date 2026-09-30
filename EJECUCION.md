@@ -386,3 +386,11 @@ Pendiente (no arreglado todavía):
 
 - [x] Pedido de Ricardo: Actividad y Seguridad adentro de Mi perfil (pestañas Resumen · Actividad · Seguridad), y el foro en el menú principal como **Comunidad** (como la maqueta). `/cuenta/comunidad` junta las preguntas de todas las clases con acceso (RLS de 0007 filtra), filtros Todas / Mis preguntas / Sin respuesta, link a la clase. Menú del avatar suma Comunidad y Actividad.
 - [x] Hallazgo en su captura: Actividad mostraba intentos de pago abandonados como "$480.000 PENDIENTE" (se lee como deuda). Ahora solo muestra cursos con acceso/reembolsados/quitados; "Acceso dado por el equipo" en vez de "Otorgado manualmente $0 PAGADO".
+
+### 2026-10-01 — El campus no vende: home = puerta de entrada de alumnas (pedido de Marcela)
+- `/` ya no es catálogo con precios: es "Bienvenida a tu campus" + botón "Ingresa aquí como alumna" (→ login). Con sesión redirige a Mi Campus (admin → /admin).
+- Landing del curso: sin precio ni "Comprar el curso"; la sección 8 pasa a "Campus de alumnas" con "Ingresa aquí como alumna" (o "Ir a mi curso" si ya lo tiene).
+- Clase bloqueada (con sesión sin acceso): "Tu cuenta aún no tiene acceso… escríbele al equipo" + "Ir a Mi Campus", sin "Comprar".
+- Menús: se quita el link "Cursos" (catálogo) de CampusHeader y SiteHeader; botón "Ingresar como alumna".
+- `/checkout/*` intacto (congelamiento de pagos) pero ya sin ningún link desde la UI.
+- Verificado visualmente sin sesión (home y landing, build local). Con sesión: no verificado visualmente.

@@ -3,7 +3,7 @@ import { LogoMark } from "@/components/brand/Logo";
 import Link from "next/link";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
-import { Course, ClaseResumen, Modulo, agruparPorModulo, formatCLP, formatDuracion, toBullets } from "@/lib/types";
+import { Course, ClaseResumen, Modulo, agruparPorModulo, formatDuracion, toBullets } from "@/lib/types";
 import { Fragment } from "react";
 
 const card = "rounded-[var(--radio-md)] bg-white shadow-[var(--sombra-lg)]";
@@ -96,9 +96,9 @@ export function CourseLanding({
                   Ir a mi curso
                 </Link>
               ) : (
-                <a href="#precio" className={btnSolid}>
-                  Comprar el curso
-                </a>
+                <Link href="/cuenta/login" className={btnSolid}>
+                  Ingresar como alumna
+                </Link>
               )}
             </div>
           </div>
@@ -183,8 +183,7 @@ export function CourseLanding({
               Mira la primera clase antes de decidir
             </h2>
             <p className="mx-auto mb-8 max-w-[60ch] text-[1.05rem] text-[var(--tinta-suave)]">
-              Sin registrarte. Así sabes exactamente cómo enseña Marcela antes de
-              comprar el resto del curso.
+              Sin registrarte. Así conoces cómo enseña Marcela antes de empezar.
             </p>
           </div>
           <div className="mx-auto w-[min(1160px,90vw)]">
@@ -416,37 +415,28 @@ export function CourseLanding({
         </section>
       )}
 
-      {/* 8. Precio + CTA — sin garantía/reembolso (política del negocio) */}
-      <section id="precio" className="relative overflow-hidden bg-[var(--vino)] py-16 text-white md:py-20">
+      {/* 8. Acceso — el campus NO vende (pedido de Marcela 2026-10-01): la
+          venta y el pago ocurren antes en la landing de venta y el equipo da
+          el acceso a cada alumna. Aquí solo se entra. */}
+      <section id="acceso" className="relative overflow-hidden bg-[var(--vino)] py-16 text-white md:py-20">
         <div
           aria-hidden
           className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,var(--vino-claro)_0%,transparent_60%)] opacity-60"
         />
         <div className="relative mx-auto w-[min(760px,90vw)] text-center">
-          <span className={`${eyebrow} !text-[var(--dorado)]`}>Inversión</span>
+          <span className={`${eyebrow} !text-[var(--dorado)]`}>Campus de alumnas</span>
           <h2 className="!text-white">{course.titulo}</h2>
-          <div className="my-6 inline-flex items-baseline gap-3 rounded-[var(--radio-lg)] border border-white/15 bg-white/[.06] px-8 py-5 font-[family-name:var(--font-heading)] text-[2.6rem] font-semibold shadow-[var(--sombra-lg)]">
-            {formatCLP(course.precio)}
-            {course.precio_original && (
-              <span className="text-[1.4rem] font-normal text-white/50 line-through">
-                {formatCLP(course.precio_original)}
-              </span>
-            )}
-          </div>
-          {accesoHref ? (
-            <p className="mb-7 text-white/80">Ya tienes este curso · acceso sin vencimiento</p>
-          ) : (
-            <p className="mb-7 text-white/75">
-              Pago único · con cuotas sin interés disponibles · acceso sin
-              vencimiento
-            </p>
-          )}
-          <a
-            href={accesoHref ?? `/checkout/${course.slug}`}
+          <p className="mx-auto mb-7 mt-3 max-w-[52ch] text-white/80">
+            {accesoHref
+              ? "Ya tienes este curso · acceso sin vencimiento"
+              : "Si ya te inscribiste, ingresa con el correo y la contraseña que te enviamos al darte acceso."}
+          </p>
+          <Link
+            href={accesoHref ?? "/cuenta/login"}
             className="inline-flex items-center gap-2 rounded-full bg-white px-9 py-4 font-[family-name:var(--font-ui)] text-[.95rem] font-semibold text-[var(--vino)] shadow-[var(--sombra-lg)] transition-[transform,box-shadow] duration-[var(--dur)] ease-[var(--ease)] hover:-translate-y-[3px] hover:shadow-[var(--sombra-xl)] active:translate-y-0"
           >
-            {accesoHref ? "Ir a mi curso" : "Comprar el curso"}
-          </a>
+            {accesoHref ? "Ir a mi curso" : "Ingresa aquí como alumna"}
+          </Link>
         </div>
       </section>
 

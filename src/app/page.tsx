@@ -1,104 +1,64 @@
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
+import { campusCard } from "@/components/campus/ui";
+import { Logo } from "@/components/brand/Logo";
 import { createClient } from "@/lib/supabase/server";
-import { formatCLP } from "@/lib/types";
-import Image from "next/image";
-import { LogoMark } from "@/components/brand/Logo";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
-const card = "rounded-[var(--radio-md)] bg-white shadow-[var(--sombra-md)]";
-
-// Home del subdominio de cursos: catálogo de cursos publicados. No es la
-// landing de marca del sitio principal (eso queda en alimentatufertilidad.com,
-// fuera de este subdominio, tal cual el plan) — solo lista lo que hay para
-// comprar acá.
+// Home = puerta de entrada del campus (pedido de Marcela 2026-10-01): esta
+// plataforma NO vende. La venta y el pago ocurren antes, en la landing de
+// venta; después el equipo le da acceso a cada alumna. Aquí solo se entra.
+// Con sesión iniciada no hay nada que mostrar: se va directo a su campus
+// (o al panel si es admin).
 export default async function Home() {
   const supabase = await createClient();
-  const { data: cursos } = await supabase
-    .from("courses")
-    .select("id, slug, titulo, subtitulo_corto, precio, cover_image_url")
-    .eq("estado", "publicado")
-    .order("created_at", { ascending: false });
-
-  // Cursos que quien mira ya tiene → badge "Ya es tuyo" y el click va a su
-  // campus, no a la página de venta.
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  const propios = new Set<string>();
   if (user) {
-    const { data: compras } = await supabase
-      .from("purchases")
-      .select("courses(slug)")
-      .eq("user_id", user.id)
-      .eq("estado", "pagado");
-    for (const c of compras ?? []) {
-      const curso = Array.isArray(c.courses) ? c.courses[0] : c.courses;
-      if (curso?.slug) propios.add(curso.slug);
-    }
+    const { data: perfil } = await supabase.from("profiles").select("role").eq("id", user.id).single();
+    redirect(perfil?.role === "admin" ? "/admin" : "/cuenta/mis-cursos");
   }
 
   return (
     <div className="flex min-h-svh flex-col bg-[var(--crema)]">
       <SiteHeader />
-      <main id="contenido-principal" className="relative mx-auto w-[min(1160px,90vw)] flex-1 py-14">
+      <main id="contenido-principal" className="relative flex flex-1 items-center overflow-hidden py-16">
         <div
           aria-hidden
-          className="pointer-events-none absolute -top-10 -left-24 h-[420px] w-[420px] rounded-full bg-[radial-gradient(circle,var(--rosa)_0%,transparent_70%)] opacity-60"
+          className="pointer-events-none absolute -top-24 -left-24 h-[460px] w-[460px] rounded-full bg-[radial-gradient(circle,var(--rosa)_0%,transparent_70%)] opacity-70"
         />
-        <div className="entrada relative">
-          <h1 className="mb-2 text-[clamp(1.9rem,4vw,2.6rem)]">Cursos disponibles</h1>
-          <p className="mb-10 max-w-[60ch] text-[1.05rem] text-[var(--tinta-suave)]">
-            Nutrición y fertilidad femenina, con Marcela Calderón.
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -right-32 -bottom-32 h-[420px] w-[420px] rounded-full border-[28px] border-[var(--dorado)] opacity-40"
+        />
+        <div className="entrada relative mx-auto w-[min(560px,90vw)] text-center">
+          <div className="mb-8 flex justify-center">
+            <Logo apilado />
+          </div>
+          <h1 className="mb-3 text-[clamp(1.9rem,4vw,2.5rem)] font-normal">Bienvenida a tu campus</h1>
+          <p className="mx-auto mb-9 max-w-[46ch] text-[1.02rem] text-[var(--tinta-suave)]">
+            Aquí están tus clases, tu progreso, los materiales y las preguntas con el equipo docente.
+          </p>
+
+          <div className={`${campusCard} p-7 sm:p-9`}>
+            <Link
+              href="/cuenta/login"
+              className="flex w-full items-center justify-center rounded-full bg-[var(--vino)] px-8 py-4 font-[family-name:var(--font-ui)] text-[1rem] font-semibold text-white shadow-[var(--sombra-md)] transition-colors hover:bg-[var(--vino-claro)]"
+            >
+              Ingresa aquí como alumna
+            </Link>
+            <p className="mt-5 text-[.85rem] text-[var(--tinta-suave)]">
+              Usa el correo y la contraseña que te enviamos al darte acceso.
+            </p>
+          </div>
+
+          <p className="mx-auto mt-8 max-w-[48ch] text-[.82rem] text-[var(--tinta-suave)]">
+            ¿Aún no eres alumna? La inscripción se hace en la página del curso; después de tu compra el equipo activa
+            tu acceso a este campus.
           </p>
         </div>
-
-        {!cursos || cursos.length === 0 ? (
-          <p className="text-sm text-[var(--tinta-suave)]">
-            Todavía no hay cursos publicados. Vuelve pronto.
-          </p>
-        ) : (
-          <div className="relative grid gap-7 sm:grid-cols-2 lg:grid-cols-3">
-            {cursos.map((c) => (
-              <Link
-                key={c.slug}
-                href={propios.has(c.slug) ? "/cuenta/mis-cursos" : `/cursos/${c.slug}`}
-                className={`${card} group overflow-hidden transition-[transform,box-shadow] duration-[var(--dur)] ease-[var(--ease)] hover:-translate-y-1 hover:shadow-[var(--sombra-xl)]`}
-              >
-                <div className="relative flex aspect-video items-center justify-center overflow-hidden bg-[linear-gradient(160deg,var(--rosa),var(--dorado))]">
-                  {c.cover_image_url ? (
-                    <Image
-                      src={c.cover_image_url}
-                      alt={c.titulo}
-                      fill
-                      sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
-                      className="object-cover transition-transform duration-[calc(var(--dur)*2)] ease-[var(--ease)] group-hover:scale-105"
-                    />
-                  ) : (
-                    <LogoMark size={44} className="opacity-60" />
-                  )}
-                </div>
-                <div className="p-5">
-                  <h2 className="mb-1 font-[family-name:var(--font-heading)] text-[1.1rem] font-semibold text-[var(--vino)]">
-                    {c.titulo}
-                  </h2>
-                  {c.subtitulo_corto && (
-                    <p className="mb-3 text-[.85rem] text-[var(--tinta-suave)]">{c.subtitulo_corto}</p>
-                  )}
-                  <p className="font-[family-name:var(--font-ui)] text-[.95rem] font-medium text-[var(--carmin)]">
-                    {propios.has(c.slug) ? (
-                      <span className="inline-flex items-center gap-1.5 rounded-full bg-[var(--rosa)] px-3 py-1 text-[.78rem] text-[var(--vino)]">
-                        Ya es tuyo · Ir a Mi Campus →
-                      </span>
-                    ) : (
-                      formatCLP(c.precio)
-                    )}
-                  </p>
-                </div>
-              </Link>
-            ))}
-          </div>
-        )}
       </main>
       <SiteFooter />
     </div>

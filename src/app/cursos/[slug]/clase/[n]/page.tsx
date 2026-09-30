@@ -176,18 +176,18 @@ export default async function ClasePage({
               </div>
               <div>
                 <b className="mb-1 block font-[family-name:var(--font-ui)] text-white">
-                  Esta clase es parte del curso completo
+                  Tu cuenta aún no tiene acceso a este curso
                 </b>
                 <span className="text-[.88rem] text-white/70">
-                  Cómprala junto al resto para desbloquearla
+                  Si ya te inscribiste, escríbele al equipo y lo activamos.
                 </span>
               </div>
-              <a
-                href={`/cursos/${slug}#precio`}
+              <Link
+                href="/cuenta/mis-cursos"
                 className="inline-flex items-center gap-2 rounded-full bg-[var(--vino)] px-7 py-3 font-[family-name:var(--font-ui)] text-[.9rem] font-medium text-white"
               >
-                Comprar curso
-              </a>
+                Ir a Mi Campus
+              </Link>
             </div>
           </div>
         )}

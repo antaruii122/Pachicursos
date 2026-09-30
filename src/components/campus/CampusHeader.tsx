@@ -28,10 +28,9 @@ export async function CampusHeader() {
     email = profile?.email ?? user.email ?? null;
   }
 
-  // "Cursos" (la home) siempre visible: antes el logo era la ÚNICA forma de
-  // volver al inicio (hallazgo de Ricardo 2026-09-30).
+  // Sin catálogo (2026-10-01: el campus no vende). El logo lleva a "/", que
+  // con sesión redirige a Mi Campus.
   const links: CampusNavLink[] = [
-    { href: "/", label: "Cursos" },
     { href: "/cuenta/mis-cursos", label: "Mi Campus", activoEn: ["/cursos/"] },
     { href: "/cuenta/comunidad", label: "Comunidad" },
     // Actividad y Seguridad viven DENTRO de Mi perfil (pedido de Ricardo).
@@ -52,7 +51,7 @@ export async function CampusHeader() {
           <Link href="/" aria-label="Alimenta tu Fertilidad — inicio">
             <CampusLogo />
           </Link>
-          <CampusNav links={user ? links : links.slice(0, 1)} className="hidden md:flex" />
+          {user && <CampusNav links={links} className="hidden md:flex" />}
           {user ? (
             <div className="flex items-center gap-3">
               {isAdmin && (
@@ -74,9 +73,11 @@ export async function CampusHeader() {
             </Link>
           )}
         </div>
-        <div className="border-t border-[var(--linea)] md:hidden">
-          <CampusNav links={user ? links : links.slice(0, 1)} className="mx-auto w-[min(1180px,92vw)] py-2" />
-        </div>
+        {user && (
+          <div className="border-t border-[var(--linea)] md:hidden">
+            <CampusNav links={links} className="mx-auto w-[min(1180px,92vw)] py-2" />
+          </div>
+        )}
       </header>
     </>
   );

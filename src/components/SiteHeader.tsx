@@ -37,12 +37,6 @@ export async function SiteHeader() {
           <Logo />
         </Link>
         <nav className="flex shrink-0 items-center gap-2.5 font-[family-name:var(--font-ui)] text-[.78rem] sm:gap-6 sm:text-[.86rem]">
-          <Link
-            href="/"
-            className="text-[var(--tinta-suave)] hover:text-[var(--vino)]"
-          >
-            Cursos
-          </Link>
           {user ? (
             <>
               <Link
@@ -58,7 +52,7 @@ export async function SiteHeader() {
               href="/cuenta/login"
               className="rounded-full bg-[var(--vino)] px-4 py-1.5 font-medium text-white transition-colors hover:bg-[var(--vino-claro)]"
             >
-              Ingresar
+              Ingresar como alumna
             </Link>
           )}
         </nav>
