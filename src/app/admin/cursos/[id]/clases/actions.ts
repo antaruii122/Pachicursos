@@ -9,12 +9,12 @@ import { revalidatePath } from "next/cache";
 
 async function requireAdmin() {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) throw new Error("No autenticado");
+  // getClaims verifica el JWT localmente (clave ES256), sin ir a Supabase Auth.
+  const { data: auth } = await supabase.auth.getClaims();
+  const userId = auth?.claims?.sub;
+  if (!userId) throw new Error("No autenticado");
 
-  const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).single();
+  const { data: profile } = await supabase.from("profiles").select("role").eq("id", userId).single();
   if (profile?.role !== "admin") throw new Error("Requiere rol admin");
 
   return supabase;

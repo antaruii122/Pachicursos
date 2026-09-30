@@ -77,7 +77,6 @@ export function MaterialesManager({
     }
     setLinkNombre("");
     setLinkUrl("");
-    router.refresh();
   };
 
   const borrar = async (r: Recurso) => {
@@ -85,7 +84,6 @@ export function MaterialesManager({
     setError(null);
     const res = await borrarMaterial(courseId, claseId, r.id);
     if ("error" in res) setError(res.error);
-    else router.refresh();
   };
 
   return (

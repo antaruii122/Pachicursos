@@ -13,24 +13,23 @@ import { redirect } from "next/navigation";
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient();
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) redirect("/cuenta/login?next=/admin/cursos");
+  // getClaims verifica el JWT localmente (clave ES256) — sin viaje a Supabase
+  // Auth en cada página del admin. El rol sale de profiles (fuente de verdad).
+  const { data: auth } = await supabase.auth.getClaims();
+  const userId = auth?.claims?.sub;
+  if (!userId) redirect("/cuenta/login?next=/admin/cursos");
+  const email = typeof auth?.claims?.email === "string" ? auth.claims.email : "";
 
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role, nombre")
-    .eq("id", user.id)
-    .single();
+  // Perfil y contador de preguntas en paralelo (antes iban uno tras otro).
+  // El contador da 0 si la tabla todavía no existe (migración 0007).
+  const [{ data: profile }, { data: qs }] = await Promise.all([
+    supabase.from("profiles").select("role, nombre").eq("id", userId).single(),
+    supabase.from("class_questions").select("*").limit(1000),
+  ]);
   if (profile?.role !== "admin") redirect("/");
-
-  // Contador de preguntas sin responder para el menú (0 si la tabla todavía
-  // no existe — la migración 0007 puede no estar corrida).
-  const { data: qs } = await supabase.from("class_questions").select("*").limit(1000);
   const pendientes = armarHilos((qs ?? []) as Pregunta[]).filter((h) => !h.respondida && !h.oculto && !h.es_equipo).length;
 
-  const nombre = profile?.nombre || user.email?.split("@")[0] || "Admin";
+  const nombre = profile?.nombre || email.split("@")[0] || "Admin";
   const partes = nombre.trim().split(/\s+/);
   const iniciales = ((partes[0]?.[0] ?? "") + (partes[1]?.[0] ?? "")).toUpperCase();
 

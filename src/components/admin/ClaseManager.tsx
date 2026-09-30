@@ -16,7 +16,6 @@ import { VimeoLinkWidget } from "@/components/admin/VimeoLinkWidget";
 import { VideoUploadWidget } from "@/components/VideoUploadWidget";
 import { parseRecursos } from "@/lib/recursos";
 import { agruparPorModulo, formatDuracion, type Modulo } from "@/lib/types";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 const card = "rounded-[14px] bg-white p-6 shadow-[var(--sombra-md)]";
@@ -52,7 +51,6 @@ export function ClaseManager({
   clases: Clase[];
   modulos: Modulo[];
 }) {
-  const router = useRouter();
   const [nuevoTitulo, setNuevoTitulo] = useState("");
   const [nuevoEsGratis, setNuevoEsGratis] = useState(clases.length === 0);
   const [error, setError] = useState<string | null>(null);
@@ -76,14 +74,18 @@ export function ClaseManager({
       setError(result.error);
       return false;
     }
-    router.refresh();
+    // Sin router.refresh(): la acción ya hace revalidatePath y trae la página
+    // actualizada en la misma respuesta (refrescar de nuevo duplicaba la espera).
     return true;
   };
 
+  const [creandoModulo, setCreandoModulo] = useState(false);
   const handleAgregarModulo = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!nuevoModulo.trim()) return;
+    if (!nuevoModulo.trim() || creandoModulo) return;
+    setCreandoModulo(true);
     if (await run(addModulo(courseId, nuevoModulo.trim()))) setNuevoModulo("");
+    setCreandoModulo(false);
   };
 
   const handleMoverModulo = async (i: number, direccion: -1 | 1) => {
@@ -118,7 +120,6 @@ export function ClaseManager({
     }
     setNuevoTitulo("");
     setNuevoEsGratis(false);
-    router.refresh();
   };
 
   // Solo dentro del mismo módulo; para cambiar de módulo está el selector.
@@ -132,7 +133,6 @@ export function ClaseManager({
     setMoviendo(true);
     const result = await swapClaseOrden(courseId, a.id, a.orden, b.id, b.orden);
     if ("error" in result) setError(result.error);
-    router.refresh();
     setMoviendo(false);
   };
 
@@ -140,7 +140,6 @@ export function ClaseManager({
     setError(null);
     const result = await setClaseGratis(courseId, claseId);
     if ("error" in result) setError(result.error);
-    else router.refresh();
   };
 
   const handleBorrar = async (clase: Clase) => {
@@ -153,7 +152,6 @@ export function ClaseManager({
     setError(null);
     const result = await deleteClase(courseId, clase.id);
     if ("error" in result) setError(result.error);
-    else router.refresh();
   };
 
   const [claseAbierta, setClaseAbierta] = useState<string | null>(null);
@@ -365,10 +363,10 @@ export function ClaseManager({
           </div>
           <button
             type="submit"
-            disabled={!nuevoModulo.trim()}
+            disabled={!nuevoModulo.trim() || creandoModulo}
             className="rounded-full border border-[var(--vino)] px-5 py-2 font-[family-name:var(--font-ui)] text-[.85rem] text-[var(--vino)] disabled:opacity-50"
           >
-            + Módulo
+            {creandoModulo ? "Creando…" : "+ Módulo"}
           </button>
         </form>
 

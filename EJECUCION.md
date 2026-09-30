@@ -394,3 +394,10 @@ Pendiente (no arreglado todavía):
 - Menús: se quita el link "Cursos" (catálogo) de CampusHeader y SiteHeader; botón "Ingresar como alumna".
 - `/checkout/*` intacto (congelamiento de pagos) pero ya sin ningún link desde la UI.
 - Verificado visualmente sin sesión (home y landing, build local). Con sesión: no verificado visualmente.
+
+### 2026-10-01 — Crear módulo tardaba ~5 s (reporte de Ricardo)
+- Causa 1: doble render. Las acciones ya hacen `revalidatePath` (la página fresca vuelve en la misma respuesta) y además el cliente llamaba `router.refresh()` → segunda renderización completa. Quitado en ClaseManager y MaterialesManager (enlaces/borrar).
+- Causa 2: `getUser()` = viaje de red a Supabase Auth en cada acción y en cada página admin. El proyecto usa claves JWT asimétricas (ES256), así que `getClaims()` verifica localmente. Cambiado en `requireAdmin` (acciones de clases) y en el layout admin. El rol sigue saliendo de `profiles`.
+- Causa 3: layout admin hacía perfil → preguntas en serie; ahora en paralelo.
+- UI: botón "+ Módulo" muestra "Creando…" y no permite doble envío.
+- Pendiente: región de Supabase vs funciones en iad1 (latencia por consulta) — falta el dato de Ricardo.
