@@ -372,3 +372,12 @@ Pendiente (no arreglado todavía):
 
 - Causa: `/api/vimeo/status/[videoId]` pedía `vimeo_id` con el cliente de sesión normal; esa columna está bloqueada para `authenticated` desde 0001 (incluso para admin) → "permission denied" → el código lo leía como "no existe" → 404 falso. Bug existente desde la Parte D: rompía también el seguimiento de la subida de archivo. El video SÍ quedaba vinculado (verificado en la base: clase `352deec4…`, vimeo 1231583833, "listo", 255 s).
 - Arreglo: la lectura va con service_role después de validar admin; si Vimeo ya lo tiene procesado al vincular, se muestra "Listo" directo sin consultar.
+
+## Seguridad dentro de Mi perfil + verificación multi-curso (2026-09-30)
+
+- [x] "Seguridad" sacada del menú principal del campus (pedido de Ricardo) → sección al final de Mi perfil (cambiar contraseña, correo, cerrar sesión). `/cuenta/seguridad` redirige a `/cuenta/perfil#seguridad`.
+- [x] **Verificación con 2+ cursos** (pedido de Ricardo: "que funcione para todos los cursos futuros"):
+  - Código: cero slugs/ids de curso escritos a mano; toda consulta de clases/módulos/materiales/preguntas/accesos está filtrada por curso o clase; las únicas consultas sin filtro son a propósito (bandeja admin, ventas, dashboard = todos los cursos).
+  - Base (los 3 cursos reales): orden 1..N sin huecos, ≤1 clase gratis, ninguna clase apuntando a un módulo borrado. Las restricciones que lo garantizan son por curso en el esquema (UNIQUE(course_id, orden), índice único de gratis por course_id, módulos con course_id, `normalizar_orden_clases(course_id)`).
+  - Render, producción y local: el catálogo lista los 2 publicados y oculta el borrador; landing 200 en ambos, borrador 404; clase gratis 200, clase paga → login; módulos del curso "test" aparecen en landing y en el reproductor.
+  - No verificado visualmente: Mi Campus de una alumna con 2 cursos a la vez (la lógica lo soporta — lista "Tus otros cursos" — pero ninguna cuenta tiene 2 cursos hoy).

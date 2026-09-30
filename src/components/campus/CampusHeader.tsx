@@ -35,7 +35,6 @@ export async function CampusHeader() {
     { href: "/cuenta/mis-cursos", label: "Mi Campus", activoEn: ["/cursos/"] },
     { href: "/cuenta/actividad", label: "Actividad" },
     { href: "/cuenta/perfil", label: "Mi perfil" },
-    { href: "/cuenta/seguridad", label: "Seguridad" },
   ];
 
   return (

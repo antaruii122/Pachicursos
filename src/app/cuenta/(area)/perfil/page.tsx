@@ -1,3 +1,4 @@
+import { CambiarPasswordForm } from "@/components/account/CambiarPasswordForm";
 import { EditableNombre } from "@/components/account/EditableNombre";
 import { getAdminStats } from "@/lib/admin-stats";
 import { cursosConProgresoDelUsuario } from "@/lib/progreso";
@@ -103,6 +104,31 @@ export default async function PerfilPage() {
           </div>
         </div>
       )}
+
+      {/* Seguridad vive dentro del perfil (pedido de Ricardo 2026-09-30: no
+          como pestaña propia del menú principal). /cuenta/seguridad
+          redirige acá para no romper links viejos. */}
+      <section id="seguridad" className={card} aria-labelledby="titulo-seguridad">
+        <h2 id="titulo-seguridad" className="mb-1 text-[1.2rem] font-normal">
+          Seguridad
+        </h2>
+        <p className="mb-5 text-[.82rem] text-[var(--tinta-suave)]">
+          Tu correo de acceso es <b className="text-[var(--tinta)]">{profile?.email ?? user.email}</b>. Para cambiarlo,
+          pídeselo al equipo.
+        </p>
+        <h3 className="mb-3 font-[family-name:var(--font-ui)] text-[.9rem] font-semibold text-[var(--vino)]">
+          Cambiar contraseña
+        </h3>
+        <CambiarPasswordForm />
+        <div className="mt-6 border-t border-[var(--linea)] pt-4">
+          <Link
+            href="/cuenta/logout"
+            className="inline-flex rounded-full border border-[var(--linea)] px-5 py-2 font-[family-name:var(--font-ui)] text-[.85rem] text-[var(--tinta-suave)] hover:border-[var(--vino)] hover:text-[var(--vino)]"
+          >
+            Cerrar sesión
+          </Link>
+        </div>
+      </section>
     </div>
   );
 }
