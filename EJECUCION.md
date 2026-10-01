@@ -413,3 +413,8 @@ Pendiente (no arreglado todavía):
 - Logo: espaciado de "NUTFEM" vuelto al de la maqueta (.04em).
 - Verificado visualmente (build local, sin sesión). Pantallas con sesión: no verificadas visualmente.
 - Diferencia conocida: la serif de la maqueta es más fina (tipo Garamond) que Noto Serif; no se cambia sin identificar la fuente exacta.
+
+### 2026-10-01 — Tipografías de la maqueta NUTFEM
+- Identificadas comparando letra por letra (recortes ampliados de la maqueta vs. candidatas renderizadas): títulos = **EB Garamond** (ligadura "fi", "ó", "x" idénticas; Cormorant descartada por x-height menor); texto/UI = **DM Sans** (geométrica, "O/Q" redondas de las versalitas).
+- Reemplazan Lato + Noto Serif + Poppins vía `layout.tsx` (next/font) y tokens `--font-body/heading/ui` → aplica a todo el sitio sin tocar componentes.
+- Verificado visualmente: login (build local). Pantallas con sesión: no verificadas visualmente.

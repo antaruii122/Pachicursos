@@ -1,28 +1,23 @@
 import type { Metadata } from "next";
-import { Lato, Noto_Serif, Poppins } from "next/font/google";
+import { DM_Sans, EB_Garamond } from "next/font/google";
 import "./globals.css";
 
-// Sistema visual de marca (docs/cursos.md): Lato para cuerpo, Noto Serif para
-// títulos, Poppins para labels/botones/UI. Vía next/font para auto-hosting
-// y sin bloquear el render (en vez del <link> de Google Fonts del mockup).
-const lato = Lato({
-  variable: "--font-lato",
+// Tipografías de la maqueta Campus NUTFEM (identificadas 2026-10-01
+// comparando letra por letra con la maqueta): EB Garamond para títulos
+// (ligadura "fi", "ó", "x" idénticas) y DM Sans para texto, etiquetas y
+// botones. Vía next/font (auto-hosting, sin bloquear el render).
+const garamond = EB_Garamond({
+  variable: "--font-garamond",
   subsets: ["latin"],
-  weight: ["300", "400", "700"],
+  weight: ["400", "500", "600"],
   style: ["normal", "italic"],
 });
 
-const notoSerif = Noto_Serif({
-  variable: "--font-noto-serif",
+const dmSans = DM_Sans({
+  variable: "--font-dm-sans",
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
   style: ["normal", "italic"],
-});
-
-const poppins = Poppins({
-  variable: "--font-poppins",
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
 });
 
 // NOTA: hardcodeado a la URL real que funciona hoy (`https://pachicursos.vercel.app`),
@@ -50,7 +45,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="es"
-      className={`${lato.variable} ${notoSerif.variable} ${poppins.variable} h-full antialiased`}
+      className={`${garamond.variable} ${dmSans.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">{children}</body>
     </html>
