@@ -1,6 +1,6 @@
 import { LegalPage } from "@/components/LegalPage";
 
-export const metadata = { title: "Política de Privacidad — Alimenta Tu Fertilidad" };
+export const metadata = { title: "Política de Privacidad — NUTFEM" };
 
 export default function PrivacidadPage() {
   return (

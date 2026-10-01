@@ -48,7 +48,7 @@ export async function CampusHeader() {
       <header className="sticky top-0 z-20 border-b border-[var(--linea)] bg-white/95 backdrop-blur-sm">
         <div className="mx-auto flex w-[min(1180px,92vw)] items-center justify-between gap-4 py-3.5">
           {/* El logo SIEMPRE lleva a la página principal, en todo el sitio. */}
-          <Link href="/" aria-label="Alimenta tu Fertilidad — inicio">
+          <Link href="/" aria-label="NUTFEM — inicio">
             <CampusLogo />
           </Link>
           {user && <CampusNav links={links} className="hidden md:flex" />}

@@ -37,7 +37,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     <div className="tema-campus min-h-svh md:flex">
       <aside className="sticky top-0 hidden h-svh w-[272px] shrink-0 flex-col border-r border-[var(--linea)] bg-white px-4 py-6 md:flex">
         {/* El logo SIEMPRE lleva a la página principal, en todo el sitio. */}
-        <Link href="/" className="mb-8 px-2" aria-label="Alimenta tu Fertilidad — inicio">
+        <Link href="/" className="mb-8 px-2" aria-label="NUTFEM — inicio">
           <CampusLogo />
         </Link>
         <AdminNav pendientes={pendientes} />
@@ -66,7 +66,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
       <header className="sticky top-0 z-20 border-b border-[var(--linea)] bg-white md:hidden">
         <div className="flex items-center justify-between px-4 py-3">
-          <Link href="/" aria-label="Alimenta tu Fertilidad — inicio">
+          <Link href="/" aria-label="NUTFEM — inicio">
             <CampusLogo />
           </Link>
           <Link href="/cuenta/logout" className="font-[family-name:var(--font-ui)] text-[.78rem] text-[var(--tinta-suave)]">

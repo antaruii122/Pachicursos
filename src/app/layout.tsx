@@ -34,10 +34,10 @@ const SITE_URL = "https://pachicursos.vercel.app";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  title: "Alimenta Tu Fertilidad — Cursos",
-  description: "Cursos en línea de nutrición y fertilidad femenina con Marcela Calderón.",
+  title: "Campus NUTFEM",
+  description: "Campus NUTFEM: plataforma privada para alumnas del Diplomado.",
   openGraph: {
-    siteName: "Alimenta Tu Fertilidad — Cursos",
+    siteName: "Campus NUTFEM",
     type: "website",
     locale: "es_CL",
   },

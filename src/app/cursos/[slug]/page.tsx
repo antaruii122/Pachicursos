@@ -84,7 +84,7 @@ export async function generateMetadata({
   // podía cargar estos dos campos y se guardaban bien, pero esta función
   // nunca los leía — el <title>/meta description/Open Graph siempre salían
   // de `titulo`/`descripcion` sin importar lo que dijera el form.
-  const title = data.course.seo_titulo || `${data.course.titulo} — Alimenta Tu Fertilidad`;
+  const title = data.course.seo_titulo || `${data.course.titulo} — NUTFEM`;
   const description =
     data.course.seo_descripcion || data.course.descripcion || data.course.subtitulo_corto || undefined;
   const images = data.course.cover_image_url ? [{ url: data.course.cover_image_url }] : undefined;

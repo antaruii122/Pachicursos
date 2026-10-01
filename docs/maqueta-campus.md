@@ -1,6 +1,6 @@
 # Maqueta "Campus NUTFEM · plataforma privada" — lo que muestra cada pantalla
 
-Fuente: artifact `SPAZw5G8WMCFMj8im5hish` (claude.ai), leído el 2026-09-30 con capturas de Ricardo + navegador. Es referencia de **estructura y UX** — los colores/tipografías reales son los tokens de `globals.css` (vino/carmín/crema, Lato + Noto Serif + Poppins), nunca los literales de NUTFEM. "NUTFEM", "Camila", "Diplomado..." son datos de ejemplo de la maqueta.
+Fuente: artifact `SPAZw5G8WMCFMj8im5hish` (claude.ai), leído el 2026-09-30 con capturas de Ricardo + navegador. Es referencia de **estructura y UX** — los colores/tipografías reales son los tokens de `globals.css` (vino/carmín/crema, Lato + Noto Serif + Poppins), nunca los literales de color de la maqueta. Desde 2026-10-01 el nombre de la plataforma SÍ es "NUTFEM" (decisión de Ricardo); "Camila" es dato de ejemplo.
 
 ## 1 · Ingreso (`/cuenta/login`)
 - Fondo claro con un aro decorativo grande (arco) arriba a la derecha.

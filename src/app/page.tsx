@@ -37,7 +37,7 @@ export default async function Home() {
           <div className="mb-8 flex justify-center">
             <Logo apilado />
           </div>
-          <h1 className="mb-3 text-[clamp(1.9rem,4vw,2.5rem)] font-normal">Bienvenida a tu campus</h1>
+          <h1 className="mb-3 text-[clamp(1.9rem,4vw,2.5rem)] font-normal">Bienvenida al Campus NUTFEM</h1>
           <p className="mx-auto mb-9 max-w-[46ch] text-[1.02rem] text-[var(--tinta-suave)]">
             Aquí están tus clases, tu progreso, los materiales y las preguntas con el equipo docente.
           </p>

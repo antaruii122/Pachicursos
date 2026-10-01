@@ -81,8 +81,8 @@ function mensajeBienvenida(p: { nombre: string; email: string; password: string;
   return [
     `¡Hola${primer ? ` ${primer}` : ""}! 🌸`,
     p.curso
-      ? `Ya tienes acceso a "${p.curso}" en el campus de Alimenta tu Fertilidad.`
-      : "Ya tienes tu cuenta en el campus de Alimenta tu Fertilidad.",
+      ? `Ya tienes acceso a "${p.curso}" en el Campus NUTFEM.`
+      : "Ya tienes tu cuenta en el Campus NUTFEM.",
     "",
     `Ingresa aquí: ${p.url}/cuenta/login`,
     `Correo: ${p.email}`,
@@ -171,7 +171,7 @@ export async function asignarContrasenaNueva(userId: string): Promise<ResultadoA
     if (error) throw error;
     const url = await urlDelCampus();
     const mensaje = [
-      `¡Hola${perfil.nombre ? ` ${perfil.nombre.trim().split(/\s+/)[0]}` : ""}! Te dejamos una contraseña nueva para el campus de Alimenta tu Fertilidad.`,
+      `¡Hola${perfil.nombre ? ` ${perfil.nombre.trim().split(/\s+/)[0]}` : ""}! Te dejamos una contraseña nueva para el Campus NUTFEM.`,
       "",
       `Ingresa aquí: ${url}/cuenta/login`,
       `Correo: ${perfil.email}`,

@@ -1,6 +1,6 @@
 import { LegalPage } from "@/components/LegalPage";
 
-export const metadata = { title: "Aviso de Cookies — Alimenta Tu Fertilidad" };
+export const metadata = { title: "Aviso de Cookies — NUTFEM" };
 
 export default function CookiesPage() {
   return (

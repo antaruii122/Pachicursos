@@ -29,7 +29,7 @@ export default function LoginPage() {
         {/* my-auto (no items-center en el padre): centra cuando sobra alto, pero
             nunca recorta la parte de arriba en pantallas bajas. */}
         <div className="entrada my-auto flex w-full max-w-[400px] flex-col items-center">
-          <Link href="/" aria-label="Alimenta tu Fertilidad — inicio">
+          <Link href="/" aria-label="NUTFEM — inicio">
             <CampusLogo apilado />
           </Link>
 
@@ -38,7 +38,7 @@ export default function LoginPage() {
           </Suspense>
 
           <p className="mt-6 text-center text-[.75rem] text-[var(--tinta-suave)]">
-            Plataforma privada para alumnas y equipo docente de Alimenta tu Fertilidad.
+            Plataforma privada para alumnas y equipo docente de NUTFEM.
           </p>
         </div>
       </main>

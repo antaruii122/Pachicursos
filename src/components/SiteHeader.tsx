@@ -33,7 +33,7 @@ export async function SiteHeader() {
       </a>
       <header className="sticky top-0 z-20 border-b border-[var(--linea)] bg-[var(--header-bg)] backdrop-blur-sm">
       <div className="mx-auto flex w-[min(1160px,90vw)] items-center justify-between gap-3 py-4 sm:gap-6">
-        <Link href="/" aria-label="Alimenta tu Fertilidad — inicio" className="min-w-0">
+        <Link href="/" aria-label="NUTFEM — inicio" className="min-w-0">
           <Logo />
         </Link>
         <nav className="flex shrink-0 items-center gap-2.5 font-[family-name:var(--font-ui)] text-[.78rem] sm:gap-6 sm:text-[.86rem]">

@@ -1,11 +1,12 @@
-// LOGO ÚNICO de Alimenta tu Fertilidad (decisión de Ricardo, 2026-09-30).
+// LOGO ÚNICO de NUTFEM (nombre decidido por Ricardo 2026-10-01, siguiendo
+// el pedido de Pachi; antes decía "Alimenta tu Fertilidad").
 // Es el ÚNICO lugar donde se dibuja el logo: header público, campus, admin,
 // login y los "sin foto" lo importan de acá. El favicon (src/app/icon.svg)
 // es la misma forma. `npm run lint` falla si aparece otro logo dibujado a
 // mano en otro archivo (scripts/check-marca.mjs).
 //
 // Forma: aro con degradé ciruela → malva (tokens --aro-1/2/3 en globals.css)
-// + "Alimenta tu Fertilidad" en serif + "CAMPUS" espaciado debajo.
+// + "NUTFEM" en serif + "CAMPUS" espaciado debajo.
 
 import { useId } from "react";
 
@@ -30,8 +31,8 @@ export function Logo({ apilado = false }: { apilado?: boolean }) {
     return (
       <span className="flex flex-col items-center">
         <LogoMark size={46} />
-        <span className="mt-3 font-[family-name:var(--font-heading)] text-[1.45rem] leading-none tracking-[.01em] text-[var(--vino)]">
-          Alimenta tu Fertilidad
+        <span className="mt-3 font-[family-name:var(--font-heading)] text-[1.6rem] leading-none tracking-[.12em] text-[var(--vino)]">
+          NUTFEM
         </span>
         <span className="mt-1.5 font-[family-name:var(--font-ui)] text-[.62rem] uppercase tracking-[.34em] text-[var(--tinta-suave)]">
           Campus
@@ -43,8 +44,8 @@ export function Logo({ apilado = false }: { apilado?: boolean }) {
     <span className="flex min-w-0 items-center gap-2.5">
       <LogoMark size={30} />
       <span className="flex min-w-0 flex-col leading-none">
-        <span className="truncate font-[family-name:var(--font-heading)] text-[1.02rem] tracking-[.01em] text-[var(--vino)]">
-          Alimenta tu Fertilidad
+        <span className="truncate font-[family-name:var(--font-heading)] text-[1.08rem] tracking-[.12em] text-[var(--vino)]">
+          NUTFEM
         </span>
         <span className="mt-1 font-[family-name:var(--font-ui)] text-[.55rem] uppercase tracking-[.3em] text-[var(--tinta-suave)]">
           Campus

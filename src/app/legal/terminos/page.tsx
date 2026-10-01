@@ -1,6 +1,6 @@
 import { LegalPage } from "@/components/LegalPage";
 
-export const metadata = { title: "Términos y Condiciones — Alimenta Tu Fertilidad" };
+export const metadata = { title: "Términos y Condiciones — NUTFEM" };
 
 export default function TerminosPage() {
   return (

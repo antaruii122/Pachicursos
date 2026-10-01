@@ -401,3 +401,8 @@ Pendiente (no arreglado todavía):
 - Causa 3: layout admin hacía perfil → preguntas en serie; ahora en paralelo.
 - UI: botón "+ Módulo" muestra "Creando…" y no permite doble envío.
 - Pendiente: región de Supabase vs funciones en iad1 (latencia por consulta) — falta el dato de Ricardo.
+
+### 2026-10-01 — Nombre de la plataforma: NUTFEM
+- Ricardo: "follow what Pachi said, is NUTFEM". Logo (`Logo.tsx`): "NUTFEM" + "CAMPUS", mismo aro y paleta. Título del sitio "Campus NUTFEM", login, footer, mensajes de bienvenida/contraseña, títulos legales.
+- Textos legales (contenido) sin tocar: el titular legal lo define el negocio.
+- Plan completo de la plataforma privada: `docs/plan-plataforma-privada.md` (7 fases).
