@@ -31,7 +31,7 @@ export function Logo({ apilado = false }: { apilado?: boolean }) {
     return (
       <span className="flex flex-col items-center">
         <LogoMark size={46} />
-        <span className="mt-3 font-[family-name:var(--font-heading)] text-[1.6rem] leading-none tracking-[.12em] text-[var(--vino)]">
+        <span className="mt-3 font-[family-name:var(--font-heading)] text-[1.6rem] leading-none tracking-[.04em] text-[var(--vino)]">
           NUTFEM
         </span>
         <span className="mt-1.5 font-[family-name:var(--font-ui)] text-[.62rem] uppercase tracking-[.34em] text-[var(--tinta-suave)]">
@@ -44,7 +44,7 @@ export function Logo({ apilado = false }: { apilado?: boolean }) {
     <span className="flex min-w-0 items-center gap-2.5">
       <LogoMark size={30} />
       <span className="flex min-w-0 flex-col leading-none">
-        <span className="truncate font-[family-name:var(--font-heading)] text-[1.08rem] tracking-[.12em] text-[var(--vino)]">
+        <span className="truncate font-[family-name:var(--font-heading)] text-[1.08rem] tracking-[.04em] text-[var(--vino)]">
           NUTFEM
         </span>
         <span className="mt-1 font-[family-name:var(--font-ui)] text-[.55rem] uppercase tracking-[.3em] text-[var(--tinta-suave)]">

@@ -406,3 +406,10 @@ Pendiente (no arreglado todavía):
 - Ricardo: "follow what Pachi said, is NUTFEM". Logo (`Logo.tsx`): "NUTFEM" + "CAMPUS", mismo aro y paleta. Título del sitio "Campus NUTFEM", login, footer, mensajes de bienvenida/contraseña, títulos legales.
 - Textos legales (contenido) sin tocar: el titular legal lo define el negocio.
 - Plan completo de la plataforma privada: `docs/plan-plataforma-privada.md` (7 fases).
+
+### 2026-10-01 — Revisión de marca contra la maqueta Campus NUTFEM (pedido de Ricardo)
+- `/` ahora ES la pantalla 1 de la maqueta (login directo: logo NUTFEM, "Te damos la bienvenida", "Un espacio para comprender mejor e intervenir con precisión.", correo, contraseña, Ingresar, ¿Olvidaste tu contraseña?, aro malva arriba a la derecha, sin header). Componente compartido `PantallaIngreso` (también en `/cuenta/login`, que conserva `?next=`).
+- Quitado "Volver al sitio" y el link "Regístrate" (no hay sitio público ni registro; la maqueta no los tiene).
+- Logo: espaciado de "NUTFEM" vuelto al de la maqueta (.04em).
+- Verificado visualmente (build local, sin sesión). Pantallas con sesión: no verificadas visualmente.
+- Diferencia conocida: la serif de la maqueta es más fina (tipo Garamond) que Noto Serif; no se cambia sin identificar la fuente exacta.

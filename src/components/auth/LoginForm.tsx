@@ -45,7 +45,7 @@ export function LoginForm() {
     <div className="mt-7 w-full rounded-[var(--radio-lg)] border border-[var(--linea)] bg-white px-7 py-8 shadow-[var(--sombra-lg)] sm:px-8">
       <h1 className="text-center text-[1.55rem] font-normal">Te damos la bienvenida</h1>
       <p className="mt-1 text-center text-[.9rem] leading-snug text-[var(--tinta-suave)]">
-        Un espacio para entender tu fertilidad y cuidarla con información clara.
+        Un espacio para comprender mejor e intervenir con precisión.
       </p>
 
       <form onSubmit={handleLogin} className="mt-7 flex flex-col gap-4">
@@ -98,14 +98,6 @@ export function LoginForm() {
         </Link>
       </form>
 
-      {/* No está en la maqueta (ahí las cuentas las crea el admin), pero quien
-          compra por la web hoy se registra sola — sacarlo rompería esa compra. */}
-      <p className="mt-6 border-t border-[var(--linea)] pt-5 text-center text-[.8rem] text-[var(--tinta-suave)]">
-        ¿Compraste un curso y aún no tienes cuenta?{" "}
-        <Link href="/cuenta/registro" className="text-[var(--carmin)] underline underline-offset-4">
-          Regístrate
-        </Link>
-      </p>
     </div>
   );
 }
