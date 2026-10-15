@@ -2,7 +2,9 @@ import { Eyebrow, ProgressBar, ProgressRing, campusCard } from "@/components/cam
 import { ETIQUETA_ESTADO, cargarCampus, estadoModulo, numero2, pct } from "@/lib/campus";
 import { PROGRAMA } from "@/lib/programa";
 import type { CursoCampus } from "@/lib/progreso";
+import Image from "next/image";
 import Link from "next/link";
+import portada from "./portada.jpg";
 
 // Inicio del campus (diseño "Campus académico", Pachi 2026-10-16): portada
 // burdeos, "continuar con la siguiente clase", avance del programa.
@@ -36,28 +38,38 @@ function Portada({ curso }: { curso: CursoCampus | null }) {
   const moduloActual = curso?.siguiente?.moduloNumero ?? (curso?.tieneModulos ? 1 : null);
   const hrefModulo = curso ? (curso.tieneModulos ? `/modulos/${moduloActual ?? 1}` : "/modulos") : "/programas";
   return (
-    <section className="relative overflow-hidden bg-[var(--vino)] text-white">
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute -right-40 -top-48 h-[620px] w-[620px] rounded-full border-[90px] border-white/5"
-      />
-      <div className="relative mx-auto w-[min(1180px,92vw)] py-16 sm:py-20">
-        <p className="max-w-[60ch] font-[family-name:var(--font-ui)] text-[.7rem] font-bold uppercase leading-relaxed tracking-[.12em] text-[var(--rosa-fuerte)]">
-          {curso ? `${curso.titulo} · ${PROGRAMA.generacion}` : `Academia NUTFEM · ${PROGRAMA.generacion}`}
-        </p>
-        <h1 className="mt-4 max-w-[16ch] text-[clamp(2.2rem,5vw,3.4rem)] font-medium leading-[1.08] text-white">
-          Bienvenida al <span className="font-semibold text-[var(--rosa-fuerte)]">Campus Virtual NUTFEM</span>
-        </h1>
-        <p className="mt-5 max-w-[52ch] text-[1.05rem] leading-relaxed text-white/85">
-          Espacio académico del Diplomado. Aquí encuentras tus clases y materiales, módulo por módulo.
-        </p>
-        {curso && (
-          <div className="mt-8 flex flex-wrap gap-3">
-            <Link href={hrefModulo} className="btn btn-rosa">
-              Ir al módulo en curso
-            </Link>
-          </div>
-        )}
+    <section className="bg-[var(--vino)] text-white">
+      <div className="mx-auto grid w-[min(1180px,92vw)] lg:grid-cols-[1.15fr_1fr]">
+        <div className="py-14 sm:py-16 lg:py-20 lg:pr-10">
+          <p className="max-w-[60ch] font-[family-name:var(--font-ui)] text-[.7rem] font-bold uppercase leading-relaxed tracking-[.12em] text-[var(--rosa-fuerte)]">
+            {curso ? `${curso.titulo} · ${PROGRAMA.generacion}` : `Academia NUTFEM · ${PROGRAMA.generacion}`}
+          </p>
+          <h1 className="mt-4 max-w-[16ch] text-[clamp(2.2rem,5vw,3.4rem)] font-medium leading-[1.08] text-white">
+            Bienvenida al <span className="font-semibold text-[var(--rosa-fuerte)]">Campus Virtual NUTFEM</span>
+          </h1>
+          <p className="mt-5 max-w-[52ch] text-[1.05rem] leading-relaxed text-white/85">
+            Espacio académico del Diplomado. Aquí encuentras tus clases y materiales, módulo por módulo.
+          </p>
+          {curso && (
+            <div className="mt-8 flex flex-wrap gap-3">
+              <Link href={hrefModulo} className="btn btn-rosa">
+                Ir al módulo en curso
+              </Link>
+            </div>
+          )}
+        </div>
+        {/* Foto del diseño de Pachi. [VERIFY: licencia de la foto] — viene del
+            archivo de la diseñadora, probablemente de banco de imágenes. */}
+        <div className="relative -mx-[4vw] min-h-[260px] sm:min-h-[320px] lg:mx-0 lg:min-h-full">
+          <Image
+            src={portada}
+            alt="Alumna estudiando frente a su computador"
+            fill
+            priority
+            sizes="(min-width: 1024px) 540px, 100vw"
+            className="object-cover object-[70%_center]"
+          />
+        </div>
       </div>
     </section>
   );
