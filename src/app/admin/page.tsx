@@ -24,7 +24,7 @@ export default async function AdminDashboardPage() {
     { href: "/admin/usuarios/nuevo", titulo: "Crear alumna", detalle: "Cuenta + curso + mensaje de bienvenida" },
     { href: "/admin/usuarios", titulo: "Dar acceso a un curso", detalle: "Busca a la persona y asígnale el curso" },
     { href: "/admin/cursos", titulo: "Subir clases y material", detalle: "Videos, PDF y presentaciones por clase" },
-    { href: "/cuenta/mis-cursos", titulo: "Ver el campus como alumna", detalle: "Revisa lo que ven tus alumnas" },
+    { href: "/inicio", titulo: "Ver el campus como alumna", detalle: "Revisa lo que ven tus alumnas" },
   ];
 
   return (

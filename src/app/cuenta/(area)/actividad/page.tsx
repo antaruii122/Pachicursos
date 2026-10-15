@@ -91,7 +91,7 @@ export default async function ActividadPage() {
               {clases.map((p) => (
                 <li key={p.video_id}>
                   <Link
-                    href={p.curso ? `/cursos/${p.curso.slug}/clase/${p.clase.orden}` : "/cuenta/mis-cursos"}
+                    href={p.curso ? `/cursos/${p.curso.slug}/clase/${p.clase.orden}` : "/inicio"}
                     className="flex items-center justify-between gap-3 py-3 text-sm transition-colors hover:text-[var(--vino)]"
                   >
                     <div className="min-w-0">

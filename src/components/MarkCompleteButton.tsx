@@ -41,13 +41,13 @@ export function MarkCompleteButton({
     }
     // Navegación dura: el sidebar/Mi Campus son Server Components y tienen
     // que releer el avance recién guardado.
-    window.location.href = siguienteHref ?? "/cuenta/mis-cursos";
+    window.location.href = siguienteHref ?? "/inicio";
   };
 
   const texto = yaCompletada
     ? siguienteHref
       ? "Siguiente clase"
-      : "Volver a Mi Campus"
+      : "Volver al inicio"
     : siguienteHref
       ? "Marcar como completada y seguir"
       : "Marcar como completada";

@@ -93,6 +93,8 @@ export interface ModuloProgreso {
   total: number;
   completadas: number;
   primeraOrden: number | null; // para enlazar la fila del módulo a su primera clase
+  // Clases del módulo con su estado (pantalla "Módulos" del campus 2027).
+  clases: { orden: number; titulo: string; duracion: number | null; completada: boolean }[];
 }
 
 export interface CursoCampus {
@@ -107,24 +109,49 @@ export interface CursoCampus {
   // Lista de clases (para el curso SIN módulos: Mi Campus muestra cada clase
   // con su check en vez de una sola fila "Todas las clases").
   clases: { orden: number; titulo: string; duracion: number | null; completada: boolean }[];
-  siguiente: { orden: number; titulo: string; moduloTitulo: string | null; moduloNumero: number | null } | null;
+  siguiente: {
+    orden: number;
+    titulo: string;
+    moduloTitulo: string | null;
+    moduloNumero: number | null;
+    // % ya visto de esa clase (progress_seconds / duración), null si no hay datos.
+    visualizadoPct: number | null;
+  } | null;
   ultimaActividad: number; // epoch ms, 0 si nunca empezó
 }
 
-export async function campusDelUsuario(supabase: SupabaseClient, userId: string): Promise<CursoCampus[]> {
-  const { data: purchasesRaw } = await supabase
-    .from("purchases")
-    .select("course_id, courses(id, slug, titulo, cover_image_url)")
-    .eq("user_id", userId)
-    .eq("estado", "pagado");
-
-  const cursos = (purchasesRaw ?? [])
-    .map((p) => (Array.isArray(p.courses) ? p.courses[0] : p.courses))
-    .filter((c): c is { id: string; slug: string; titulo: string; cover_image_url: string | null } => !!c);
+export async function campusDelUsuario(
+  supabase: SupabaseClient,
+  userId: string,
+  // Admin: ve el campus como alumna con TODOS los programas no archivados
+  // (el admin no tiene filas en purchases; RLS ya le deja leerlos). Su avance
+  // es el suyo propio.
+  { comoAdmin = false }: { comoAdmin?: boolean } = {},
+): Promise<CursoCampus[]> {
+  type CursoBase = { id: string; slug: string; titulo: string; cover_image_url: string | null };
+  let cursos: CursoBase[];
+  if (comoAdmin) {
+    const { data, error } = await supabase
+      .from("courses")
+      .select("id, slug, titulo, cover_image_url")
+      .neq("estado", "archivado");
+    if (error) throw new Error(`No se pudieron cargar los programas: ${error.message}`);
+    cursos = (data ?? []) as CursoBase[];
+  } else {
+    const { data: purchasesRaw, error: errCompras } = await supabase
+      .from("purchases")
+      .select("course_id, courses(id, slug, titulo, cover_image_url)")
+      .eq("user_id", userId)
+      .eq("estado", "pagado");
+    if (errCompras) throw new Error(`No se pudieron cargar tus programas: ${errCompras.message}`);
+    cursos = (purchasesRaw ?? [])
+      .map((p) => (Array.isArray(p.courses) ? p.courses[0] : p.courses))
+      .filter((c): c is CursoBase => !!c);
+  }
   if (cursos.length === 0) return [];
 
   const ids = cursos.map((c) => c.id);
-  const [{ data: clases }, { data: modulos }] = await Promise.all([
+  const [{ data: clases, error: errClases }, { data: modulos, error: errModulos }] = await Promise.all([
     supabase
       .from("course_videos")
       .select("id, course_id, orden, titulo, module_id, duracion")
@@ -132,16 +159,19 @@ export async function campusDelUsuario(supabase: SupabaseClient, userId: string)
       .order("orden", { ascending: true }),
     supabase.from("course_modules").select("id, course_id, orden, titulo").in("course_id", ids),
   ]);
+  if (errClases) throw new Error(`No se pudieron cargar las clases: ${errClases.message}`);
+  if (errModulos) throw new Error(`No se pudieron cargar los módulos: ${errModulos.message}`);
 
   const claseIds = (clases ?? []).map((c) => c.id);
-  const { data: progreso } = claseIds.length
+  const { data: progreso, error: errProgreso } = claseIds.length
     ? await supabase
         .from("lesson_progress")
-        .select("video_id, completed, actualizado_en")
+        .select("video_id, completed, actualizado_en, progress_seconds")
         .eq("user_id", userId)
         .in("video_id", claseIds)
-    : { data: [] as { video_id: string; completed: boolean; actualizado_en: string }[] };
+    : { data: [] as { video_id: string; completed: boolean; actualizado_en: string; progress_seconds: number | null }[] };
 
+  if (errProgreso) throw new Error(`No se pudo cargar tu avance: ${errProgreso.message}`);
   const progresoPorClase = new Map((progreso ?? []).map((p) => [p.video_id, p]));
 
   return cursos
@@ -152,6 +182,12 @@ export async function campusDelUsuario(supabase: SupabaseClient, userId: string)
         .sort((a, b) => a.orden - b.orden);
       const numeroModulo = new Map(modsCurso.map((m, i) => [m.id, i + 1]));
       const hecha = (id: string) => !!progresoPorClase.get(id)?.completed;
+      const resumenClase = (c: { id: string; orden: number; titulo: string; duracion: number | null }) => ({
+        orden: c.orden,
+        titulo: c.titulo,
+        duracion: c.duracion ?? null,
+        completada: hecha(c.id),
+      });
 
       const grupos: ModuloProgreso[] = [];
       const sueltas = clasesCurso.filter((c) => !c.module_id || !numeroModulo.has(c.module_id));
@@ -163,6 +199,7 @@ export async function campusDelUsuario(supabase: SupabaseClient, userId: string)
           total: sueltas.length,
           completadas: sueltas.filter((c) => hecha(c.id)).length,
           primeraOrden: sueltas[0]?.orden ?? null,
+          clases: sueltas.map(resumenClase),
         });
       }
       for (const m of modsCurso) {
@@ -174,6 +211,7 @@ export async function campusDelUsuario(supabase: SupabaseClient, userId: string)
           total: delModulo.length,
           completadas: delModulo.filter((c) => hecha(c.id)).length,
           primeraOrden: delModulo[0]?.orden ?? null,
+          clases: delModulo.map(resumenClase),
         });
       }
 
@@ -196,6 +234,11 @@ export async function campusDelUsuario(supabase: SupabaseClient, userId: string)
             ultima)
           : ultima;
       }
+      const visto = (c: { id: string; duracion: number | null }) => {
+        const seg = progresoPorClase.get(c.id)?.progress_seconds;
+        if (!seg || !c.duracion || hecha(c.id)) return null;
+        return Math.max(0, Math.min(99, Math.round((seg / c.duracion) * 100)));
+      };
       const moduloSiguiente = siguienteClase?.module_id
         ? modsCurso.find((m) => m.id === siguienteClase.module_id)
         : undefined;
@@ -221,6 +264,7 @@ export async function campusDelUsuario(supabase: SupabaseClient, userId: string)
               titulo: siguienteClase.titulo,
               moduloTitulo: moduloSiguiente?.titulo ?? null,
               moduloNumero: moduloSiguiente ? (numeroModulo.get(moduloSiguiente.id) ?? null) : null,
+              visualizadoPct: visto(siguienteClase),
             }
           : null,
         ultimaActividad: ultima ? new Date(progresoPorClase.get(ultima.id)!.actualizado_en).getTime() : 0,

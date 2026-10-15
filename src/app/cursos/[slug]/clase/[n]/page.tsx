@@ -132,7 +132,7 @@ export default async function ClasePage({
       <CampusHeader />
       <main id="contenido-principal" className="mx-auto w-[min(1180px,92vw)] py-8">
         <nav aria-label="Ruta" className="mb-5 flex flex-wrap items-center gap-1.5 font-[family-name:var(--font-ui)] text-[.78rem] text-[var(--tinta-suave)]">
-          <Link href={hasPurchase ? "/cuenta/mis-cursos" : `/cursos/${slug}`} className="underline decoration-[var(--linea)] underline-offset-4 hover:text-[var(--vino)]">
+          <Link href={hasPurchase ? "/inicio" : `/cursos/${slug}`} className="underline decoration-[var(--linea)] underline-offset-4 hover:text-[var(--vino)]">
             {course.titulo}
           </Link>
           {moduloActual && (
@@ -183,10 +183,10 @@ export default async function ClasePage({
                 </span>
               </div>
               <Link
-                href="/cuenta/mis-cursos"
+                href="/inicio"
                 className="inline-flex items-center gap-2 rounded-full bg-[var(--vino)] px-7 py-3 font-[family-name:var(--font-ui)] text-[.9rem] font-medium text-white"
               >
-                Ir a Mi Campus
+                Ir al inicio del campus
               </Link>
             </div>
           </div>

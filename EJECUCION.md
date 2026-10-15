@@ -418,3 +418,19 @@ Pendiente (no arreglado todavía):
 - Identificadas comparando letra por letra (recortes ampliados de la maqueta vs. candidatas renderizadas): títulos = **EB Garamond** (ligadura "fi", "ó", "x" idénticas; Cormorant descartada por x-height menor); texto/UI = **DM Sans** (geométrica, "O/Q" redondas de las versalitas).
 - Reemplazan Lato + Noto Serif + Poppins vía `layout.tsx` (next/font) y tokens `--font-body/heading/ui` → aplica a todo el sitio sin tocar componentes.
 - Verificado visualmente: login (build local). Pantallas con sesión: no verificadas visualmente.
+
+### 2026-10-16 — Marca NUTFEM 2027 (guía de Pachi): paleta, tipografías y logo en TODO el sitio
+- Pachi pidió cambiar todo (login, campus, admin) a burdeos/rosa/salvia, Inter Tight + Inter y logo de corazón. Ricardo: "do it".
+- Hecho: tokens de `globals.css` (mismos nombres, valores nuevos + `--salvia`, `--salvia-2`, `--rosa-fuerte`, `--aro-1..4`, `--aro-borde`, `--corazon`), `layout.tsx` (Inter Tight/Inter), `Logo.tsx` + `icon.svg` (corazón en aro de 4 tramos, "ACADEMIA NUTFEM / Campus Virtual"), comentario de `check-marca.mjs`. `npm run check:marca`, `tsc` y `eslint` pasan.
+- **Valores NO oficiales:** el link de la guía de estilo estaba caído; colores sacados del archivo de diseño (hex exactos) y del logo (muestreados del raster). Si la guía difiere, se corrige solo en `globals.css` + `icon.svg`.
+- Verificado visualmente: login (`/`). **Sin verificar:** campus con sesión, admin, reproductor de clase, perfil.
+- Botones: siguen en burdeos con texto blanco; el diseño usa rosa con texto oscuro sobre fondos burdeos (se aplica en el nuevo inicio).
+- Siguiente: nueva pantalla del campus (pestañas Inicio · Módulos · Calendario académico · Mis programas; sub-pestañas por módulo con foro y calendario).
+
+### 2026-10-16 — Campus 2027, paso 2a: pestañas Inicio · Módulos · Mis programas (diseño "Campus académico" de Pachi)
+- Nuevo grupo de rutas `src/app/(campus)`: `/inicio` (portada burdeos, "Continuar con la siguiente clase" con % visualizado, anillo de avance, "Avance del programa" con los módulos), `/modulos` → `/modulos/[n]` (sub-pestañas Módulo 01…N + Introducción si hay clases sin módulo, cifras, lista de clases con estado), `/programas` (tarjetas por programa, sin precios). Header nuevo con pestañas (`CampusTabs`), `CampusFooter`, botones del diseño (`.btn`, en `globals.css`).
+- `/cuenta/mis-cursos` ahora redirige a `/inicio`; todos los enlaces y el redirect de `/` apuntan a `/inicio`. `campusDelUsuario` ya no se traga errores de Supabase (lanza).
+- Datos fijos que no están en la BD viven en `src/lib/programa.ts` (generación 2027). **Correo de soporte = null → no se muestra la línea** hasta que Pachi lo dé.
+- NO incluido (cada uno necesita su tabla; se agregan de a uno): calendario académico (clases en vivo/grabadas/talleres/tutorías/evaluaciones), próxima sesión en vivo, avisos académicos, foro por módulo, pregunta clínica y mes del módulo, quiz, Portafolio Clínico, diploma digital, guía de uso del campus. La foto de la portada del diseño no se usó (licencia desconocida).
+- Los meses (Abril…Septiembre) y los títulos de las 6 clases/módulo de Pachi se cargan al crear el calendario (migración + script de carga que corre Ricardo).
+- Verificación: lint, tsc y check:marca pasan. Visual con sesión: ver sección siguiente del registro.

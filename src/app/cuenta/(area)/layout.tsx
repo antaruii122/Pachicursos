@@ -1,5 +1,5 @@
 import { CampusHeader } from "@/components/campus/CampusHeader";
-import { SiteFooter } from "@/components/SiteFooter";
+import { CampusFooter } from "@/components/campus/CampusFooter";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 
@@ -25,7 +25,7 @@ export default async function CuentaAreaLayout({ children }: { children: React.R
       <main id="contenido-principal" className="mx-auto w-[min(1180px,92vw)] flex-1 py-10">
         {children}
       </main>
-      <SiteFooter />
+      <CampusFooter />
     </div>
   );
 }

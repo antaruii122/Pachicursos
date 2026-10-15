@@ -52,7 +52,7 @@ export function AdminNav({ horizontal = false, pendientes = 0 }: { horizontal?: 
         Ir a la página de cursos
       </Link>
       <Link
-        href="/cuenta/mis-cursos"
+        href="/inicio"
         className="whitespace-nowrap rounded-[var(--radio-sm)] px-3 py-2 text-[var(--tinta-suave)] transition-colors hover:bg-[var(--crema-2)] hover:text-[var(--vino)]"
       >
         Ver el campus como alumna

@@ -115,7 +115,7 @@ export function ClassPlayer({
 
   // Superficie oscura de video en todos los estados (pantalla 3 de la
   // maqueta): mientras Vimeo carga, o si la clase no está lista, se ve el
-  // mismo marco ciruela en vez de un recuadro blanco vacío.
+  // mismo marco burdeos en vez de un recuadro blanco vacío.
   const marco =
     "relative flex aspect-video flex-col items-center justify-center gap-3 overflow-hidden rounded-[var(--radio-lg)] bg-[var(--video,var(--vino-osc))] p-6 text-center shadow-[var(--sombra-md)]";
   const icono = "flex h-14 w-14 items-center justify-center rounded-full border border-white/25 bg-white/10";

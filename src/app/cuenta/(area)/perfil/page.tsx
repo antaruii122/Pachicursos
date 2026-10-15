@@ -69,7 +69,7 @@ export default async function PerfilPage() {
             <span className="text-[1.6rem] font-semibold text-[var(--vino)]">{progresoPromedio}%</span>
             <span className="text-[.78rem] text-[var(--tinta-suave)]">Avance promedio</span>
           </div>
-          <Link href="/cuenta/mis-cursos" className={`${stat} justify-center text-center hover:bg-[var(--rosa)]`}>
+          <Link href="/inicio" className={`${stat} justify-center text-center hover:bg-[var(--rosa)]`}>
             <span className="text-[.85rem] font-medium text-[var(--carmin)]">Ir a Mis cursos →</span>
           </Link>
         </div>

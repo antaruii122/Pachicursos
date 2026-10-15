@@ -1,23 +1,20 @@
 import type { Metadata } from "next";
-import { DM_Sans, EB_Garamond } from "next/font/google";
+import { Inter, Inter_Tight } from "next/font/google";
 import "./globals.css";
 
-// Tipografías de la maqueta Campus NUTFEM (identificadas 2026-10-01
-// comparando letra por letra con la maqueta): EB Garamond para títulos
-// (ligadura "fi", "ó", "x" idénticas) y DM Sans para texto, etiquetas y
-// botones. Vía next/font (auto-hosting, sin bloquear el render).
-const garamond = EB_Garamond({
-  variable: "--font-garamond",
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
-  style: ["normal", "italic"],
-});
-
-const dmSans = DM_Sans({
-  variable: "--font-dm-sans",
+// Tipografías de la guía de estilo NUTFEM 2027 (Pachi, 2026-10-16): Inter Tight
+// para títulos y Inter para texto, etiquetas y botones. Vía next/font
+// (auto-hosting, sin bloquear el render).
+const interTight = Inter_Tight({
+  variable: "--font-inter-tight",
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
-  style: ["normal", "italic"],
+});
+
+const inter = Inter({
+  variable: "--font-inter",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
 });
 
 // NOTA: hardcodeado a la URL real que funciona hoy (`https://pachicursos.vercel.app`),
@@ -45,7 +42,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="es"
-      className={`${garamond.variable} ${dmSans.variable} h-full antialiased`}
+      className={`${interTight.variable} ${inter.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">{children}</body>
     </html>

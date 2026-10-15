@@ -12,7 +12,7 @@ export default async function Home() {
   const userId = auth?.claims?.sub;
   if (userId) {
     const { data: perfil } = await supabase.from("profiles").select("role").eq("id", userId).single();
-    redirect(perfil?.role === "admin" ? "/admin" : "/cuenta/mis-cursos");
+    redirect(perfil?.role === "admin" ? "/admin" : "/inicio");
   }
 
   return <PantallaIngreso />;

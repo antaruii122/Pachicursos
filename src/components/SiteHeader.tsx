@@ -40,7 +40,7 @@ export async function SiteHeader() {
           {user ? (
             <>
               <Link
-                href="/cuenta/mis-cursos"
+                href="/inicio"
                 className="rounded-full bg-[var(--rosa)] px-3.5 py-1.5 font-medium text-[var(--vino)] transition-colors hover:bg-[var(--vino)] hover:text-white"
               >
                 Mi Campus

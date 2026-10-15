@@ -2,9 +2,9 @@
 
 /* ============================================================
    MARCA ÚNICA — UNA sola paleta y UN solo logo para TODO el sitio
-   (público, campus, admin, favicon). Decisión de Ricardo 2026-09-30:
-   la maqueta aprobada del campus (docs/maqueta-campus.md) es la marca; los
-   colores se muestrearon de sus capturas. Antes convivían dos paletas
+   (público, campus, admin, favicon). Decisión de Ricardo 2026-09-30;
+   el 2026-10-16 Pachi entregó la guía NUTFEM 2027 (burdeos/rosa/salvia, Inter,
+   logo de corazón) y reemplazó la paleta ciruela anterior. Antes convivían dos paletas
    (vino/carmín en el sitio público, ciruela en el campus) y tres logos —
    exactamente lo que no puede volver a pasar.
    Reglas (las hace cumplir `npm run lint` vía scripts/check-marca.mjs):
@@ -13,38 +13,50 @@
    Contraste AA verificado: tinta-suave 5.2:1, vino 9.7:1, dorado-osc 5.4:1.
    ============================================================ */
 :root {
-  --vino: #6e2b5e; /* ciruela — botones, links, barras de progreso */
-  --vino-osc: #3b1433; /* ciruela oscuro — títulos, tarjeta destacada */
-  --vino-claro: #843a72; /* hover de botones */
-  --carmin: #6e2b5e; /* acento (eyebrows, badges) — mismo ciruela */
-  --dorado: #dbc3d1; /* malva — texto claro sobre fondos oscuros, degradés */
-  --malva: #dbc3d1; /* aro decorativo */
+  /* Paleta NUTFEM 2027 (Pachi, 2026-10-16): burdeos, rosa y salvia. Los
+     valores salen del archivo de diseño que envió la diseñadora; la guía de
+     estilo no se pudo leer (link caído) — si difiere, se corrige acá y en
+     icon.svg, nada más. Los nombres de token se mantienen (--vino = burdeos
+     principal) para no tocar 100+ archivos. */
+  --vino: #640d14; /* burdeos — botones, links, barras de progreso */
+  --vino-osc: #640d14; /* burdeos — títulos, tarjeta destacada */
+  --vino-claro: #7a1d26; /* hover de botones */
+  --carmin: #b0173d; /* acento (eyebrows, badges, links secundarios) */
+  --dorado: #f6c9d5; /* rosa claro — texto claro sobre fondos burdeos */
+  --malva: #f0d9e0; /* aro decorativo */
   /* Único color de error/aviso (texto o borde, nunca fondo) — 5.44:1. */
   --dorado-osc: #bf3a30;
-  --ok: #4f7d63; /* check de completado (verde de la maqueta) */
-  --video: #2a1c2d; /* superficie del reproductor */
+  --ok: #3b4c2e; /* salvia oscuro — check de completado, "Completado" */
+  --salvia: #e7ece2; /* salvia claro — fondos de evaluación/entrega */
+  --salvia-2: #dce8cc; /* salvia medio — bordes/relleno de evaluación */
+  --rosa-fuerte: #ec96ac; /* rosa — botones principales sobre burdeos */
+  --video: #241c1f; /* superficie del reproductor */
   --crema: #ffffff;
-  --crema-2: #fbf9fa; /* fondo de página */
-  --rosa: #f4e8ed; /* blush — píldora activa, fondos suaves */
-  --tinta: #2a1c2d;
-  --tinta-suave: #7d6676;
-  --linea: #ede3e9;
-  /* Degradé del aro del logo */
-  --aro-1: #6e2b5e;
-  --aro-2: #a5708f;
-  --aro-3: #e6d3de;
+  --crema-2: #fff6f8; /* fondo suave de paneles */
+  --rosa: #f6c9d5; /* rosa claro — píldora activa, tutorías */
+  --tinta: #241c1f;
+  --tinta-suave: #6a5e62;
+  --linea: #f0d9e0;
+  /* Logo (corazón dentro de aro de 4 tramos) — muestreado del logo de la
+     diseñadora; reemplazar por los valores oficiales de la guía. */
+  --aro-borde: #bf2f4b;
+  --aro-1: #f6c9d5; /* arriba-izquierda */
+  --aro-2: #ec96ac; /* arriba-derecha */
+  --aro-3: #c41c45; /* abajo-izquierda */
+  --aro-4: #ef574f; /* abajo-derecha */
+  --corazon: #bf2f4b;
   /* Header translúcido */
   --header-bg: rgba(255, 255, 255, 0.95);
 
-  --font-body: var(--font-dm-sans), system-ui, sans-serif;
-  --font-heading: var(--font-garamond), Georgia, serif;
-  --font-ui: var(--font-dm-sans), system-ui, sans-serif;
+  --font-body: var(--font-inter), system-ui, sans-serif;
+  --font-heading: var(--font-inter-tight), var(--font-inter), system-ui, sans-serif;
+  --font-ui: var(--font-inter), system-ui, sans-serif;
 
-  /* Escala de sombra de 4 pasos, tinte ciruela en vez de negro puro. */
-  --sombra-sm: 0 1px 2px rgba(59, 20, 51, 0.06), 0 1px 3px rgba(59, 20, 51, 0.05);
-  --sombra-md: 0 4px 14px rgba(59, 20, 51, 0.07), 0 1px 3px rgba(59, 20, 51, 0.05);
-  --sombra-lg: 0 14px 36px rgba(59, 20, 51, 0.1), 0 2px 8px rgba(59, 20, 51, 0.06);
-  --sombra-xl: 0 26px 60px rgba(59, 20, 51, 0.15), 0 6px 16px rgba(59, 20, 51, 0.07);
+  /* Escala de sombra de 4 pasos, tinte burdeos en vez de negro puro. */
+  --sombra-sm: 0 1px 2px rgba(100, 13, 20, 0.06), 0 1px 3px rgba(100, 13, 20, 0.05);
+  --sombra-md: 0 4px 14px rgba(100, 13, 20, 0.07), 0 1px 3px rgba(100, 13, 20, 0.05);
+  --sombra-lg: 0 14px 36px rgba(100, 13, 20, 0.1), 0 2px 8px rgba(100, 13, 20, 0.06);
+  --sombra-xl: 0 26px 60px rgba(100, 13, 20, 0.15), 0 6px 16px rgba(100, 13, 20, 0.07);
 
   /* Radios y movimiento — una sola escala reutilizada. */
   --radio-sm: 10px;
@@ -57,8 +69,62 @@
 /* Contenedor de las pantallas del campus (fondo de página de la maqueta).
    Ya no cambia colores: la paleta es una sola, definida arriba. */
 @layer components {
-  .tema-campus {
+  /* Botones del diseño NUTFEM 2027 (esquinas casi rectas, mayúsculas en
+     negrita). Hoy solo las pantallas nuevas del campus los usan; cuando
+     llegue la guía de estilo se aplican al resto del sitio desde acá. */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.85rem 1.5rem;
+    border-radius: 3px;
+    border: 1px solid transparent;
+    font-family: var(--font-ui);
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    line-height: 1.2;
+    text-align: center;
+    text-transform: uppercase;
+    transition:
+      background-color var(--dur) var(--ease),
+      border-color var(--dur) var(--ease),
+      color var(--dur) var(--ease);
+  }
+  .btn-rosa {
+    background: var(--rosa-fuerte);
+    color: var(--vino-osc);
+  }
+  .btn-rosa:hover {
+    background: var(--rosa);
+  }
+  .btn-vino {
+    background: var(--vino);
+    color: #fff;
+  }
+  .btn-vino:hover {
+    background: var(--vino-claro);
+  }
+  .btn-borde {
+    border-color: var(--vino);
+    color: var(--vino);
+    background: transparent;
+  }
+  .btn-borde:hover {
     background: var(--crema-2);
+  }
+  .btn-borde-claro {
+    border-color: rgba(255, 255, 255, 0.7);
+    color: #fff;
+    background: transparent;
+  }
+  .btn-borde-claro:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .tema-campus {
+    background: var(--crema);
     color: var(--tinta);
   }
 }
@@ -80,8 +146,9 @@
   h2,
   h3 {
     font-family: var(--font-heading);
+    font-weight: 500;
     color: var(--vino-osc);
-    letter-spacing: -0.01em;
+    letter-spacing: -0.02em;
     text-wrap: balance;
   }
 }

@@ -49,7 +49,7 @@ export default async function ComunidadPage({ searchParams }: { searchParams: Pr
 
   return (
     <div>
-      <Eyebrow>Mi campus</Eyebrow>
+      <Eyebrow>Comunidad</Eyebrow>
       <h1 className="mt-1 text-[1.9rem] font-normal">Comunidad</h1>
       <p className="mb-6 mt-1 max-w-[62ch] text-[.92rem] text-[var(--tinta-suave)]">
         Preguntas y conversación de tus clases. Para preguntar algo nuevo, entra a la clase y escribe al final, en
@@ -81,7 +81,7 @@ export default async function ComunidadPage({ searchParams }: { searchParams: Pr
                 : "Todavía no hay preguntas en tus clases. ¡Sé la primera!"}
           </p>
           <Link
-            href="/cuenta/mis-cursos"
+            href="/inicio"
             className="mt-4 inline-flex rounded-full bg-[var(--vino)] px-6 py-2.5 font-[family-name:var(--font-ui)] text-[.85rem] font-medium text-white hover:bg-[var(--vino-claro)]"
           >
             Ir a mis clases

@@ -3,7 +3,7 @@ import { CampusLogo } from "@/components/campus/ui";
 import { Suspense } from "react";
 
 // Pantalla 1 de la maqueta "Campus NUTFEM" (docs/maqueta-campus.md): sin
-// header, aro malva grande arriba a la derecha, logo centrado, tarjeta de
+// header, aro rosa grande arriba a la derecha, logo centrado, tarjeta de
 // bienvenida con el formulario. Es la home (`/`) y también `/cuenta/login`
 // (que conserva `?next=` para volver a la página pedida).
 export function PantallaIngreso() {

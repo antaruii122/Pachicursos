@@ -14,7 +14,9 @@
 //  2. El logo solo se dibuja en src/components/brand/Logo.tsx (y el favicon
 //     src/app/icon.svg, que es la misma forma). Nadie más define un degradé
 //     ni el viejo corazón.
-//  3. Nunca vuelve el logo viejo (el path del corazón) ni el subtítulo viejo.
+//  3. Nunca vuelve el logo viejo (el corazón anterior al 2026-10-16, cuyo path
+//     se prohíbe abajo) ni el subtítulo viejo. El logo oficial actual (corazón
+//     dentro de aro de 4 tramos, guía NUTFEM 2027) vive solo en Logo.tsx.
 
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join, relative, sep } from "node:path";
@@ -46,7 +48,7 @@ const reglas = [
     permitido: (m) => /^rgba?\(\s*(255\s*,\s*255\s*,\s*255|0\s*,\s*0\s*,\s*0)\b/.test(m),
   },
   { nombre: "logo dibujado fuera de brand/Logo.tsx (degradé)", re: /<linearGradient|linear-gradient\([^)]*url\(/g },
-  { nombre: "logo viejo (corazón)", re: /M12 21c-4-3-7-6\.5|M12 20\.2c-3\.6-2\.7/g },
+  { nombre: "logo viejo (corazón anterior)", re: /M12 21c-4-3-7-6\.5|M12 20\.2c-3\.6-2\.7/g },
   { nombre: "subtítulo viejo del logo", re: /Cursos con Marcela Calder[oó]n/gi },
 ];
 

@@ -1,13 +1,13 @@
 import { AccountMenu } from "@/components/account/AccountMenu";
-import { CampusNav, type CampusNavLink } from "@/components/campus/CampusNav";
+import { CampusTabs, type CampusTab } from "@/components/campus/CampusTabs";
 import { CampusLogo } from "@/components/campus/ui";
+import { PROGRAMA } from "@/lib/programa";
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
 
-// Header del campus privado (pantallas 2 y 3 de la maqueta): logo de aro a
-// la izquierda, navegación en píldoras al centro, avatar con iniciales +
-// nombre a la derecha. Reemplaza SiteHeader + AccountSubNav dentro del
-// campus; el sitio público de venta sigue con SiteHeader.
+// Header del campus privado (diseño NUTFEM 2027, Pachi 2026-10-16): fila de
+// marca (logo a la izquierda, nombre y generación + avatar a la derecha) y
+// debajo las pestañas Inicio · Módulos · Mis programas.
 export async function CampusHeader() {
   const supabase = await createClient();
   const {
@@ -28,13 +28,10 @@ export async function CampusHeader() {
     email = profile?.email ?? user.email ?? null;
   }
 
-  // Sin catálogo (2026-10-01: el campus no vende). El logo lleva a "/", que
-  // con sesión redirige a Mi Campus.
-  const links: CampusNavLink[] = [
-    { href: "/cuenta/mis-cursos", label: "Mi Campus", activoEn: ["/cursos/"] },
-    { href: "/cuenta/comunidad", label: "Comunidad" },
-    // Actividad y Seguridad viven DENTRO de Mi perfil (pedido de Ricardo).
-    { href: "/cuenta/perfil", label: "Mi perfil", activoEn: ["/cuenta/actividad"] },
+  const tabs: CampusTab[] = [
+    { href: "/inicio", label: "Inicio" },
+    { href: "/modulos", label: "Módulos", activoEn: ["/cursos/"] },
+    { href: "/programas", label: "Mis programas" },
   ];
 
   return (
@@ -51,7 +48,6 @@ export async function CampusHeader() {
           <Link href="/" aria-label="NUTFEM — inicio">
             <CampusLogo />
           </Link>
-          {user && <CampusNav links={links} className="hidden md:flex" />}
           {user ? (
             <div className="flex items-center gap-3">
               {isAdmin && (
@@ -62,7 +58,13 @@ export async function CampusHeader() {
                   Panel admin
                 </Link>
               )}
-              <AccountMenu nombre={nombre} email={email} isAdmin={isAdmin} variante="campus" />
+              <AccountMenu
+                nombre={nombre}
+                email={email}
+                isAdmin={isAdmin}
+                variante="campus"
+                subtitulo={isAdmin ? "Equipo NUTFEM" : `Alumna · ${PROGRAMA.generacion}`}
+              />
             </div>
           ) : (
             <Link
@@ -74,8 +76,10 @@ export async function CampusHeader() {
           )}
         </div>
         {user && (
-          <div className="border-t border-[var(--linea)] md:hidden">
-            <CampusNav links={links} className="mx-auto w-[min(1180px,92vw)] py-2" />
+          <div className="border-t border-[var(--linea)]">
+            <div className="mx-auto w-[min(1180px,92vw)]">
+              <CampusTabs tabs={tabs} />
+            </div>
           </div>
         )}
       </header>

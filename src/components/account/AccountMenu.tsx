@@ -11,12 +11,15 @@ export function AccountMenu({
   email,
   isAdmin,
   variante = "sitio",
+  subtitulo,
 }: {
   nombre: string;
   email: string | null;
   isAdmin: boolean;
-  // "campus": avatar con iniciales + primer nombre + flecha (maqueta del campus).
+  // "campus": nombre + línea gris a la izquierda del avatar con iniciales.
   variante?: "sitio" | "campus";
+  // Línea gris bajo el nombre (campus): "Alumna · Generación 2027".
+  subtitulo?: string;
 }) {
   const [abierto, setAbierto] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -49,15 +52,17 @@ export function AccountMenu({
           aria-expanded={abierto}
           aria-haspopup="menu"
           aria-label={`Menú de cuenta de ${nombre}`}
-          className="flex items-center gap-2 rounded-full py-1 pl-1 pr-2 transition-colors hover:bg-[var(--crema-2)]"
+          className="flex items-center gap-3 rounded-full py-1 pl-3 pr-1 transition-colors hover:bg-[var(--crema-2)]"
         >
-          <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--rosa)] font-[family-name:var(--font-ui)] text-[.72rem] font-semibold text-[var(--vino)]">
+          <span className="hidden text-right leading-tight sm:block">
+            <span className="block font-[family-name:var(--font-ui)] text-[.86rem] font-semibold text-[var(--tinta)]">{nombre}</span>
+            {subtitulo && (
+              <span className="block font-[family-name:var(--font-ui)] text-[.72rem] text-[var(--tinta-suave)]">{subtitulo}</span>
+            )}
+          </span>
+          <span className="flex h-10 w-10 items-center justify-center rounded-full border border-[var(--rosa)] bg-[var(--crema-2)] font-[family-name:var(--font-ui)] text-[.8rem] font-bold text-[var(--vino)]">
             {iniciales}
           </span>
-          <span className="hidden font-[family-name:var(--font-ui)] text-[.82rem] text-[var(--tinta)] sm:inline">{partes[0]}</span>
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--tinta-suave)" strokeWidth="2" aria-hidden="true">
-            <path d="M6 9l6 6 6-6" />
-          </svg>
         </button>
       ) : (
         <button
@@ -91,11 +96,11 @@ export function AccountMenu({
               Mi perfil
             </Link>
             <Link
-              href="/cuenta/mis-cursos"
+              href="/inicio"
               onClick={() => setAbierto(false)}
               className="px-4 py-2 text-[var(--tinta)] hover:bg-[var(--crema-2)]"
             >
-              {variante === "campus" ? "Mi Campus" : "Mis cursos"}
+              {variante === "campus" ? "Inicio" : "Mis cursos"}
             </Link>
             <Link
               href="/cuenta/comunidad"

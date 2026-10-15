@@ -1,5 +1,6 @@
 "use client";
 
+import { rutaInternaSegura } from "@/lib/redireccion";
 import { createClient } from "@/lib/supabase/client";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -33,7 +34,7 @@ export function LoginForm() {
     // recarga completa siempre ve la cookie de sesión ya escrita, sin la
     // carrera entre el estado del cliente y el server.
     // Sin ?next, se entra directo al campus (no al catálogo de venta).
-    const next = searchParams.get("next") ?? "/cuenta/mis-cursos";
+    const next = rutaInternaSegura(searchParams.get("next"), "/inicio");
     window.location.href = next;
   };
 
