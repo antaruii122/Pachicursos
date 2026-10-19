@@ -1,4 +1,5 @@
 import { campusDelUsuario, type CursoCampus, type ModuloProgreso } from "@/lib/progreso";
+import { getSesion } from "@/lib/sesion";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 
@@ -31,14 +32,10 @@ export function numero2(n: number | null): string {
 // de la alumna con su avance. El programa principal es el de actividad más
 // reciente (campusDelUsuario ya los ordena así).
 export async function cargarCampus(rutaActual: string) {
+  const sesion = await getSesion();
+  if (!sesion) redirect(`/cuenta/login?next=${encodeURIComponent(rutaActual)}`);
   const supabase = await createClient();
-  const { data: auth, error } = await supabase.auth.getClaims();
-  if (error) throw new Error(`No se pudo verificar tu sesión: ${error.message}`);
-  const userId = auth?.claims?.sub;
-  if (!userId) redirect(`/cuenta/login?next=${encodeURIComponent(rutaActual)}`);
-  const { data: perfil, error: errPerfil } = await supabase.from("profiles").select("role").eq("id", userId).single();
-  if (errPerfil) throw new Error(`No se pudo cargar tu perfil: ${errPerfil.message}`);
-  const esAdmin = perfil?.role === "admin";
-  const cursos = await campusDelUsuario(supabase, userId, { comoAdmin: esAdmin });
-  return { supabase, userId, esAdmin, cursos, principal: cursos[0] ?? null };
+  const esAdmin = sesion.role === "admin";
+  const cursos = await campusDelUsuario(supabase, sesion.userId, { comoAdmin: esAdmin });
+  return { supabase, userId: sesion.userId, esAdmin, cursos, principal: cursos[0] ?? null };
 }

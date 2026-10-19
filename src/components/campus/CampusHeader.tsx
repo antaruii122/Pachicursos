@@ -2,31 +2,18 @@ import { AccountMenu } from "@/components/account/AccountMenu";
 import { CampusTabs, type CampusTab } from "@/components/campus/CampusTabs";
 import { CampusLogo } from "@/components/campus/ui";
 import { PROGRAMA } from "@/lib/programa";
-import { createClient } from "@/lib/supabase/server";
+import { getSesion } from "@/lib/sesion";
 import Link from "next/link";
 
 // Header del campus privado (diseño NUTFEM 2027, Pachi 2026-10-16): fila de
 // marca (logo a la izquierda, nombre y generación + avatar a la derecha) y
 // debajo las pestañas Inicio · Módulos · Mis programas.
 export async function CampusHeader() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  let nombre = "";
-  let email: string | null = null;
-  let isAdmin = false;
-  if (user) {
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("role, nombre, email")
-      .eq("id", user.id)
-      .single();
-    isAdmin = profile?.role === "admin";
-    nombre = profile?.nombre || user.email?.split("@")[0] || "Cuenta";
-    email = profile?.email ?? user.email ?? null;
-  }
+  const sesion = await getSesion();
+  const user = sesion;
+  const isAdmin = sesion?.role === "admin";
+  const nombre = sesion ? sesion.nombre || sesion.email?.split("@")[0] || "Cuenta" : "";
+  const email = sesion ? (sesion.perfilEmail ?? sesion.email) : null;
 
   const tabs: CampusTab[] = [
     { href: "/inicio", label: "Inicio" },

@@ -1,6 +1,6 @@
 import { CampusHeader } from "@/components/campus/CampusHeader";
 import { CampusFooter } from "@/components/campus/CampusFooter";
-import { createClient } from "@/lib/supabase/server";
+import { getSesion } from "@/lib/sesion";
 import { redirect } from "next/navigation";
 
 // Shell compartido de toda el área de cuenta (2026-09-14 — antes cada página
@@ -10,12 +10,8 @@ import { redirect } from "next/navigation";
 // para que login/registro/logout/olvide-password (que NO requieren sesión)
 // no queden atrapados por el redirect de acá abajo.
 export default async function CuentaAreaLayout({ children }: { children: React.ReactNode }) {
-  const supabase = await createClient();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) redirect("/cuenta/login?next=/cuenta/perfil");
+  const sesion = await getSesion();
+  if (!sesion) redirect("/cuenta/login?next=/cuenta/perfil");
 
   return (
     // tema-campus: paleta de la maqueta aprobada (ver globals.css). El header

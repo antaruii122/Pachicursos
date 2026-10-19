@@ -151,26 +151,30 @@ export async function campusDelUsuario(
   if (cursos.length === 0) return [];
 
   const ids = cursos.map((c) => c.id);
-  const [{ data: clases, error: errClases }, { data: modulos, error: errModulos }] = await Promise.all([
+  // Clases, módulos y avance en paralelo (un solo viaje a la base). El avance
+  // se pide por usuario y se filtra en memoria: son pocas filas, y así no hay
+  // que esperar a conocer los ids de las clases.
+  const [
+    { data: clases, error: errClases },
+    { data: modulos, error: errModulos },
+    { data: progresoUsuario, error: errProgreso },
+  ] = await Promise.all([
     supabase
       .from("course_videos")
       .select("id, course_id, orden, titulo, module_id, duracion")
       .in("course_id", ids)
       .order("orden", { ascending: true }),
     supabase.from("course_modules").select("id, course_id, orden, titulo").in("course_id", ids),
+    supabase
+      .from("lesson_progress")
+      .select("video_id, completed, actualizado_en, progress_seconds")
+      .eq("user_id", userId),
   ]);
   if (errClases) throw new Error(`No se pudieron cargar las clases: ${errClases.message}`);
   if (errModulos) throw new Error(`No se pudieron cargar los módulos: ${errModulos.message}`);
 
-  const claseIds = (clases ?? []).map((c) => c.id);
-  const { data: progreso, error: errProgreso } = claseIds.length
-    ? await supabase
-        .from("lesson_progress")
-        .select("video_id, completed, actualizado_en, progress_seconds")
-        .eq("user_id", userId)
-        .in("video_id", claseIds)
-    : { data: [] as { video_id: string; completed: boolean; actualizado_en: string; progress_seconds: number | null }[] };
-
+  const idsClases = new Set((clases ?? []).map((c) => c.id));
+  const progreso = (progresoUsuario ?? []).filter((p) => idsClases.has(p.video_id));
   if (errProgreso) throw new Error(`No se pudo cargar tu avance: ${errProgreso.message}`);
   const progresoPorClase = new Map((progreso ?? []).map((p) => [p.video_id, p]));
 
