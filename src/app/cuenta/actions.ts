@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
+import { getUsuario } from "@/lib/sesion";
 
 // Actualiza solo el propio nombre del usuario logueado. El cliente normal
 // (no service_role) alcanza porque 0002_profiles_role_column_protection.sql
@@ -9,9 +10,7 @@ import { revalidatePath } from "next/cache";
 // el único campo bloqueado a service_role, no hace falta nada especial acá.
 export async function updateNombre(nombre: string): Promise<{ ok: true } | { error: string }> {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getUsuario();
   if (!user) return { error: "No autenticado" };
 
   const limpio = nombre.trim();

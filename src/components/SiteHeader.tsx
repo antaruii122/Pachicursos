@@ -2,12 +2,11 @@ import { AccountMenu } from "@/components/account/AccountMenu";
 import { Logo } from "@/components/brand/Logo";
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
+import { getUsuario } from "@/lib/sesion";
 
 export async function SiteHeader() {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getUsuario();
 
   let isAdmin = false;
   let nombre = "";

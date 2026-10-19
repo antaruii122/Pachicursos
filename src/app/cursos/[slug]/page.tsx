@@ -6,6 +6,7 @@ import { ClaseResumen, Course, Modulo } from "@/lib/types";
 import { getVimeoThumbnailUrl } from "@/lib/vimeo";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { getUsuario } from "@/lib/sesion";
 
 async function getCourseData(slug: string) {
   const supabase = await createClient();
@@ -111,9 +112,7 @@ export default async function CursoPage({
   // en vez de "Comprar". Admin también entra directo.
   let accesoHref: string | null = null;
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getUsuario();
   if (user) {
     const [{ data: compra }, { data: perfil }] = await Promise.all([
       supabase

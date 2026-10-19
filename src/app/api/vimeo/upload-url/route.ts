@@ -2,6 +2,7 @@ import { mensajeError } from "@/lib/errores";
 import { createClient } from "@/lib/supabase/server";
 import { createVimeoTusUpload } from "@/lib/vimeo";
 import { NextResponse } from "next/server";
+import { getUsuario } from "@/lib/sesion";
 
 // Genera una URL de subida TUS para una clase existente. El archivo viaja
 // directo navegador → Vimeo (nunca pasa por acá); este endpoint solo pide el
@@ -10,9 +11,7 @@ import { NextResponse } from "next/server";
 export async function POST(request: Request) {
   const supabase = await createClient();
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getUsuario();
   if (!user) {
     return NextResponse.json({ error: "No autenticado" }, { status: 401 });
   }

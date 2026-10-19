@@ -11,6 +11,25 @@ import { useEffect, useRef, useState } from "react";
 // base con writes.
 const GUARDADO_INTERVALO_SEGUNDOS = 10;
 
+const marco =
+  "relative flex aspect-video flex-col items-center justify-center gap-3 overflow-hidden rounded-[var(--radio-lg)] bg-[var(--video,var(--vino-osc))] p-6 text-center shadow-[var(--sombra-md)]";
+const icono = "flex h-14 w-14 items-center justify-center rounded-full border border-white/25 bg-white/10";
+
+// Marco "Cargando la clase…": también es el fallback de Suspense mientras el
+// servidor resuelve el embed (ver ClassPlayerServer).
+export function ClassPlayerCargando() {
+  return (
+    <div className={marco}>
+      <div className={`${icono} animate-pulse`}>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="#fff" aria-hidden="true">
+          <path d="M8 5v14l11-7z" />
+        </svg>
+      </div>
+      <p className="text-[.8rem] text-white/60">Cargando la clase…</p>
+    </div>
+  );
+}
+
 // Pide el embed real al endpoint validado server-side (Parte D) — el
 // vimeo_id nunca llega a este componente ni al HTML inicial, solo la URL
 // de embed final, y solo si el endpoint confirmó que hay acceso.
@@ -25,20 +44,28 @@ export function ClassPlayer({
   videoId,
   estadoProcesamiento,
   initialProgressSeconds = 0,
+  initialEmbedUrl,
+  initialError,
 }: {
   courseSlug: string;
   videoId: string;
   estadoProcesamiento: "subiendo" | "procesando" | "listo";
   initialProgressSeconds?: number;
+  // Si la página (servidor) ya validó el acceso y resolvió el embed, llega
+  // acá y se salta el viaje extra al endpoint /player. Sin estas props
+  // (undefined) el componente sigue pidiéndolo al endpoint como antes.
+  initialEmbedUrl?: string | null;
+  initialError?: string | null;
 }) {
-  const [embedUrl, setEmbedUrl] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [embedUrl, setEmbedUrl] = useState<string | null>(initialEmbedUrl ?? null);
+  const [error, setError] = useState<string | null>(initialError ?? null);
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
   const lastSavedSecondRef = useRef(0);
   const completedRef = useRef(false);
 
   useEffect(() => {
     if (estadoProcesamiento !== "listo") return;
+    if (initialEmbedUrl !== undefined || initialError !== undefined) return;
 
     let cancelado = false;
     fetch(`/api/courses/${courseSlug}/videos/${videoId}/player`)
@@ -54,7 +81,7 @@ export function ClassPlayer({
     return () => {
       cancelado = true;
     };
-  }, [courseSlug, videoId, estadoProcesamiento]);
+  }, [courseSlug, videoId, estadoProcesamiento, initialEmbedUrl, initialError]);
 
   useEffect(() => {
     if (!embedUrl || !iframeRef.current) return;
@@ -64,9 +91,9 @@ export function ClassPlayer({
 
     const guardarAvance = async (segundos: number, completed: boolean) => {
       const supabase = createClient();
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
+      // getSession lee la sesión del navegador (sin viaje de red); la base igual
+      // exige la sesión real vía RLS en cada escritura.
+      const user = (await supabase.auth.getSession()).data.session?.user;
       if (!user) return;
 
       const fila = {
@@ -116,10 +143,6 @@ export function ClassPlayer({
   // Superficie oscura de video en todos los estados (pantalla 3 de la
   // maqueta): mientras Vimeo carga, o si la clase no está lista, se ve el
   // mismo marco burdeos en vez de un recuadro blanco vacío.
-  const marco =
-    "relative flex aspect-video flex-col items-center justify-center gap-3 overflow-hidden rounded-[var(--radio-lg)] bg-[var(--video,var(--vino-osc))] p-6 text-center shadow-[var(--sombra-md)]";
-  const icono = "flex h-14 w-14 items-center justify-center rounded-full border border-white/25 bg-white/10";
-
   if (estadoProcesamiento !== "listo") {
     return (
       <div className={marco}>
@@ -149,18 +172,7 @@ export function ClassPlayer({
     );
   }
 
-  if (!embedUrl) {
-    return (
-      <div className={marco}>
-        <div className={`${icono} animate-pulse`}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="#fff" aria-hidden="true">
-            <path d="M8 5v14l11-7z" />
-          </svg>
-        </div>
-        <p className="text-[.8rem] text-white/60">Cargando la clase…</p>
-      </div>
-    );
-  }
+  if (!embedUrl) return <ClassPlayerCargando />;
 
   return (
     <div className="aspect-video overflow-hidden rounded-[var(--radio-lg)] bg-[var(--video,var(--vino-osc))] shadow-[var(--sombra-md)]">

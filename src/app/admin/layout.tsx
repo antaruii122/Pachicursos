@@ -1,6 +1,7 @@
 import { AdminNav } from "@/components/admin/AdminNav";
 import { CampusLogo } from "@/components/campus/ui";
 import { armarHilos, type Pregunta } from "@/lib/preguntas";
+import { getUsuario } from "@/lib/sesion";
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -15,16 +16,18 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
   // getClaims verifica el JWT localmente (clave ES256) — sin viaje a Supabase
   // Auth en cada página del admin. El rol sale de profiles (fuente de verdad).
-  const { data: auth } = await supabase.auth.getClaims();
-  const userId = auth?.claims?.sub;
-  if (!userId) redirect("/cuenta/login?next=/admin/cursos");
-  const email = typeof auth?.claims?.email === "string" ? auth.claims.email : "";
+  const usuario = await getUsuario();
+  if (!usuario) redirect("/cuenta/login?next=/admin/cursos");
+  const userId = usuario.id;
+  const email = usuario.email ?? "";
 
   // Perfil y contador de preguntas en paralelo (antes iban uno tras otro).
-  // El contador da 0 si la tabla todavía no existe (migración 0007).
+  // El contador da 0 si la tabla todavía no existe (migración 0007). Solo se
+  // piden las columnas que el conteo usa (sin el texto de cada pregunta): este
+  // layout corre en CADA página del admin.
   const [{ data: profile }, { data: qs }] = await Promise.all([
     supabase.from("profiles").select("role, nombre").eq("id", userId).single(),
-    supabase.from("class_questions").select("*").limit(1000),
+    supabase.from("class_questions").select("id, parent_id, es_equipo, oculto, created_at").limit(1000),
   ]);
   if (profile?.role !== "admin") redirect("/");
   const pendientes = armarHilos((qs ?? []) as Pregunta[]).filter((h) => !h.respondida && !h.oculto && !h.es_equipo).length;

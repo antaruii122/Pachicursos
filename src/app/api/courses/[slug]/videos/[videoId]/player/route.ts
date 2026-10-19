@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { getVimeoEmbedUrl } from "@/lib/vimeo";
 import { NextResponse } from "next/server";
+import { getUsuario } from "@/lib/sesion";
 
 // Núcleo de seguridad de la Parte D (ver docs/cursos.md): el vimeo_id NUNCA
 // se entrega al cliente sin validar acceso primero. `videoId` es el id de
@@ -38,9 +39,7 @@ export async function GET(
 
   let tieneAcceso = clase.is_free_intro;
   if (!tieneAcceso) {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    const user = await getUsuario();
     if (!user) {
       return NextResponse.json({ error: "No autenticado" }, { status: 401 });
     }

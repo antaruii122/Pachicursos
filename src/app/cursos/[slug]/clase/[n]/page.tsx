@@ -3,7 +3,11 @@ import { ClassNotes } from "@/components/ClassNotes";
 import { ClassQuestions } from "@/components/ClassQuestions";
 import { preguntasDeClase } from "@/lib/preguntas";
 import { parseRecursos } from "@/lib/recursos";
-import { ClassPlayer } from "@/components/ClassPlayer";
+import { ClassPlayerCargando } from "@/components/ClassPlayer";
+import { ClassPlayerServer } from "@/components/ClassPlayerServer";
+import { getSesion } from "@/lib/sesion";
+import { Suspense } from "react";
+import { preconnect } from "react-dom";
 import { ClassSidebar } from "@/components/ClassSidebar";
 import { CampusHeader } from "@/components/campus/CampusHeader";
 import { Eyebrow } from "@/components/campus/ui";
@@ -28,31 +32,45 @@ export default async function ClasePage({
   const orden = Number(n);
   if (!Number.isInteger(orden)) notFound();
 
+  // El navegador va a pedir el iframe de Vimeo y su player: abrir la conexión
+  // desde ya, en paralelo con las consultas de abajo.
+  preconnect("https://player.vimeo.com");
+  preconnect("https://i.vimeocdn.com");
+
   const supabase = await createClient();
 
-  const { data: course } = await supabase
-    .from("courses")
-    .select("id, slug, titulo")
-    .eq("slug", slug)
-    .maybeSingle();
+  // Sesión (compartida con CampusHeader vía cache, sin viaje a Auth) y curso
+  // en paralelo; luego clases, módulos y compra en paralelo — antes era una
+  // cadena de 6 consultas una tras otra.
+  const [sesion, { data: course }] = await Promise.all([
+    getSesion(),
+    supabase.from("courses").select("id, slug, titulo").eq("slug", slug).maybeSingle(),
+  ]);
   if (!course) notFound();
 
-  const [{ data: clases }, { data: modulos }] = await Promise.all([
+  const user = sesion ? { id: sesion.userId } : null;
+
+  const [{ data: clases }, { data: modulos }, { data: purchase }] = await Promise.all([
     supabase
       .from("course_videos")
       .select("id, orden, titulo, duracion, is_free_intro, estado_procesamiento, module_id, resources")
       .eq("course_id", course.id)
       .order("orden", { ascending: true }),
     supabase.from("course_modules").select("id, orden, titulo").eq("course_id", course.id),
+    user
+      ? supabase
+          .from("purchases")
+          .select("id")
+          .eq("user_id", user.id)
+          .eq("course_id", course.id)
+          .eq("estado", "pagado")
+          .maybeSingle()
+      : Promise.resolve({ data: null }),
   ]);
   if (!clases) notFound();
 
   const clase = clases.find((c) => c.orden === orden);
   if (!clase) notFound();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
 
   const currentPath = `/cursos/${slug}/clase/${orden}`;
 
@@ -60,29 +78,19 @@ export default async function ClasePage({
     redirect(`/cuenta/login?next=${encodeURIComponent(currentPath)}`);
   }
 
-  let hasPurchase = false;
-  let esAdmin = false;
-  if (user) {
-    const { data: purchase } = await supabase
-      .from("purchases")
-      .select("id")
-      .eq("user_id", user.id)
-      .eq("course_id", course.id)
-      .eq("estado", "pagado")
-      .maybeSingle();
-    // Admin ve todas las clases (necesita revisar el curso como alumna sin
-    // tener que "comprarlo"). Mismo criterio en /api/.../player y /recursos.
-    const { data: perfil } = await supabase.from("profiles").select("role").eq("id", user.id).single();
-    esAdmin = perfil?.role === "admin";
-    hasPurchase = !!purchase || esAdmin;
-  }
+  // Admin ve todas las clases (necesita revisar el curso como alumna sin
+  // tener que "comprarlo"). Mismo criterio en /api/.../player y /recursos.
+  const esAdmin = sesion?.role === "admin";
+  const hasPurchase = !!purchase || esAdmin;
   const tieneAcceso = clase.is_free_intro || hasPurchase;
 
   let notaExistente = "";
   let progresoExistente = 0;
   let completedIds = new Set<string>();
+  // null = la función de preguntas aún no está activada (falta 0007).
+  let hilos: Awaited<ReturnType<typeof preguntasDeClase>> | null = null;
   if (user) {
-    const [{ data: nota }, { data: progreso }, { data: completados }] = await Promise.all([
+    const [{ data: nota }, { data: progreso }, { data: completados }, hilosCargados] = await Promise.all([
       tieneAcceso
         ? supabase
             .from("video_notes")
@@ -108,14 +116,13 @@ export default async function ClasePage({
           "video_id",
           clases.map((c) => c.id),
         ),
+      tieneAcceso ? preguntasDeClase(supabase, clase.id) : Promise.resolve(null),
     ]);
     notaExistente = nota?.contenido ?? "";
     progresoExistente = progreso?.progress_seconds ?? 0;
     completedIds = new Set((completados ?? []).map((p) => p.video_id));
+    hilos = hilosCargados;
   }
-
-  // null = la función de preguntas aún no está activada (falta 0007).
-  const hilos = user && tieneAcceso ? await preguntasDeClase(supabase, clase.id) : null;
 
   const ordenadas = [...clases].sort((a, b) => a.orden - b.orden);
   const siguiente = ordenadas.find((c) => c.orden > orden);
@@ -157,12 +164,14 @@ export default async function ClasePage({
         <div className="min-w-0 flex-1">
         {tieneAcceso ? (
           <div className="mb-6">
-            <ClassPlayer
-              courseSlug={slug}
-              videoId={clase.id}
-              estadoProcesamiento={clase.estado_procesamiento}
-              initialProgressSeconds={progresoExistente}
-            />
+            <Suspense fallback={<ClassPlayerCargando />}>
+              <ClassPlayerServer
+                courseSlug={slug}
+                videoId={clase.id}
+                estadoProcesamiento={clase.estado_procesamiento}
+                initialProgressSeconds={progresoExistente}
+              />
+            </Suspense>
           </div>
         ) : (
           <div className={`${card} relative mb-6 aspect-video overflow-hidden bg-[var(--vino-osc)]`}>

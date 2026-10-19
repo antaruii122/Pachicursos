@@ -1,6 +1,7 @@
 import { UsuariosManager } from "@/components/admin/UsuariosManager";
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
+import { getUsuario } from "@/lib/sesion";
 
 // Antes de esto no existía ninguna forma de ver "todos los usuarios" — solo
 // /admin/ventas, que muestra una fila por COMPRA, no por persona (alguien
@@ -8,9 +9,7 @@ import Link from "next/link";
 // requería correr scripts/set-admin-role.mjs a mano.
 export default async function AdminUsuariosPage() {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getUsuario();
 
   const [{ data: perfiles }, { data: compras, error: comprasError }, { data: cursos }] = await Promise.all([
     supabase

@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { formatCLP } from "@/lib/types";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { getUsuario } from "@/lib/sesion";
 
 // Actividad (dentro de Mi perfil). Historiales reales: cursos que tienes y
 // clases que viste. Los intentos de pago que no se completaron NO se
@@ -11,9 +12,7 @@ import { redirect } from "next/navigation";
 // para una alumna se lee como una deuda).
 export default async function ActividadPage() {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getUsuario();
   if (!user) redirect("/cuenta/login?next=/cuenta/actividad");
 
   const [{ data: compras, error: e1 }, { data: progreso, error: e2 }] = await Promise.all([

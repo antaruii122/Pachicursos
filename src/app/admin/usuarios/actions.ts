@@ -5,15 +5,14 @@ import { createClient } from "@/lib/supabase/server";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
+import { getUsuario } from "@/lib/sesion";
 
 // Mismo criterio de defensa en profundidad que admin/cursos/actions.ts:
 // cada server action vuelve a chequear el rol acá, aunque el layout de
 // /admin ya lo haya validado.
 async function requireAdmin() {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getUsuario();
   if (!user) throw new Error("No autenticado");
 
   const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).single();

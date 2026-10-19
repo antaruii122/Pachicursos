@@ -31,9 +31,9 @@ export function ClassNotes({
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
     timeoutRef.current = setTimeout(async () => {
       const supabase = createClient();
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
+      // getSession lee la sesión del navegador (sin viaje de red); la base igual
+      // exige la sesión real vía RLS en cada escritura.
+      const user = (await supabase.auth.getSession()).data.session?.user;
       if (!user) return;
 
       await supabase.from("video_notes").upsert(

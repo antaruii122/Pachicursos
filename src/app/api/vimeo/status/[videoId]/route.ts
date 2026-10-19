@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { getVimeoTranscodeStatus } from "@/lib/vimeo";
 import { NextResponse } from "next/server";
+import { getUsuario } from "@/lib/sesion";
 
 // Parte D: Vimeo no tiene webhook de fin de transcoding (ver docs/cursos.md,
 // corrección 2026-09-11) — el admin, mientras tiene la página abierta, hace
@@ -16,9 +17,7 @@ export async function GET(
   const { videoId } = await params;
   const supabase = await createClient();
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getUsuario();
   if (!user) {
     return NextResponse.json({ error: "No autenticado" }, { status: 401 });
   }

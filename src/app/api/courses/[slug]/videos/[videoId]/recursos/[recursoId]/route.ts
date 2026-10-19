@@ -2,6 +2,7 @@ import { parseRecursos } from "@/lib/recursos";
 import { createClient } from "@/lib/supabase/server";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { NextResponse } from "next/server";
+import { getUsuario } from "@/lib/sesion";
 
 // Descarga de un material de clase. Mismo criterio de seguridad que el
 // endpoint del player (Parte D): primero se valida acceso con el cliente
@@ -34,9 +35,7 @@ export async function GET(
 
   let tieneAcceso = clase.is_free_intro;
   if (!tieneAcceso) {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    const user = await getUsuario();
     if (!user) {
       return NextResponse.redirect(
         new URL(`/cuenta/login?next=${encodeURIComponent(`/cursos/${slug}`)}`, _request.url),

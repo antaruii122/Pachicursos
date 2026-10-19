@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
 import { NextResponse } from "next/server";
+import { getUsuario } from "@/lib/sesion";
 
 const BUCKET = "course-images";
 const MAX_BYTES = 8 * 1024 * 1024;
@@ -17,9 +18,7 @@ const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/avif"];
 export async function POST(request: Request) {
   const supabase = await createClient();
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getUsuario();
   if (!user) {
     return NextResponse.json({ error: "No autenticado" }, { status: 401 });
   }

@@ -3,6 +3,7 @@ import { campusCard } from "@/components/campus/ui";
 import { armarHilos, esTablaFaltante, type Pregunta } from "@/lib/preguntas";
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
+import { getUsuario } from "@/lib/sesion";
 
 // Bandeja de preguntas de TODAS las clases (patrón Teachable "responder desde
 // el admin sin navegar" + filtros de moderación de Hotmart). Por defecto
@@ -20,9 +21,7 @@ export default async function AdminPreguntasPage({
 }) {
   const { filtro = "pendientes" } = await searchParams;
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getUsuario();
 
   const { data, error } = await supabase
     .from("class_questions")

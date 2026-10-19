@@ -3,6 +3,7 @@
 import { mensajeError } from "@/lib/errores";
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
+import { getUsuario } from "@/lib/sesion";
 
 // Acciones de "Preguntas de la clase". Todo pasa por el cliente con la
 // sesión de quien escribe: RLS decide si puede (acceso a la clase / admin) y
@@ -19,9 +20,7 @@ export async function publicarPregunta(
     if (!texto) return { error: "Escribe tu pregunta." };
     if (texto.length > 2000) return { error: "El texto es muy largo (máximo 2000 caracteres)." };
     const supabase = await createClient();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    const user = await getUsuario();
     if (!user) return { error: "Inicia sesión para preguntar." };
     const { error } = await supabase
       .from("class_questions")

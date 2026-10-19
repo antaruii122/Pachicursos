@@ -4,6 +4,7 @@ import { armarHilos, esTablaFaltante, type Pregunta } from "@/lib/preguntas";
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { getUsuario } from "@/lib/sesion";
 
 // "Comunidad" del menú principal (pestaña de la maqueta: "Preguntas y
 // conversación"). Junta las preguntas de TODAS las clases a las que la
@@ -18,9 +19,7 @@ const FILTROS = [
 export default async function ComunidadPage({ searchParams }: { searchParams: Promise<{ filtro?: string }> }) {
   const { filtro = "todas" } = await searchParams;
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getUsuario();
   if (!user) redirect("/cuenta/login?next=/cuenta/comunidad");
 
   const { data, error } = await supabase

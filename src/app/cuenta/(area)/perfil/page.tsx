@@ -8,15 +8,14 @@ import { createClient } from "@/lib/supabase/server";
 import { formatCLP } from "@/lib/types";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { getUsuario } from "@/lib/sesion";
 
 const card = "rounded-[18px] bg-white p-6 shadow-[var(--sombra-md)]";
 const stat = "flex flex-col gap-1 rounded-[14px] bg-[var(--crema-2)] p-4";
 
 export default async function PerfilPage() {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getUsuario();
   if (!user) redirect("/cuenta/login?next=/cuenta/perfil");
 
   const { data: profile } = await supabase

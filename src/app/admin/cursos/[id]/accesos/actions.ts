@@ -3,12 +3,11 @@
 import { mensajeError } from "@/lib/errores";
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
+import { getUsuario } from "@/lib/sesion";
 
 async function requireAdmin() {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getUsuario();
   if (!user) throw new Error("No autenticado");
 
   const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).single();
